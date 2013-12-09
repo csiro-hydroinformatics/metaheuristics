@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScore">
+    <Position X="2.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAIAAAAAAQAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>IObjectiveScore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScore&lt;T&gt;">
+    <Position X="0.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>IObjectiveScore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IOptimizationResults&lt;T&gt;">
+    <Position X="0.5" Y="4.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IOptimizationResults.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ISystemConfiguration">
+    <Position X="8.75" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISystemConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ICloneableSystemConfiguration" Collapsed="true">
+    <Position X="8.25" Y="2.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISystemConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IHyperCube&lt;T&gt;">
+    <Position X="8.75" Y="3.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAoAAAAAAAAIIAAAAAAAAAAAIAAAAAAg=</HashCode>
+      <FileName>IHyperCube.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="System.Collections.Generic.IEnumerable&lt;T&gt;" Collapsed="true">
+    <Position X="0.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScores">
+    <Position X="5.5" Y="0.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>IObjectiveScores.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScores&lt;TSysConfig&gt;">
+    <Position X="5.25" Y="2.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IObjectiveScores.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

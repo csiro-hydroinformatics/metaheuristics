@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CSIRO.Metaheuristics.DataModel.ObjectiveScore">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAACAAAAAAAAQAAAAAAAAAAAIgAgAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.ObjectivesResultsCollection">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAEAEAAAAAAAAAIAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Tags" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="ScoresSet" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.ObjectiveScoreCollection">
+    <Position X="4" Y="0.5" Width="2.25" />
+    <AssociationLine Name="SysConfiguration" Type="CSIRO.Metaheuristics.DataModel.SystemConfiguration">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-1.292" Y="0.312" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAIAAAAAAAQAgAAAAAAAAAAAAAAAAAAgAAAAAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="SysConfiguration" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Scores" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.TagCollection">
+    <Position X="0.75" Y="2.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Tags" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.Tag">
+    <Position X="0.75" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAE=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.SystemConfiguration">
+    <Position X="4.25" Y="2.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAgAAAAAAAQAAAAAAEAAAACAAAAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Tags" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.HyperCube">
+    <Position X="4.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Variables" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.DataModel.VariableSpecification">
+    <Position X="7.5" Y="4.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>gAAAAACAAAAAAAAAAAAAAAQAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>DataModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "HelloWorld\HelloWorld.csproj", "{36ED95D7-B50D-4A45-A333-695CB8F28675}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWBM_URS", "AWBM_URS\AWBM_URS.csproj", "{3ED5931B-9713-4008-861C-B08555DAEDDF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnvModellingSample", "EnvModellingSample\EnvModellingSample.csproj", "{653139CF-8AA9-42DF-B262-F022BC1C9174}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSIRO.Metaheuristics", "..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj", "{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSIRO.Sys", "..\..\CSIRO.Sys\CSIRO.Sys.csproj", "{58313B13-A161-4B90-B94E-A66B175BAF4E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36ED95D7-B50D-4A45-A333-695CB8F28675}.Debug|x86.ActiveCfg = Debug|x86
+		{36ED95D7-B50D-4A45-A333-695CB8F28675}.Debug|x86.Build.0 = Debug|x86
+		{36ED95D7-B50D-4A45-A333-695CB8F28675}.Release|x86.ActiveCfg = Release|x86
+		{36ED95D7-B50D-4A45-A333-695CB8F28675}.Release|x86.Build.0 = Release|x86
+		{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}.Debug|x86.Build.0 = Debug|Any CPU
+		{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}.Release|x86.ActiveCfg = Release|Any CPU
+		{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}.Release|x86.Build.0 = Release|Any CPU
+		{3ED5931B-9713-4008-861C-B08555DAEDDF}.Debug|x86.ActiveCfg = Debug|x86
+		{3ED5931B-9713-4008-861C-B08555DAEDDF}.Debug|x86.Build.0 = Debug|x86
+		{3ED5931B-9713-4008-861C-B08555DAEDDF}.Release|x86.ActiveCfg = Release|x86
+		{3ED5931B-9713-4008-861C-B08555DAEDDF}.Release|x86.Build.0 = Release|x86
+		{58313B13-A161-4B90-B94E-A66B175BAF4E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{58313B13-A161-4B90-B94E-A66B175BAF4E}.Debug|x86.Build.0 = Debug|Any CPU
+		{58313B13-A161-4B90-B94E-A66B175BAF4E}.Release|x86.ActiveCfg = Release|Any CPU
+		{58313B13-A161-4B90-B94E-A66B175BAF4E}.Release|x86.Build.0 = Release|Any CPU
+		{653139CF-8AA9-42DF-B262-F022BC1C9174}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{653139CF-8AA9-42DF-B262-F022BC1C9174}.Debug|x86.Build.0 = Debug|Any CPU
+		{653139CF-8AA9-42DF-B262-F022BC1C9174}.Release|x86.ActiveCfg = Release|Any CPU
+		{653139CF-8AA9-42DF-B262-F022BC1C9174}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = AWBM_URS\AWBM_URS.csproj
+	EndGlobalSection
+EndGlobal

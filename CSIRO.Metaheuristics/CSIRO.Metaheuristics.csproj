@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CSIRO.Metaheuristics</RootNamespace>
+    <AssemblyName>CSIRO.Metaheuristics</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="nunit.framework">
+      <HintPath>..\ThirdParty\TIME\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CandidateFactories\BestOfSampling.cs" />
+    <Compile Include="CandidateFactories\LatinHypercubeSampling.cs" />
+    <Compile Include="CandidateFactories\SeededSamplingFactory.cs" />
+    <Compile Include="CandidateFactories\UniformRandomSamplingFactory.cs" />
+    <Compile Include="CandidateFactories\WeibullGen.cs" />
+    <Compile Include="Fitness\DefaultFitnessAssignment.cs" />
+    <Compile Include="Fitness\NseBiasFitnessAssignment.cs" />
+    <Compile Include="Fitness\NseOnlyFitnessAssignment.cs" />
+    <Compile Include="Fitness\ZitlerThieleFitnessAssignment.cs" />
+    <Compile Include="ICandidateFactory.cs" />
+    <Compile Include="IClonableObjectiveEvaluator.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="IEvolutionEngine.cs" />
+    <Compile Include="IFitnessAssignment.cs" />
+    <Compile Include="IHyperCube.cs" />
+    <Compile Include="IMonitoringEvent.cs" />
+    <Compile Include="IObjectiveEvaluator.cs" />
+    <Compile Include="IObjectiveScore.cs" />
+    <Compile Include="IObjectiveScores.cs" />
+    <Compile Include="IOptimizationResults.cs" />
+    <Compile Include="IRandomizerFactory.cs" />
+    <Compile Include="ISystemConfiguration.cs" />
+    <Compile Include="ITerminationCondition.cs" />
+    <Compile Include="Logging\ILoggerMh.cs" />
+    <Compile Include="Logging\InMemoryLogger.cs" />
+    <Compile Include="Logging\LoggerMhHelper.cs" />
+    <Compile Include="Logging\SysConfigLogInfo.cs" />
+    <Compile Include="Objectives\DoubleObjectiveScore.cs" />
+    <Compile Include="Objectives\MultipleScores.cs" />
+    <Compile Include="Objectives\ParetoComparer.cs" />
+    <Compile Include="Objectives\ParetoRanking.cs" />
+    <Compile Include="Objectives\RexpObjectiveDefinition.cs" />
+    <Compile Include="Objectives\ScoreComparison.cs" />
+    <Compile Include="Objectives\SingleObjectiveComparer.cs" />
+    <Compile Include="Optimization\AlgebraProvider.cs" />
+    <Compile Include="Optimization\BasicOptimizationResults.cs" />
+    <Compile Include="Optimization\ChainOptimizations.cs" />
+    <Compile Include="Optimization\CombinedSCEwithRosenbrock.cs" />
+    <Compile Include="Optimization\UniformRandomSampling.cs" />
+    <Compile Include="Optimization\IHyperCubeOperations.cs" />
+    <Compile Include="Optimization\RosenbrockOptimizer.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Optimization\ShuffledComplexEvolution.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomNumberGenerators\BasicRngFactory.cs" />
+    <Compile Include="IMhSubject.cs" />
+    <Compile Include="SystemConfigurations\HyperCube.cs" />
+    <Compile Include="SystemConfigurations\HyperCubeOperations.cs" />
+    <Compile Include="SystemConfigurations\UnivariateReal.cs" />
+    <Compile Include="Tests\TestCovarianceContravariance.cs" />
+    <Compile Include="Tests\TestGeometricOperations.cs" />
+    <Compile Include="Tests\TestMhHelper.cs" />
+    <Compile Include="Tests\TestMultiObjSCE.cs" />
+    <Compile Include="Tests\TestObjectives.cs" />
+    <Compile Include="Tests\TestSupportClasses.cs" />
+    <Compile Include="Utils\MetaheuristicsHelper.cs" />
+    <Compile Include="SystemConfigurations\BasicHyperCube.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CoreInterfaces.cd" />
+    <None Include="Doc\Objectives.cd" />
+    <None Include="Doc\ExpandedInterfaces.cd" />
+    <None Include="MainCoreInterfaces.cd" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ItemGroup>
+    <ProjectReference Include="..\CSIRO.Sys\CSIRO.Sys.csproj">
+      <Project>{58313B13-A161-4B90-B94E-A66B175BAF4E}</Project>
+      <Name>CSIRO.Sys</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

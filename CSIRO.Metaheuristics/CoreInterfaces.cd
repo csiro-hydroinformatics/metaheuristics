@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="FullSignature">
+  <Class Name="CSIRO.Metaheuristics.FitnessAssignedScores&lt;T&gt;" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="7" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAwEAAAAEAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IFitnessAssignment.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Interface Name="CSIRO.Metaheuristics.IEvolutionEngine&lt;T&gt;">
+    <Position X="0.5" Y="7.75" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAIAAAAAAAAIAAAAAAIAAAAAAAAAA=</HashCode>
+      <FileName>IEvolutionEngine.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ISystemConfiguration">
+    <Position X="0.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAEAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISystemConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveEvaluator&lt;T&gt;">
+    <Position X="8.25" Y="0.5" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>IObjectiveEvaluator.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ICandidateFactory&lt;T&gt;">
+    <Position X="7.5" Y="3.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ICandidateFactory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScore">
+    <Position X="4.25" Y="3.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAIAAAAAAQAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>IObjectiveScore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IFitnessAssignment&lt;T&gt;">
+    <Position X="3.25" Y="6.75" Width="4.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IFitnessAssignment.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ITerminationCondition&lt;T&gt;">
+    <Position X="5.5" Y="8" Width="3.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAABAAAAAAAAAA=</HashCode>
+      <FileName>ITerminationCondition.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IClonableObjectiveEvaluator&lt;TSysConfig&gt;" Collapsed="true">
+    <Position X="7.5" Y="2.25" Width="3" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IClonableObjectiveEvaluator.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ICloningSupport&lt;T&gt;" Collapsed="true">
+    <Position X="4.5" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABI=</HashCode>
+      <FileName>ICloningSupport.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IHyperCube&lt;T&gt;" Collapsed="true">
+    <Position X="0.5" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAIAAAAoAAAAAAAAIIAAAAAAAAAAAIAAAAAAg=</HashCode>
+      <FileName>IHyperCube.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IMonitoringEvent" Collapsed="true">
+    <Position X="8.75" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
+      <FileName>IMonitoringEvent.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScore&lt;T&gt;">
+    <Position X="4.75" Y="5.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAA=</HashCode>
+      <FileName>IObjectiveScore.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IOptimizationResults&lt;T&gt;" Collapsed="true">
+    <Position X="3" Y="8.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IOptimizationResults.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IRandomNumberGeneratorFactory" Collapsed="true">
+    <Position X="7.5" Y="5" Width="2.5" />
+    <TypeIdentifier>
+      <HashCode>AgAIAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>IRandomizerFactory.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.ICloneableSystemConfiguration" Collapsed="true">
+    <Position X="3" Y="2.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>ISystemConfiguration.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Metaheuristics.IObjectiveScores">
+    <Position X="0.5" Y="3.75" Width="3.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>IObjectiveScores.cs</FileName>
+    </TypeIdentifier>
+  </Interface>
+  <Font Name="Tahoma" Size="8.25" />
+</ClassDiagram>
