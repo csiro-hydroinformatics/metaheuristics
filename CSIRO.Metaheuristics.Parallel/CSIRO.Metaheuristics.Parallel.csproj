@@ -50,6 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Objectives\MpiObjectiveEvaluator.cs" />
     <Compile Include="Objectives\MpiObjectiveScores.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

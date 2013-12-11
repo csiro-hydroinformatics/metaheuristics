@@ -36,6 +36,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
+      <Link>Properties\SolutionInfo.cs</Link>
+    </Compile>
     <Compile Include="Arguments.cs" />
     <Compile Include="GenericTypesHelper.cs" />
     <Compile Include="ReportTableBuilder.cs" />
