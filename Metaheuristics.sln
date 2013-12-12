@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSIRO.Metaheuristics.Loggin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSIRO.Metaheuristics.Parallel", "CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.csproj", "{2E78BA8E-0628-49C8-8EA8-E8F139843F04}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSIRO.Metaheuristics.R", "CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.csproj", "{409BFC04-B6DF-4BAB-97AD-5596D303905B}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = Metaheuristics.vsmdi
@@ -100,6 +102,18 @@ Global
 		{2E78BA8E-0628-49C8-8EA8-E8F139843F04}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2E78BA8E-0628-49C8-8EA8-E8F139843F04}.Release|x64.ActiveCfg = Release|Any CPU
 		{2E78BA8E-0628-49C8-8EA8-E8F139843F04}.Release|x86.ActiveCfg = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|x64.ActiveCfg = Release|Any CPU
+		{409BFC04-B6DF-4BAB-97AD-5596D303905B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
