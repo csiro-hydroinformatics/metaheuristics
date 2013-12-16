@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CSIRO.Metaheuristics;
+using CSIRO.Metaheuristics.Parallel.Objectives;
 
 namespace CSIRO.Metaheuristics.R
 {

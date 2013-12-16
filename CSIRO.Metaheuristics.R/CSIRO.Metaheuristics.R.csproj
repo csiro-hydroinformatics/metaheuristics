@@ -58,7 +58,6 @@
     <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="CompositeObjectiveEvaluator.cs" />
     <Compile Include="CSharpCompositeObjectiveEvaluator.cs">
       <SubType>Code</SubType>
     </Compile>

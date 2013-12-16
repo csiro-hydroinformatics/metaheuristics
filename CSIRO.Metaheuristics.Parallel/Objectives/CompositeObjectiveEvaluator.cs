@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Text;
-using CSIRO.Metaheuristics;
 using CSIRO.Metaheuristics.Objectives;
-using CSIRO.Metaheuristics.Parallel.Objectives;
 using CSIRO.Metaheuristics.Parallel.SystemConfigurations;
-using RDotNet;
 
-namespace CSIRO.Metaheuristics.R
+namespace CSIRO.Metaheuristics.Parallel.Objectives
 {
     public abstract class CompositeObjectiveEvaluator<TSysConfig> : IDisposable where TSysConfig : ISystemConfiguration
     {
