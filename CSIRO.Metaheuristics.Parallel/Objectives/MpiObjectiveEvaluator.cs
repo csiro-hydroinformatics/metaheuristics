@@ -42,7 +42,7 @@ namespace CSIRO.Metaheuristics.Parallel.Objectives
         public static readonly log4net.ILog log;
 
         Intracommunicator comm = Communicator.world;
-        public IObjectiveScores<MpiSysConfig> EvaluateScore(MpiSysConfig systemConfiguration)
+        public virtual IObjectiveScores<MpiSysConfig> EvaluateScore(MpiSysConfig systemConfiguration)
         {
             int rank = comm.Rank;
             if (rank == 0)
@@ -95,17 +95,29 @@ namespace CSIRO.Metaheuristics.Parallel.Objectives
             return new MultipleScores<MpiSysConfig>(new IObjectiveScore[] { new DoubleObjectiveScore("Arithmetic mean", mean, maximise) }, sysConfig);
         }
 
-        public IClonableObjectiveEvaluator<MpiSysConfig> Clone()
+        public virtual IClonableObjectiveEvaluator<MpiSysConfig> Clone()
         {
             throw new NotSupportedException();
         }
 
-        public bool SupportsDeepCloning
+        /// <summary>
+        ///   Gets whether this object returns a deep clone of itself and its properties.
+        ///   This may vary through its lifetime.
+        /// </summary>
+        public virtual bool SupportsDeepCloning
         {
             get { return false; }
         }
 
-        public bool SupportsThreadSafeCloning
+        /// <summary>
+        ///   Gets whether this object returns a clone deemed thread-safe, i.e.
+        ///   for write access. This may vary through its lifetime.
+        /// </summary>
+        /// <example>
+        ///   A TIME model runner may return a clone of itself with the same input time series,
+        ///   but deep-copy the output time series recorded.
+        /// </example>
+        public virtual bool SupportsThreadSafeCloning
         {
             get { return false; }
         }
