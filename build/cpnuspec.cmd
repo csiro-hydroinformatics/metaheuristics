@@ -16,12 +16,16 @@ xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristic
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.nuspec %COPYOPTIONS%
 
-nuget pack %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.csproj -IncludeReferencedProjects
-nuget pack %THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj -IncludeReferencedProjects
-nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.csproj -IncludeReferencedProjects
-nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.csproj -IncludeReferencedProjects
-nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.csproj -IncludeReferencedProjects
-nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.csproj -IncludeReferencedProjects
+set pkg_dir=%THIS_DIR%packages
+if not exist "%pkg_dir%" mkdir %pkg_dir%
+set pack_options=-IncludeReferencedProjects -OutputDirectory %pkg_dir%
+
+nuget pack %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.csproj %pack_options%
 
 if errorlevel 1 goto bailOut
 
