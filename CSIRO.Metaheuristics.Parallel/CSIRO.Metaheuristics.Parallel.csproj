@@ -46,7 +46,7 @@
     <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="Objectives\CompositeObjectiveEvaluator.cs" />
+    <Compile Include="Objectives\CompositeObjectiveCalculation.cs" />
     <Compile Include="Objectives\MpiObjectiveEvaluator.cs" />
     <Compile Include="Objectives\MpiObjectiveScores.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -63,6 +63,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="ClassDiagram.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,9 +7,9 @@ using CSIRO.Metaheuristics.Parallel.SystemConfigurations;
 
 namespace CSIRO.Metaheuristics.Parallel.Objectives
 {
-    public abstract class CompositeObjectiveEvaluator<TSysConfig> : IDisposable where TSysConfig : ISystemConfiguration
+    public abstract class CompositeObjectiveCalculation<TSysConfig> : IDisposable where TSysConfig : ISystemConfiguration
     {
-        protected static readonly log4net.ILog Log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         protected bool disposed;
 
         protected abstract bool IsMaximisable { get; }

@@ -19,11 +19,10 @@ namespace CSIRO.Metaheuristics.R
     /// <summary>
     ///   Class that calculates a composite objective score from a set of scores using a data driven R function.
     /// </summary>
-    public class RCompositeObjectiveEvaluator<TSysConfig> : CompositeObjectiveEvaluator<TSysConfig> where TSysConfig : ISystemConfiguration
+    public class RCompositeObjectiveEvaluator<TSysConfig> : CompositeObjectiveCalculation<TSysConfig> where TSysConfig : ISystemConfiguration
     {
         private static readonly log4net.ILog Log = log4net.LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
         private readonly RexpObjectiveDefinition objectiveDefinition;
-        private bool disposed;
         private readonly REngine rEngine;
 
         protected override bool IsMaximisable
@@ -79,7 +78,7 @@ namespace CSIRO.Metaheuristics.R
                         case PlatformID.Unix:
                             Log.Debug("R init: detected Unix platform");
                             if (String.IsNullOrEmpty(rhome))
-                                throw new ConfigurationException("R_HOME environment variable is not set");
+                                throw new Exception("R_HOME environment variable is not set");
                             break;
                         default:
                             throw new NotSupportedException(string.Format("Platform not supported: {0}", plat));

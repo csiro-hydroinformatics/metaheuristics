@@ -35,9 +35,10 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
 
         public string[] GetVariableNames( )
         {
-            return new string[]{varName};
+            return new string[]{VariableName};
         }
-        private string varName;
+
+        public string VariableName { get; set; }
 
         public int Dimensions
         {
@@ -52,7 +53,7 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
 
         private void checkCorrectArg( string variableName )
         {
-            if( !( variableName == varName ) )
+            if( !( variableName == VariableName ) )
                 throw new ArgumentException( "Incorrect variable name" );
         }
 
@@ -83,7 +84,7 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
             if (reflectedValue > this.maxValue || reflectedValue < this.minValue)
                 return null;
             var result = (UnivariateReal)this.MemberwiseClone( );
-            result.SetValue( this.varName, reflectedValue);
+            result.SetValue( this.VariableName, reflectedValue);
             return result;
         }
 

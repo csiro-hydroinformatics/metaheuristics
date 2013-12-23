@@ -8,7 +8,7 @@ using CSIRO.Metaheuristics.Parallel.Objectives;
 namespace CSIRO.Metaheuristics.R
 {
     // A drop-in replacement for the R composite objective function evaluator, as a back up plan if problems persist running on the CentOS raijin from NCI.
-    public class CSharpCompositeObjectiveEvaluator<TSysConfig> : CompositeObjectiveEvaluator<TSysConfig>
+    public class CSharpCompositeObjectiveEvaluator<TSysConfig> : CompositeObjectiveCalculation<TSysConfig>
         where TSysConfig : ISystemConfiguration
     {
         protected override bool IsMaximisable

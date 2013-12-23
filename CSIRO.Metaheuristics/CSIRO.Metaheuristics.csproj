@@ -69,6 +69,7 @@
     <Compile Include="CandidateFactories\SeededSamplingFactory.cs" />
     <Compile Include="CandidateFactories\UniformRandomSamplingFactory.cs" />
     <Compile Include="CandidateFactories\WeibullGen.cs" />
+    <Compile Include="IEnsembleObjectiveEvaluator.cs" />
     <Compile Include="Fitness\DefaultFitnessAssignment.cs" />
     <Compile Include="Fitness\NseBiasFitnessAssignment.cs" />
     <Compile Include="Fitness\NseOnlyFitnessAssignment.cs" />

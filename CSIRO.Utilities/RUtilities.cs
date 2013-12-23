@@ -28,7 +28,7 @@ namespace CSIRO.Utilities
                 currentVersion = (string)key.GetValue("Current Version");
                 installPath = (string)key.GetValue("InstallPath");
             }
-            catch (NullReferenceException e)
+            catch (NullReferenceException)
             {
                 currentVersion = null;
                 installPath = null;

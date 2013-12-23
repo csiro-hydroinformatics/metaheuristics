@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="CSIRO.Metaheuristics.Parallel.Objectives.CompositeObjectiveCalculation&lt;TSysConfig&gt;" BaseTypeListCollapsed="true">
+    <Position X="0.75" Y="0.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAIAAAAAACEAAEAgAAAAAAAAAAgAECIIICAAAAAAAAA=</HashCode>
+      <FileName>Objectives\CompositeObjectiveCalculation.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveEvaluator" BaseTypeListCollapsed="true">
+    <Position X="0.75" Y="4.5" Width="2.75" />
+    <NestedTypes>
+      <Class Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveEvaluator.DefaultEnsembleMpiEvaluator" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Objectives\MpiObjectiveEvaluator.cs</NewMemberFileName>
+        </TypeIdentifier>
+        <Lollipop Position="0.2" />
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAEAAAAACAAIAAAAAAACAAQAAAAEAAAIAAAAAAAABY=</HashCode>
+      <FileName>Objectives\MpiObjectiveEvaluator.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiSysConfig" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>KAAAAAAAMAAAIoEEAAAAAAJIAAAAmAAAAAAIAACAAFo=</HashCode>
+      <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="MPI.Intracommunicator" Collapsed="true">
+    <Position X="5" Y="4.5" Width="1.75" />
+    <TypeIdentifier />
+  </Class>
+  <Struct Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveScore" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="4" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAABAAAAAAAAAMAAAAAAQAAAAEACAIAAAEAAAABAA=</HashCode>
+      <FileName>Objectives\MpiObjectiveScores.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveScores" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="6" Y="2.75" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAACAAABAAAAAAAUAAAYAIAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>Objectives\MpiObjectiveScores.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Struct>
+  <Struct Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiParameterConfig" Collapsed="true">
+    <Position X="6" Y="5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAEAAAAAAQAAAAAAAAAAAAAAAEACAAAAAAAAAAAAA=</HashCode>
+      <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
+    </TypeIdentifier>
+  </Struct>
+  <Enum Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiMessageTags">
+    <Position X="6" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAIAIAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

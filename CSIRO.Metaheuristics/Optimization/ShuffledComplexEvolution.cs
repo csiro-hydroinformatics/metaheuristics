@@ -216,7 +216,6 @@ namespace CSIRO.Metaheuristics.Optimization
             private double threshold;
             private double maxHours;
             private Stopwatch stopWatch;
-            private MaxShuffleTerminationCondition maxTerminationCondition;
             // FIXME: consider something where the termination criteria is customizable to an extent.
             // private Func<double[], double> statistic;
 
