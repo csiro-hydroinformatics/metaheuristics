@@ -9,7 +9,10 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveEvaluator" BaseTypeListCollapsed="true">
-    <Position X="0.75" Y="4.5" Width="2.75" />
+    <Position X="0.75" Y="4.5" Width="3.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
     <NestedTypes>
       <Class Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveEvaluator.DefaultEnsembleMpiEvaluator" Collapsed="true">
         <TypeIdentifier>
@@ -19,13 +22,17 @@
       </Class>
     </NestedTypes>
     <TypeIdentifier>
-      <HashCode>AAAEAAAAACAAIAAAAAAACAAQAAAAEAAAIAAAAAAAABY=</HashCode>
+      <HashCode>AAIAAAAAACAAIAAAAQAAAAAQAAAAEAAAIAAAAAAAABY=</HashCode>
       <FileName>Objectives\MpiObjectiveEvaluator.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="evaluator" />
+      <Field Name="systemsEvaluator" />
+    </ShowAsAssociation>
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiSysConfig" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="6" Y="1.75" Width="1.5" />
+    <Position X="6" Y="0.5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>KAAAAAAAMAAAIoEEAAAAAAJIAAAAmAAAAAAIAACAAFo=</HashCode>
       <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
@@ -33,11 +40,11 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Class>
   <Class Name="MPI.Intracommunicator" Collapsed="true">
-    <Position X="5" Y="4.5" Width="1.75" />
+    <Position X="2" Y="8.5" Width="1.75" />
     <TypeIdentifier />
   </Class>
   <Struct Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveScore" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="6" Y="4" Width="1.75" />
+    <Position X="6" Y="2.75" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAABAAAAAAAAAMAAAAAAQAAAAEACAIAAAEAAAABAA=</HashCode>
       <FileName>Objectives\MpiObjectiveScores.cs</FileName>
@@ -45,7 +52,7 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Struct>
   <Struct Name="CSIRO.Metaheuristics.Parallel.Objectives.MpiObjectiveScores" Collapsed="true" BaseTypeListCollapsed="true">
-    <Position X="6" Y="2.75" Width="1.75" />
+    <Position X="6" Y="1.5" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAACAAABAAAAAAAUAAAYAIAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>Objectives\MpiObjectiveScores.cs</FileName>
@@ -53,14 +60,18 @@
     <Lollipop Position="0.2" Collapsed="true" />
   </Struct>
   <Struct Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiParameterConfig" Collapsed="true">
-    <Position X="6" Y="5" Width="1.75" />
+    <Position X="6" Y="3.75" Width="1.75" />
     <TypeIdentifier>
       <HashCode>AAAAEAAAAAAQAAAAAAAAAAAAAAAEACAAAAAAAAAAAAA=</HashCode>
       <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
     </TypeIdentifier>
   </Struct>
+  <Interface Name="CSIRO.Metaheuristics.IEnsembleObjectiveEvaluator&lt;T&gt;">
+    <Position X="6" Y="8.25" Width="2.5" />
+    <TypeIdentifier />
+  </Interface>
   <Enum Name="CSIRO.Metaheuristics.Parallel.SystemConfigurations.MpiMessageTags">
-    <Position X="6" Y="6.25" Width="1.5" />
+    <Position X="9" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAIAIAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>SystemConfigurations\MpiSysConfig.cs</FileName>
