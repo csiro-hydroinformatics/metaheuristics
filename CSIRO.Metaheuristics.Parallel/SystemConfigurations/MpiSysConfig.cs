@@ -85,7 +85,7 @@ namespace CSIRO.Metaheuristics.Parallel.SystemConfigurations
         public IHyperCube<double> HomotheticTransform(IHyperCube<double> point, double factor)
         {
             var p = point as MpiSysConfig;
-            var result = new MpiSysConfig(this);
+            var result = (MpiSysConfig) this.Clone();
             //return performMirrorBounceTransform(factor, p, result);
             return performDefaultTransform(factor, p, result);
         }

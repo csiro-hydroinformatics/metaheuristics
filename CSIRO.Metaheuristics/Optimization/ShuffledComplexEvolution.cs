@@ -338,7 +338,9 @@ namespace CSIRO.Metaheuristics.Optimization
             OnAdvanced( new ComplexEvolutionEvent( complexes ) );
 
             CurrentShuffle = 1;
-            while( !terminationCondition.IsFinished( ) && !isCancelled )
+            var isFinished = terminationCondition.IsFinished( );
+            if (isFinished) loggerWrite(string.Format("Termination condition using {0} is met", terminationCondition.GetType().Name));
+            while (!isFinished && !isCancelled)
             {
                 if( evaluator.SupportsThreadSafeCloning )
                     execParallel( complexes );
@@ -363,6 +365,7 @@ namespace CSIRO.Metaheuristics.Optimization
                 complexes = shuffle(complexes);
 
                 CurrentShuffle++;
+                isFinished = terminationCondition.IsFinished();
             }
             //saveLog( logPopulation, fullLogFileName );
             IObjectiveScores[] population = aggregate( complexes );
@@ -373,6 +376,11 @@ namespace CSIRO.Metaheuristics.Optimization
         private IDictionary<string, string> createSimpleMsg(string message, string category)
         {
             return LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("Message", message), LoggerMhHelper.MkTuple("Category", category));
+        }
+
+        private void loggerWrite(string infoMsg)
+        {
+            LoggerMhHelper.Write(infoMsg, logger);
         }
 
         private void loggerWrite(IObjectiveScores[] scores, IDictionary<string, string> tags)

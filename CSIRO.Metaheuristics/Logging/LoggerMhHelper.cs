@@ -13,6 +13,18 @@ namespace CSIRO.Metaheuristics.Logging
                 logger.Write(scores, tags);
         }
 
+        internal static void Write(IObjectiveScores[] scores, IDictionary<string, string> tags, ILoggerMh logger)
+        {
+            if (logger != null)
+                logger.Write(scores, tags);
+        }
+
+        internal static void Write(string infoMsg, ILoggerMh logger)
+        {
+            if (logger != null)
+                logger.Write(infoMsg);
+        }
+
         internal static IDictionary<string, string> MergeDictionaries(params IDictionary<string, string>[] dicts)
         {
             var d = dicts[0].AsEnumerable();
@@ -31,13 +43,6 @@ namespace CSIRO.Metaheuristics.Logging
         internal static Tuple<string, string> MkTuple(string key, string value)
         {
             return Tuple.Create(key, value);
-        }
-
-
-        internal static void Write(IObjectiveScores[] scores, IDictionary<string, string> tags, ILoggerMh logger)
-        {
-            if (logger != null)
-                logger.Write(scores, tags);
         }
     }
 }
