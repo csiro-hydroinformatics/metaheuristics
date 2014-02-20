@@ -282,6 +282,59 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
                 if (this.maxHours <= 0)
+                    return true;
+                else if (this.maxHours < hoursElapsed)
+                    return true;
+                else
+                    return false;
+            }
+
+            public double RemainingHours
+            {
+                get
+                {
+                    return this.maxHours - this.stopWatch.Elapsed.TotalHours;
+                }
+            }
+        }
+
+        public class FalseTerminationCondition : ITerminationCondition<T>
+        {
+            public void SetEvolutionEngine(IEvolutionEngine<T> engine)
+            {
+                // Nothing
+            }
+
+            public bool IsFinished()
+            {
+                return false;
+            }
+        }
+
+        public class MaxWalltimeTerminationCondition : ITerminationCondition<T>
+        {
+            private double maxHours;
+            private Stopwatch stopWatch;
+            public MaxWalltimeTerminationCondition(double maxHours)
+            {
+                this.maxHours = maxHours;
+                this.stopWatch = new Stopwatch();
+                stopWatch.Start();
+            }
+
+            public virtual void SetEvolutionEngine(IEvolutionEngine<T> engine)
+            {
+                // Nothing
+            }
+            public bool IsFinished()
+            {
+                return this.HasReachedMaxTime();
+            }
+
+            private bool HasReachedMaxTime()
+            {
+                double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
+                if (this.maxHours <= 0)
                     return false;
                 else if (this.maxHours < hoursElapsed)
                     return true;
@@ -289,8 +342,8 @@ namespace CSIRO.Metaheuristics.Optimization
                     return false;
             }
 
-
         }
+
 
         // From IronPython there are some difficulties calling the constructor of a nested class. Hence the following helper:
         public static ITerminationCondition<T> CreateMaxShuffleTerminationCondition()
@@ -504,12 +557,28 @@ namespace CSIRO.Metaheuristics.Optimization
             IHyperCubeOperationsFactory hyperCubeOperationsFactory = populationInitializer as IHyperCubeOperationsFactory;
             if( hyperCubeOperationsFactory == null )
                 throw new NotSupportedException( "Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory" );
-            return new DefaultComplex( scores, m, q, alpha, beta,
+
+            var loggerTags = LoggerMhHelper.MergeDictionaries( logTags, LoggerMhHelper.CreateTag( LoggerMhHelper.MkTuple("CurrentShuffle", this.CurrentShuffle.ToString("D3")))); 
+
+            var complex = new DefaultComplex( scores, m, q, alpha, beta,
                 (evaluator.SupportsThreadSafeCloning ? evaluator.Clone( ) : evaluator), 
                 rng.CreateFactory( ),
-                getFitnessAssignment( ), hyperCubeOperationsFactory.CreateNew( this.rng ), logger: this.logger, 
-                tags: LoggerMhHelper.MergeDictionaries( logTags, LoggerMhHelper.CreateTag( LoggerMhHelper.MkTuple("CurrentShuffle", this.CurrentShuffle.ToString("D3")))), factorTrapezoidalPDF: this.trapezoidalPdfParam, 
+                getFitnessAssignment( ), hyperCubeOperationsFactory.CreateNew( this.rng ), logger: this.logger,
+                tags: loggerTags, factorTrapezoidalPDF: this.trapezoidalPdfParam, 
                 options: this.options, reflectionRatio: this.ReflectionRatio, contractionRatio: this.ContractionRatio);
+
+            complex.TerminationCondition = createMaxWalltimeCondition(this.terminationCondition);
+            return complex;
+        }
+
+        // https://github.com/jmp75/metaheuristics/issues/3
+        private ITerminationCondition<T> createMaxWalltimeCondition(ITerminationCondition<T> terminationCondition)
+        {
+            var t = terminationCondition as CoefficientOfVariationTerminationCondition;
+            if (t == null)
+                return new FalseTerminationCondition();
+            else
+                return new MaxWalltimeTerminationCondition(t.RemainingHours);
         }
 
         private IComplex[] partition( IObjectiveScores[] scores )
@@ -747,6 +816,19 @@ namespace CSIRO.Metaheuristics.Optimization
 
             public bool IsCancelled { get; set; }
 
+            public ITerminationCondition<T> TerminationCondition;
+
+            public bool IsFinished
+            {
+                get
+                {
+                    if (TerminationCondition == null)
+                        return false;
+                    else
+                        return TerminationCondition.IsFinished();
+                }
+            }
+
             public void Evolve( )
             {
                 if (ComplexId != null)
@@ -759,13 +841,13 @@ namespace CSIRO.Metaheuristics.Optimization
                 }
                 int a, b; // counters for alpha and beta parameters
                 b = 0;
-                while( b < beta && !IsCancelled )
+                while (b < beta && !IsCancelled && !IsFinished)
                 {
                     IObjectiveScores[] bufferComplex = (IObjectiveScores[])this.scores.Clone( );
                     IObjectiveScores[] leftOutFromSubcomplex = null;
                     FitnessAssignedScores<double>[] subComplex = getSubComplex( bufferComplex, out leftOutFromSubcomplex );
                     a = 0;
-                    while( a < alpha && !IsCancelled )
+                    while( a < alpha && !IsCancelled && !IsFinished)
                     {
                         FitnessAssignedScores<double> worstPoint = findWorstPoint( subComplex );
                         loggerWrite(worstPoint, createTagConcat( 
