@@ -68,12 +68,50 @@ namespace CSIRO.Metaheuristics.Utils
             }
         }
 
-        public static void SaveAsCsv<T>( IEnumerable<IObjectiveScores> scores , string filename) where T : IHyperCube<double>
+        public static void SaveAsCsv<T>(IEnumerable<IObjectiveScores> scores, string filename) where T : IHyperCube<double>
         {
             using (var stream = File.CreateText(filename))
             {
-                stream.Write(BuildCsvFileContent<T>( scores ));
+                stream.Write(BuildCsvFileContent<T>(scores));
             }
+        }
+
+        public static T[] ReadConfigsFromCsv<T>(string filename, T templateSpace) where T : IHyperCube<double>
+        {
+            using (var stream = File.OpenText(filename))
+            {
+                return ParseConfigsFromCsv(stream.ReadToEnd(), templateSpace);
+            }
+        }
+
+        internal static T[] ParseConfigsFromCsv<T>(string csvContent, T templateSpace) where T : IHyperCube<double>
+        {
+            string[] lines = csvContent.Split(new []{Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries);
+            string[] numbers = new string[lines.Length - 1];
+            for (int i = 0; i < numbers.Length; i++)
+                numbers[i] = lines[i + 1];
+            string[] header = lines[0].Split(new[] { "," }, StringSplitOptions.None);
+            return Array.ConvertAll(numbers, x => parseLine(x, templateSpace, header));
+        }
+
+        private static T parseLine<T>(string line, T templateSpace, string[] header) where T : IHyperCube<double>
+        {
+            var t = (T)templateSpace.Clone();
+            var values = line.Split(new[]{","}, StringSplitOptions.None);
+            if (values.Length != header.Length)
+                throw new Exception("Inconsistent numbers between CSV header and current line");
+            var d = new Dictionary<string, string>();
+            for (int i = 0; i < header.Length; i++)
+                d[header[i]] = values[i];
+            var varNames = t.GetVariableNames();
+            foreach (var varName in varNames)
+            {
+                double value;
+                if(!double.TryParse(d[varName], NumberStyles.Any, CultureInfo.InvariantCulture, out value))
+                    throw new FormatException(string.Format("Could not parse numeric value '{0}' for parameter '{1}'", d[varName], varName));
+                t.SetValue(varName, value);
+            }
+            return t;
         }
 
         public static string BuildCsvFileContent<T>(IEnumerable<IObjectiveScores> scores, bool writeHeader = true, Tuple<string, string>[] prepend = null) where T : IHyperCube<double>

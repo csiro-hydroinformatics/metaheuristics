@@ -27,6 +27,20 @@ namespace CSIRO.Metaheuristics.Tests
             assertPoint(outPoints[15], 1.5, 2.5, 4.5);
         }
 
+        [Test]
+        public void TestParseCsvScores()
+        {
+            var template = createPoint(3, 2, 1);
+            var csvContent = @"0,1,2,Score:0-0,Score:0-1
+4.4,3.3,2.2,0,3.14159265358979
+4.5,3.4,2.1,3.14159265358979,6.28318530717959
+";
+            var points = MetaheuristicsHelper.ParseConfigsFromCsv(csvContent, template);
+            Assert.AreEqual(4.4, points[0].GetValue("0"));
+            Assert.AreEqual(3.3, points[0].GetValue("1"));
+            Assert.AreEqual(3.4, points[1].GetValue("1"));
+        }
+
         private void assertPoint(IObjectiveScores iObjectiveScores, double x, double y, double z)
         {
             var s = (IObjectiveScores<TestHyperCube>)iObjectiveScores;
