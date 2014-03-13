@@ -8,6 +8,7 @@ set THIS_DIR=%~d0%~p0
 REM set THIS_DIR=F:\src\github_jm\metaheuristics\build\
 set src_nuspec=%THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.nuspec
 if not exist "%src_nuspec%" goto noSrcNuspec
+if "%BuildConfiguration%" == "" set BuildConfiguration=Debug
 set COPYOPTIONS=/Y /R /D
 
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.nuspec %COPYOPTIONS%
@@ -18,7 +19,7 @@ xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.nu
 
 set pkg_dir=%THIS_DIR%packages
 if not exist "%pkg_dir%" mkdir %pkg_dir%
-set pack_options=-IncludeReferencedProjects -OutputDirectory %pkg_dir%
+set pack_options=-IncludeReferencedProjects -Verbosity normal -Properties Configuration=%BuildConfiguration% -OutputDirectory %pkg_dir%
 
 nuget pack %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj %pack_options%

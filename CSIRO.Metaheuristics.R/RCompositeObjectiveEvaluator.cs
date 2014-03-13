@@ -89,7 +89,7 @@ namespace CSIRO.Metaheuristics.R
             }
 
             Log.Debug("R init: creating R engine");
-            rEngine = REngine.CreateInstance("RDotNet");
+            rEngine = REngine.GetInstance(dll:null, initialize:false, parameter:null, device:null);
             Log.Debug("R init: initialising R engine");
             StartupParameter rStartParams = new StartupParameter
             {
