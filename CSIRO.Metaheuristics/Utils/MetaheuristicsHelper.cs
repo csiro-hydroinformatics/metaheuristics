@@ -273,5 +273,21 @@ namespace CSIRO.Metaheuristics.Utils
             var dblScore = new DoubleObjectiveScore(scoreName, result, maximise: maximise);
             return new MultipleScores<T>(new IObjectiveScore[] { dblScore }, sysConfig);
         }
+
+        internal static T[][] MakeBins<T>(T[] population, int numBins)
+        {
+            int div = population.Length / numBins;
+            int remainder = population.Length % numBins;
+            T[][] result = new T[numBins][];
+            int offset = 0;
+            for (int i = 0; i < numBins; i++)
+            {
+                int len = (i < remainder ? div+1 : div);
+                result[i] = new T[len];
+                Array.Copy(population, offset, result[i], 0, len);
+                offset += len;
+            }
+            return result;
+        }
     }
 }

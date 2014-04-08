@@ -41,6 +41,19 @@ namespace CSIRO.Metaheuristics.Tests
             Assert.AreEqual(3.4, points[1].GetValue("1"));
         }
 
+        [Test]
+        public void TestMakeBins()
+        {
+            int[] population = new int[13];
+            for (int i = 0; i < population.Length; i++)
+			    population[i] = i+1;
+
+            var result = MetaheuristicsHelper.MakeBins(population, 2);
+            Assert.AreEqual(2, result.Length);
+            Assert.AreEqual(new[] { 1, 2, 3, 4, 5, 6, 7 }, result[0]);
+            Assert.AreEqual(new[] { 8, 9, 10, 11, 12, 13 }, result[1]);
+        }
+
         private void assertPoint(IObjectiveScores iObjectiveScores, double x, double y, double z)
         {
             var s = (IObjectiveScores<TestHyperCube>)iObjectiveScores;
