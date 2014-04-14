@@ -1,0 +1,35 @@
+# Emacs please make this -*- mode: makefile; tab-width: 8 -*-
+#
+#
+
+BuildConfiguration:=Debug
+
+TGTPLATFORM:=AnyCPU
+# Somehow, R_ARCH seems not defined.
+R_ARCH:=/x64
+
+TIME2RDIR:= ../../../../../../trunk/Partners/CSIRO/R/CSIRO.TIME2R/
+TIME2RBINDIR:= $(TIME2RDIR)bin/$(BuildConfiguration)
+CSPROJ:= $(TIME2RDIR)CSIRO.TIME2R.csproj
+
+INSTDIR:= ../inst
+TIME2RBINs:= $(TIME2RBINDIR)/*.dll* $(TIME2RBINDIR)/*.pdb
+MSB:=xbuild
+MODE:=Rebuild
+SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration) /p:Platform="$(TGTPLATFORM)"
+
+all: instdir $(SHLIB) Time2RLib 
+
+Time2RLibComp:
+	$(MSB) $(CSPROJ) /t:$(MODE) $(SLNPROPERTIES)
+
+Time2RLib: Time2RLibComp
+	-cp -u -p $(TIME2RBINs) $(INSTDIR)/libs
+
+instdir:
+	-@rm -rf $(INSTDIR)/libs
+	-@mkdir -p $(INSTDIR)/libs$(R_ARCH)
+	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
+
+.PHONY: all
+

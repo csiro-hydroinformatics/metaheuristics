@@ -1,0 +1,16 @@
+Package: mh
+Type: Package
+Title: Access to the CSIRO.Metaheuristics framework from R
+Version: 0.2-1
+Date: 2013-12-15
+Authors@R: c( person("Jean-Michel", "Perraud", email =
+    "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
+Author: Jean-Michel Perraud [aut, cre]
+Description: Access to the CSIRO.Metaheuristics framework from R
+License: LGPL-2.1
+LazyLoad: yes
+URL: https://github.com/jmp75/metaheuristics/R/packages/mh
+Depends:
+    R (>= 3.0.0),
+    rClr,
+    ggplot2
