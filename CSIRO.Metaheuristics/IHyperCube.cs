@@ -13,4 +13,12 @@ namespace CSIRO.Metaheuristics
         void SetValue( string variableName, T value );
         IHyperCube<T> HomotheticTransform( IHyperCube<T> point, double factor );
     }
+
+    public interface IHyperCubeSetBounds<T> : IHyperCube<T> where T : IComparable
+    {
+        void SetMinValue(string variableName, T value);
+        void SetMaxValue(string variableName, T value);
+        void SetMinMaxValue(string variableName, T min, T max, T value);
+    }
+
 }
