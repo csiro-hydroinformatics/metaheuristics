@@ -36,7 +36,10 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="MPI">
-      <HintPath>Dependencies\MPI.dll</HintPath>
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPI.dll</HintPath>
+    </Reference>
+    <Reference Include="MPIUtils">
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPIUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
