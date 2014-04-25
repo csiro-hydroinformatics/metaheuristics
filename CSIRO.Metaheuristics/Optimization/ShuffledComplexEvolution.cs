@@ -92,7 +92,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
     // TODO: should there be a further type constraint such that T can only be a HyperCube? 
     // problem is that the HyperCube is generic itself, makes things complex
-    public class ShuffledComplexEvolution<T> : MhSubject, IEvolutionEngine<T> 
+    public class ShuffledComplexEvolution<T> : IEvolutionEngine<T> 
         where T : ICloneableSystemConfiguration
     {
         public ShuffledComplexEvolution(IClonableObjectiveEvaluator<T> evaluator,
@@ -246,7 +246,7 @@ namespace CSIRO.Metaheuristics.Optimization
                 return IsBelowCvThreshold(popToTest);
             }
 
-            internal double GetMaxParameterCoeffVar(IObjectiveScores[] population)
+            public double GetMaxParameterCoeffVar(IObjectiveScores[] population)
             {
                 var pSets = ConvertAllToHyperCube(population);
                 var varNames = pSets[0].GetVariableNames();
@@ -273,12 +273,12 @@ namespace CSIRO.Metaheuristics.Optimization
 
             }
 
-            internal bool IsBelowCvThreshold(IObjectiveScores[] population)
+            public bool IsBelowCvThreshold(IObjectiveScores[] population)
             {
                 return GetMaxParameterCoeffVar(population) < threshold;
             }
 
-            internal bool HasReachedMaxTime()
+            public bool HasReachedMaxTime()
             {
                 double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
                 if (this.maxHours <= 0)
@@ -357,12 +357,7 @@ namespace CSIRO.Metaheuristics.Optimization
             return tmp;
         }
 
-        private int CurrentShuffle = 0;
-
-        public int CurrentGeneration
-        {
-            get { return CurrentShuffle; }
-        }
+        public int CurrentShuffle { get; private set; }
 
         private bool isCancelled = false;
         private IComplex currentComplex;
@@ -388,7 +383,7 @@ namespace CSIRO.Metaheuristics.Optimization
             loggerWrite(scores, createSimpleMsg("Initial Population", "Initial Population"));
             IComplex[] complexes = partition(scores);
 
-            OnAdvanced( new ComplexEvolutionEvent( complexes ) );
+            //OnAdvanced( new ComplexEvolutionEvent( complexes ) );
 
             CurrentShuffle = 1;
             var isFinished = terminationCondition.IsFinished( );
@@ -409,7 +404,7 @@ namespace CSIRO.Metaheuristics.Optimization
                         loggerWrite(sortByFitness(complexPoints).First(), createSimpleMsg("Best point in complex", "Complex No " + currentComplex.ComplexId));
                     }
                 }
-                OnAdvanced( new ComplexEvolutionEvent( complexes ) );
+                //OnAdvanced( new ComplexEvolutionEvent( complexes ) );
                 var shuffleMsg = "Shuffling No " + CurrentShuffle.ToString("D3");
                 var shufflePoints = aggregate(complexes);
                 loggerWrite(shufflePoints, createSimpleMsg(shuffleMsg, shuffleMsg));
@@ -1148,6 +1143,7 @@ namespace CSIRO.Metaheuristics.Optimization
             public double ReflectionRatio { get; set; }
         }
 
+        /*
         private class ComplexEvolutionEvent : EventArgs, IMonitoringEvent
         {
             private IObjectiveScores[] scoresSet;
@@ -1172,6 +1168,8 @@ namespace CSIRO.Metaheuristics.Optimization
                 get { return scoresSet; }
             }
         }
+
+        */
 
         public FitnessAssignedScores<double>[] PopulationAtShuffling { get; set; }
     }

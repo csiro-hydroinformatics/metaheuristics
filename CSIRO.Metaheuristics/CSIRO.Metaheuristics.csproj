@@ -54,10 +54,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -81,7 +77,6 @@
     <Compile Include="IEvolutionEngine.cs" />
     <Compile Include="IFitnessAssignment.cs" />
     <Compile Include="IHyperCube.cs" />
-    <Compile Include="IMonitoringEvent.cs" />
     <Compile Include="IObjectiveEvaluator.cs" />
     <Compile Include="IObjectiveScore.cs" />
     <Compile Include="IObjectiveScores.cs" />
@@ -113,16 +108,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\SolutionInfo.cs" />
     <Compile Include="RandomNumberGenerators\BasicRngFactory.cs" />
-    <Compile Include="IMhSubject.cs" />
     <Compile Include="SystemConfigurations\HyperCube.cs" />
     <Compile Include="SystemConfigurations\HyperCubeOperations.cs" />
     <Compile Include="SystemConfigurations\UnivariateReal.cs" />
-    <Compile Include="Tests\TestCovarianceContravariance.cs" />
-    <Compile Include="Tests\TestGeometricOperations.cs" />
-    <Compile Include="Tests\TestMhHelper.cs" />
-    <Compile Include="Tests\TestMultiObjSCE.cs" />
-    <Compile Include="Tests\TestObjectives.cs" />
-    <Compile Include="Tests\TestSupportClasses.cs" />
     <Compile Include="Utils\MetaheuristicsHelper.cs" />
     <Compile Include="SystemConfigurations\BasicHyperCube.cs" />
   </ItemGroup>
@@ -131,7 +119,6 @@
     <None Include="Doc\Objectives.cd" />
     <None Include="Doc\ExpandedInterfaces.cd" />
     <None Include="MainCoreInterfaces.cd" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
