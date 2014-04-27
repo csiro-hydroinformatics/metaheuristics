@@ -274,7 +274,7 @@ namespace CSIRO.Metaheuristics.Utils
             return new MultipleScores<T>(new IObjectiveScore[] { dblScore }, sysConfig);
         }
 
-        internal static T[][] MakeBins<T>(T[] population, int numBins)
+        public static T[][] MakeBins<T>(T[] population, int numBins)
         {
             int div = population.Length / numBins;
             int remainder = population.Length % numBins;

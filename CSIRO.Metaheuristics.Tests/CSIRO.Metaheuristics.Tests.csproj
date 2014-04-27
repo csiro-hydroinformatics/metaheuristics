@@ -30,11 +30,18 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -43,14 +50,20 @@
     <Compile Include="TestCovarianceContravariance.cs" />
     <Compile Include="TestGeometricOperations.cs" />
     <Compile Include="TestMhHelper.cs" />
+    <Compile Include="TestMhPersistence.cs" />
     <Compile Include="TestMultiObjSCE.cs" />
     <Compile Include="TestObjectives.cs" />
     <Compile Include="TestSupportClasses.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.csproj">
+      <Project>{7be99303-b6a8-459e-9b2a-d2c1383ca466}</Project>
+      <Name>CSIRO.Metaheuristics.DataModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3db7010e-e47d-45c5-b03e-30f5f1f9c16e}</Project>
       <Name>CSIRO.Metaheuristics</Name>
