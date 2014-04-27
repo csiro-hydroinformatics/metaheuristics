@@ -31,9 +31,5 @@ namespace CSIRO.Metaheuristics.Optimization
             throw new NotSupportedException();
         }
 
-        public int CurrentGeneration
-        {
-            get { throw new NotImplementedException(); }
-        }
     }
 }

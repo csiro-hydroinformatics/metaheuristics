@@ -62,11 +62,6 @@ namespace CSIRO.Metaheuristics.Optimization
             return "SCE Optimizer followed by Rosenbrock Optimizer";
         }
 
-        public int CurrentGeneration
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         private bool shuffleFinished = false;
         private bool cancelled = false;
         public void Cancel()
