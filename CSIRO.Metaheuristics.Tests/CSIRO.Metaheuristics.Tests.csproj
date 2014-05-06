@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestCovarianceContravariance.cs" />
+    <Compile Include="TestUrsPointGeneration.cs" />
     <Compile Include="TestGeometricOperations.cs" />
     <Compile Include="TestMhHelper.cs" />
     <Compile Include="TestMhPersistence.cs" />
@@ -72,6 +73,9 @@
       <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
       <Name>CSIRO.Sys</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

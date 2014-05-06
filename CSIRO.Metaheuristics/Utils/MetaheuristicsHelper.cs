@@ -239,6 +239,20 @@ namespace CSIRO.Metaheuristics.Utils
             return true;
         }
 
+        public static bool CheckInBounds<T>(IHyperCube<T> point) where T: IComparable
+        {
+            foreach (var varName in point.GetVariableNames())
+            {
+                var min = point.GetMinValue(varName);
+                var max = point.GetMaxValue(varName);
+                var val = point.GetValue(varName);
+                if (!MetaheuristicsHelper.CheckInBounds(val, min, max, throwIfFalse: false))
+                    return false;
+            }
+            return true;
+        }
+
+
         public static IObjectiveScores[] InterpolateBetweenPoints<T>(IObjectiveEvaluator<T> evaluator, IEnumerable<IObjectiveScores> points, double stepSize)
             where T : IHyperCube<double>
         {

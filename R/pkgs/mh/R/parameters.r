@@ -27,6 +27,17 @@ setHyperCube <- function(paramSet, specsFrame, setBounds=FALSE) {
   }
 }
 
+#' Apply a system configuration to a compatible model  
+#'
+#' Apply a system configuration to a compatible model  
+#'
+#' @param sysConfig a CLR object that implements ISystemConfiguration
+#' @param modelSystem the modelling system to configure
+#' @export
+applySysConfig <- function(sysConfig, modelSystem) {
+  invisible(clrCall(sysConfig, 'ApplyConfiguration', modelSystem))
+}
+
 #' Convert a hypercube to a simple data frame representation
 #'
 #' Convert a hypercube to a simple data frame representation

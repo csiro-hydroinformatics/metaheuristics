@@ -49,27 +49,34 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
             get { return variableNames.Length; }
         }
 
-        public T GetValue( string variableName )
+        public virtual T GetValue( string variableName )
         {
             return values[variableName].Val;
         }
 
-        public T GetMaxValue( string variableName )
+        public virtual T GetMaxValue( string variableName )
         {
             return values[variableName].Max;
         }
 
-        public T GetMinValue( string variableName )
+        public virtual T GetMinValue( string variableName )
         {
             return values[variableName].Min;
         }
 
-        public void SetValue( string variableName, T value )
+        public virtual void SetValue( string variableName, T value )
         {
-            checkCorrectArg( variableName );
-            T maxValue = GetMaxValue( variableName );
-            T minValue = GetMinValue( variableName );
-            MetaheuristicsHelper.CheckInBounds( value, minValue, maxValue );
+            bool throwOnOutOfBounds = true;
+            SetValue(variableName, value, throwOnOutOfBounds);
+        }
+
+        protected void SetValue(string variableName, T value, bool throwOnOutOfBounds)
+        {
+            checkCorrectArg(variableName);
+            T maxValue = GetMaxValue(variableName);
+            T minValue = GetMinValue(variableName);
+            if (throwOnOutOfBounds)
+                MetaheuristicsHelper.CheckInBounds(value, minValue, maxValue, throwOnOutOfBounds);
             this.values[variableName].Val = value;
         }
 
@@ -92,7 +99,7 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
             this.SetValue(variableName, value);
         }
 
-        private void checkCorrectArg( string variableName )
+        protected void checkCorrectArg( string variableName )
         {
             if( !( variableNames.Contains( variableName ) ) )
                 throw new ArgumentException( "Incorrect variable name: " + variableName );
