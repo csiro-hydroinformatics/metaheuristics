@@ -67,11 +67,7 @@ namespace CSIRO.Metaheuristics.Tests
 
         private static TestHyperCube createPoint(double x, double y, double z)
         {
-            var hc = new TestHyperCube(3, 0, 0, 10);
-            hc.SetValue("0", x);
-            hc.SetValue("1", y);
-            hc.SetValue("2", z);
-            return hc;
+            return TestHyperCube.CreatePoint(0, 0, 10, x, y, z);
         }
     }
 }

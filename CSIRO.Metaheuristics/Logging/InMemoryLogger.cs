@@ -6,9 +6,9 @@ using System.Collections.Concurrent;
 
 namespace CSIRO.Metaheuristics.Logging
 {
-    public class InMemoryLogger : ILoggerMh
+    public class InMemoryLogger : ILoggerMh, IEnumerable<ILogInfo>
     {
-        ConcurrentQueue<SysConfigLogInfo> queue = new ConcurrentQueue<SysConfigLogInfo>();
+        ConcurrentQueue<ILogInfo> queue = new ConcurrentQueue<ILogInfo>();
 
         public void Write(IObjectiveScores[] scores, IDictionary<string, string> tags)
         {
@@ -22,44 +22,22 @@ namespace CSIRO.Metaheuristics.Logging
 
         public void Write(IHyperCube<double> newPoint, IDictionary<string, string> tags)
         {
-            queue.Enqueue(new SysConfigLogInfo(new IObjectiveScores[] { new ZeroScores<IHyperCube<double>>() { SystemConfiguration = newPoint } }, tags));
+            queue.Enqueue(new SysConfigLogInfo(LoggerMhHelper.CreateNoScore(newPoint), tags));
         }
 
-        public void Write(string message)
+        public void Write(string message, IDictionary<string, string> tags)
         {
-            // Nohing?
+            queue.Enqueue(new StringOnlyLogInfo(message, tags));
         }
 
-        public SysConfigLogInfo Dequeue()
+        IEnumerator<ILogInfo> IEnumerable<ILogInfo>.GetEnumerator()
         {
-            SysConfigLogInfo result;
-            queue.TryDequeue(out result);
-            return result;
+            return queue.GetEnumerator();
         }
 
-        public int Count { get { return queue.Count; } }
-
-
-        private class ZeroScores<TSysConfig> : IObjectiveScores<TSysConfig>
-            where TSysConfig : ISystemConfiguration
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            public TSysConfig SystemConfiguration { get; set; }
-
-            public IObjectiveScore GetObjective(int i)
-            {
-                throw new IndexOutOfRangeException();
-            }
-
-            public ISystemConfiguration GetSystemConfiguration()
-            {
-                return this.SystemConfiguration;
-            }
-
-            public int ObjectiveCount
-            {
-                get { return 0; }
-            }
+            return queue.GetEnumerator();
         }
-
     }
 }

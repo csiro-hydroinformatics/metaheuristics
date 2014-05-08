@@ -5,27 +5,27 @@ using System.Text;
 
 namespace CSIRO.Metaheuristics.Logging
 {
-    internal class LoggerMhHelper
+    public  class LoggerMhHelper
     {
-        internal static void Write(FitnessAssignedScores<double> scores, IDictionary<string, string> tags, ILoggerMh logger)
+        public  static void Write(FitnessAssignedScores<double> scores, IDictionary<string, string> tags, ILoggerMh logger)
         {
             if (logger != null)
                 logger.Write(scores, tags);
         }
 
-        internal static void Write(IObjectiveScores[] scores, IDictionary<string, string> tags, ILoggerMh logger)
+        public  static void Write(IObjectiveScores[] scores, IDictionary<string, string> tags, ILoggerMh logger)
         {
             if (logger != null)
                 logger.Write(scores, tags);
         }
 
-        internal static void Write(string infoMsg, ILoggerMh logger)
+        public  static void Write(string infoMsg, IDictionary<string, string> tags, ILoggerMh logger)
         {
             if (logger != null)
-                logger.Write(infoMsg);
+                logger.Write(infoMsg, tags);
         }
 
-        internal static IDictionary<string, string> MergeDictionaries(params IDictionary<string, string>[] dicts)
+        public  static IDictionary<string, string> MergeDictionaries(params IDictionary<string, string>[] dicts)
         {
             var d = dicts[0].AsEnumerable();
             for (int i = 1; i < dicts.Length; i++)
@@ -35,14 +35,42 @@ namespace CSIRO.Metaheuristics.Logging
             return d.ToDictionary(x => x.Key, y => y.Value);
         }
 
-        internal static IDictionary<string, string> CreateTag(params Tuple<string, string>[] tuples)
+        public  static IDictionary<string, string> CreateTag(params Tuple<string, string>[] tuples)
         {
             return tuples.ToDictionary((x => x.Item1), (y => y.Item2));
         }
 
-        internal static Tuple<string, string> MkTuple(string key, string value)
+        public  static Tuple<string, string> MkTuple(string key, string value)
         {
             return Tuple.Create(key, value);
         }
+
+        public static IObjectiveScores[] CreateNoScore<TSysConfig>(TSysConfig newPoint) where TSysConfig : ISystemConfiguration
+        {
+            return new IObjectiveScores[] { new ZeroScores<TSysConfig>() { SystemConfiguration = newPoint } };
+        }
+
+        private class ZeroScores<TSysConfig> : IObjectiveScores<TSysConfig>
+            where TSysConfig : ISystemConfiguration
+        {
+            public TSysConfig SystemConfiguration { get; set; }
+
+            public IObjectiveScore GetObjective(int i)
+            {
+                throw new IndexOutOfRangeException();
+            }
+
+            public ISystemConfiguration GetSystemConfiguration()
+            {
+                return this.SystemConfiguration;
+            }
+
+            public int ObjectiveCount
+            {
+                get { return 0; }
+            }
+        }
+
+
     }
 }

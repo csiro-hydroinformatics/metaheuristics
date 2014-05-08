@@ -21,34 +21,28 @@ namespace CSIRO.Metaheuristics.Logging
         /// <param name="delimiter">The delimiter.</param>
         public static void CsvSerialise(this InMemoryLogger logger, string outputCsvLogFile, string resultsName, string delimiter = ",")
         {
-            List<ObjectivesResultsCollection> allResultsSets = new List<ObjectivesResultsCollection>();
-            while (logger.Count > 0)
+            var logInfo = ExtractLog(logger, resultsName);
+            WriteToCsv(outputCsvLogFile, logInfo.Item2, logInfo.Item1);
+        }
+
+        public static Tuple<List<string>, List<Dictionary<string, string>>> ExtractLog(this InMemoryLogger logger, string resultsName)
+        {
+            List<IResultsSetInfo> allResultsSets = new List<IResultsSetInfo>();
+            var list = logger.ToList();
+            foreach (var item in list)
             {
-                var item = logger.Dequeue();
-                ObjectivesResultsCollection resultsSet = createResultsSet(item, resultsName);
+                IResultsSetInfo resultsSet = createResultsSet(item, resultsName);
                 if (resultsSet != null)
                     allResultsSets.Add(resultsSet);
             }
 
             HashSet<string> uniqueKeys = new HashSet<string>();
             List<Dictionary<string, string>> lines = new List<Dictionary<string, string>>();
-            foreach (ObjectivesResultsCollection s in allResultsSets)
+            foreach (IResultsSetInfo s in allResultsSets)
             {
-                foreach (ObjectiveScoreCollection scores in s.ScoresSet)
+                foreach (IKeyValueInfoProvider lineInfo in s)
                 {
-                    Dictionary<string, string> line = new Dictionary<string, string>();
-
-                    HyperCube hyperCubeScores = (scores.SysConfiguration) as HyperCube;
-                    if (hyperCubeScores != null)
-                        foreach (var variable in hyperCubeScores.Variables)
-                            line.Add(variable.Name, variable.Value.ToString());
-
-                    foreach (var score in scores.Scores)
-                        line.Add(score.Name, score.Value);
-
-                    foreach (var tag in s.Tags.Tags)
-                        line.Add(tag.Name, tag.Value);
-
+                    Dictionary<string, string> line = lineInfo.AsDictionary();
                     foreach (string key in line.Keys)
                         uniqueKeys.Add(key);
 
@@ -58,7 +52,8 @@ namespace CSIRO.Metaheuristics.Logging
 
             List<string> keys = uniqueKeys.ToList();
             keys.Sort();
-            WriteToCsv(outputCsvLogFile, lines, keys);
+            var logInfo = Tuple.Create(keys, lines);
+            return logInfo;
         }
 
         /// <summary>
@@ -98,17 +93,86 @@ namespace CSIRO.Metaheuristics.Logging
             }
         }
 
-        private static ObjectivesResultsCollection createResultsSet(SysConfigLogInfo item, string resultsName = "")
+        private class LineEntryCollection : IResultsSetInfo
+        {
+            protected List<IKeyValueInfoProvider> entries = new List<IKeyValueInfoProvider>();
+
+            IEnumerator<IKeyValueInfoProvider> IEnumerable<IKeyValueInfoProvider>.GetEnumerator()
+            {
+                return entries.GetEnumerator();
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return entries.GetEnumerator();
+            }
+        }
+
+        private class ObjResultsInfo : LineEntryCollection
+        {
+            private ObjectivesResultsCollection result;
+
+            public ObjResultsInfo(ObjectivesResultsCollection result)
+            {
+                this.result = result;
+
+                foreach (var scores in result.ScoresSet)
+                {
+                    entries.Add(new ScoreCollectionInfo(scores, result.Tags));
+                }
+            }
+        }
+
+        private class DictLineInfo : IKeyValueInfoProvider
+        {
+            protected Dictionary<string, string> line;
+            public DictLineInfo() { }
+            public DictLineInfo(IDictionary<string, string> line) { this.line = new Dictionary<string,string>(line); }
+            public Dictionary<string, string> AsDictionary()
+            {
+                return line;
+            }
+        }
+
+        private class ScoreCollectionInfo : DictLineInfo
+        {
+            public ScoreCollectionInfo(ObjectiveScoreCollection scores, TagCollection tagCollection)
+            {
+                line = new Dictionary<string, string>();
+                HyperCube hyperCubeScores = (scores.SysConfiguration) as HyperCube;
+                if (hyperCubeScores != null)
+                    foreach (var variable in hyperCubeScores.Variables)
+                        line.Add(variable.Name, variable.Value.ToString());
+
+                foreach (var score in scores.Scores)
+                    line.Add(score.Name, score.Value);
+
+                foreach (var tag in tagCollection.Tags)
+                    line.Add(tag.Name, tag.Value);
+            }
+        }
+
+
+        private class SingleLineInfo : LineEntryCollection
+        {
+            public SingleLineInfo(IDictionary<string, string> dictionary)
+            {
+                this.entries.Add(new DictLineInfo(dictionary));
+            }
+        }
+
+        private static IResultsSetInfo createResultsSet(ILogInfo item, string resultsName = "")
         {
             IObjectiveScores[] arrayScores = item.Scores as IObjectiveScores[];
-            if (arrayScores != null)
+            if (arrayScores != null && arrayScores.Length > 0)
             {
-                var tags = item.Tags;
+                IDictionary<string, string> tags = item.Tags;
                 var result = ConvertOptimizationResults.Convert(arrayScores, attributes: tags);
                 result.Name = resultsName;
-                return result;
+                return new ObjResultsInfo(result);
             }
-            return null;
+            else
+                return new SingleLineInfo(item.Tags);
         }
     }
 }

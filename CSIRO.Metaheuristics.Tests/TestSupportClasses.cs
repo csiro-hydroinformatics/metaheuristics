@@ -105,6 +105,16 @@ namespace CSIRO.Metaheuristics.Tests
         {
             throw new NotImplementedException();
         }
+
+        public static TestHyperCube CreatePoint(double val, double min, double max, params double[] components)
+        {
+            var hc = new TestHyperCube(components.Length, val, min, max);
+            for (int i = 0; i < components.Length; i++)
+            {
+                hc.SetValue(i.ToString(), components[i]);
+            }
+            return hc;
+        }
     }
 
     public class TwoParamsConstraints : TestHyperCube
@@ -148,7 +158,7 @@ namespace CSIRO.Metaheuristics.Tests
             for (int i = 0; i < names.Length; i++)
             {
                 var name = names[i];
-                scores[i] = new DoubleObjectiveScore(name, sysConfig.GetValue(name), maximise: false);
+                scores[i] = new DoubleObjectiveScore(name + "_s", sysConfig.GetValue(name), maximise: false);
             }
             return new MultipleScores<TestHyperCube>(scores, sysConfig);
         }

@@ -9,7 +9,6 @@ namespace CSIRO.Metaheuristics.Logging
 {
     public class LoggingUtils
     {
-
         private static ObjectivesResultsCollection createResultsSet(SysConfigLogInfo item, string resultsName = "")
         {
             IObjectiveScores[] arrayScores = item.Scores as IObjectiveScores[];
