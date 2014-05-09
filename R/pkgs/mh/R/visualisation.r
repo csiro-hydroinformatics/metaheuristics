@@ -72,11 +72,8 @@ boundValuesDf <- function(x, colname, lim=c(0,1)) {
 #' }
 #' @export
 plotParamEvolution <- function(logMh, paramName, objLims=NULL) {
-  x <- logMh@data
-  if(!is.null(objLims)) {
-    x = boundValuesDf(x, logMh@fitness, objLims)
-  }
-  ggplot(x, aes_string(x = numColname, y = paramName, colour=logMh@fitness)) + 
+  d <- boundFitness(logMh, objLims)
+  ggplot(d, aes_string(x = numColname, y = paramName, colour=logMh@fitness)) + 
     geom_point() + ggtitle("Evolution of parameter values") + xlab("Logged point") + ylab(paramName) +
     scale_colour_continuous(low="blue", high="red")
 }
@@ -127,8 +124,8 @@ plotParamEvolutionMsg <- function(logMh, paramName) {
 #' @return a ggplot object
 #' @export
 #' @import ggplot2
-plotShuffles <- function(logMh, x, y) {
-  d <- logMh@data
+plotShuffles <- function(logMh, x, y, objLims=NULL) {
+  d <- boundFitness(logMh, objLims)
   ggplot(d, aes_string(x=x, y=y, colour=logMh@fitness)) + 
     geom_point() + ggtitle("Population at shuffling stages") + xlab(x) + ylab(y) +
     facet_wrap( as.formula(paste("~", logMh@categories, sep=' ')) ) +
@@ -242,6 +239,15 @@ subsetByMessage <- function(logMh, pattern='Initial.*|Reflec.*|Contrac.*|Add.*')
 #' @export
 subsetByCategory <- function(logMh, pattern='Initial.*|Shuffling.*') {
   copyMhData(logMh, subsetByPattern(logMh@data, logMh@categories, pattern))
+}
+
+
+boundFitness <- function(logMh, objLims=NULL) {
+  d <- logMh@data
+  if(!is.null(objLims)) {
+    d <- boundValuesDf(d, logMh@fitness, objLims)
+  }
+  d
 }
 
 
