@@ -65,6 +65,8 @@
     <Compile Include="CandidateFactories\SeededSamplingFactory.cs" />
     <Compile Include="CandidateFactories\UniformRandomSamplingFactory.cs" />
     <Compile Include="CandidateFactories\WeibullGen.cs" />
+    <Compile Include="DataModel\ConvertOptimizationResults.cs" />
+    <Compile Include="DataModel\DataModel.cs" />
     <Compile Include="IEnsembleObjectiveEvaluator.cs" />
     <Compile Include="Fitness\DefaultFitnessAssignment.cs" />
     <Compile Include="Fitness\NseBiasFitnessAssignment.cs" />
@@ -87,6 +89,7 @@
     <Compile Include="Logging\ILoggerMh.cs" />
     <Compile Include="Logging\InMemoryLogger.cs" />
     <Compile Include="Logging\LoggerMhHelper.cs" />
+    <Compile Include="Tests\LoggerMhTestHelper.cs" />
     <Compile Include="Logging\SysConfigLogInfo.cs" />
     <Compile Include="Objectives\DoubleObjectiveScore.cs" />
     <Compile Include="Objectives\MultipleScores.cs" />
@@ -111,11 +114,13 @@
     <Compile Include="SystemConfigurations\HyperCube.cs" />
     <Compile Include="SystemConfigurations\HyperCubeOperations.cs" />
     <Compile Include="SystemConfigurations\UnivariateReal.cs" />
+    <Compile Include="Tests\TestSupportClasses.cs" />
     <Compile Include="Utils\MetaheuristicsHelper.cs" />
     <Compile Include="SystemConfigurations\BasicHyperCube.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="CoreInterfaces.cd" />
+    <None Include="DataModel\DataModel.cd" />
     <None Include="Doc\Objectives.cd" />
     <None Include="Doc\ExpandedInterfaces.cd" />
     <None Include="MainCoreInterfaces.cd" />

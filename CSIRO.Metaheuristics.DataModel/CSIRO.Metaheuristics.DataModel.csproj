@@ -45,15 +45,12 @@
     <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="ConvertOptimizationResults.cs" />
-    <Compile Include="DataModel.cs" />
     <Compile Include="DbContextOperations.cs" />
     <Compile Include="OptimizationResultsContext.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="DataModel.cd" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

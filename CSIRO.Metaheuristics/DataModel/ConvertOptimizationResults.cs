@@ -41,7 +41,7 @@ namespace CSIRO.Metaheuristics.DataModel
         {
             var hc = sysConfig as IHyperCube<double>;
             if (hc == null)
-                throw new NotSupportedException("Can only represent systen configurations that are hypercubes, as yet");
+                throw new NotSupportedException("Can only represent system configurations that are hypercubes, as yet");
             var varNames = hc.GetVariableNames();
             var result = new HyperCube();
             result.Name = hc.GetConfigurationDescription();

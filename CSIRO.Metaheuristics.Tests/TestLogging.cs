@@ -14,31 +14,10 @@ namespace CSIRO.Metaheuristics.Tests
         [Test]
         public void TestInMemoryLogging()
         {
-            var logger = new InMemoryLogger();
-            var strMsg = 
-                      new Dictionary<string, string>()
-                      {
-                        {"Message", "the string message"},
-                        {"Category", "the string category"}
-                      };
-
-            logger.Write("String message", strMsg);
-
-            var evaluator = new IdentityObjEval();
-            var inPoints = new List<TestHyperCube>();
-            inPoints.Add(createPoint(1.0, 2.0, 3.0));
-            inPoints.Add(createPoint(1.0, 2.2, 4.0));
-            inPoints.Add(createPoint(2.0, 3.0, 5.0));
-            var inScores = Array.ConvertAll(inPoints.ToArray(), (x => (IObjectiveScores)evaluator.EvaluateScore(x)));
-
-
-            var popTags = new Dictionary<string, string>()
-                      {
-                        {"Message", "initial population msg"},
-                        {"Category", "initial population category"}
-                      };
-
-            logger.Write(inScores, popTags);
+            InMemoryLogger logger;
+            Dictionary<string, string> strMsg;
+            Dictionary<string, string> popTags;
+            createTestLogContent(out logger, out strMsg, out popTags);
             var logInfo = logger.ExtractLog("Results name");
 
             var columnKeys = logInfo.Item1;
@@ -64,7 +43,35 @@ namespace CSIRO.Metaheuristics.Tests
 
         }
 
-        private void AssertEquivalentDictionaries(Dictionary<string, string> a, Dictionary<string, string> b)
+        private static void createTestLogContent(out InMemoryLogger logger, out Dictionary<string, string> strMsg, out Dictionary<string, string> popTags)
+        {
+            LoggerMhTestHelper.CreateTestLogContent(out logger, out strMsg, out popTags);
+        }
+
+        [Test]
+        public void TestLoggerToColumns()
+        {
+            InMemoryLogger logger;
+            Dictionary<string, string> strMsg;
+            Dictionary<string, string> popTags;
+            createTestLogContent(out logger, out strMsg, out popTags);
+
+            Dictionary<string,string[]> strInfo;
+            Dictionary<string,double[]> numericInfo;
+            logger.ToColumns(out strInfo, out numericInfo);
+            var expectedNumeric = new Dictionary<string, double[]>(){
+                    {"0", new []   {double.NaN, 1.0,1.0,2.0}}, 
+                    {"1", new []   {double.NaN, 2.0,2.2,3.0}}, 
+                    {"2", new []   {double.NaN, 3.0,4.0,5.0}}, 
+                    {"0_s", new [] {double.NaN, 1.0,1.0,2.0}}, 
+                    {"1_s", new [] {double.NaN, 2.0,2.2,3.0}}, 
+                    {"2_s", new [] {double.NaN, 3.0,4.0,5.0}}
+            };
+            AssertEquivalentDictionaries(expectedNumeric, numericInfo);
+
+        }
+
+        private static void AssertEquivalentDictionaries<T>(Dictionary<string, T> a, Dictionary<string, T> b)
         {
             if (a.Count() != b.Count()) throw new AssertionException("Dictionaries have a different length - cannot be equivalent in content");
             foreach (var k in a.Keys)

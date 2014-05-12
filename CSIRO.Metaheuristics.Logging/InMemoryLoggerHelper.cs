@@ -25,7 +25,7 @@ namespace CSIRO.Metaheuristics.Logging
             WriteToCsv(outputCsvLogFile, logInfo.Item2, logInfo.Item1);
         }
 
-        public static Tuple<List<string>, List<Dictionary<string, string>>> ExtractLog(this InMemoryLogger logger, string resultsName)
+        public static Tuple<List<string>, List<Dictionary<string, string>>> ExtractLog(this IEnumerable<ILogInfo> logger, string resultsName)
         {
             List<IResultsSetInfo> allResultsSets = new List<IResultsSetInfo>();
             var list = logger.ToList();

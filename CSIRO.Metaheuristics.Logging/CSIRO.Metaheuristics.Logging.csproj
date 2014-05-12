@@ -41,7 +41,6 @@
     <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
       <Link>Properties\SolutionInfo.cs</Link>
     </Compile>
-    <Compile Include="InMemoryLoggerHelper.cs" />
     <Compile Include="Log4netAdapter.cs" />
     <Compile Include="LoggingUtils.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
