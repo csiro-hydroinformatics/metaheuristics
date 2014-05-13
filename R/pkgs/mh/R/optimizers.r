@@ -29,6 +29,18 @@ setLogger <- function(optimizer, calibLogger) {
 }
 
 
+#' Gets the content of a calibration log as a data frame
+#'
+#' Gets the content of a calibration log as a data frame
+#'
+#' @param calibLogger an object implementing ILoggerMh. May be a missing argument, in which case a defaut in-memory logger is created.
+#' @return a data frame
+#' @export
+getLoggerContent <- function(calibLogger) { 
+  clrCallStatic(sysConfigHelper, 'GetContent', calibLogger)
+}
+
+
 
 
 

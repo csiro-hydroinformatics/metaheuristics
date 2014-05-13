@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CSIRO.Metaheuristics;
+using CSIRO.Metaheuristics.Logging;
+using RDotNet;
 
 namespace CSIRO.Metaheuristics.R.Pkgs
 {
@@ -52,6 +54,11 @@ namespace CSIRO.Metaheuristics.R.Pkgs
                 this.Max = new double[p];
                 this.Value = new double[p];
             }
+        }
+
+        public static DataFrame GetContent(IEnumerable<ILogInfo> logInfo)
+        {
+            return logInfo.ToDataFrame();
         }
     }
 }
