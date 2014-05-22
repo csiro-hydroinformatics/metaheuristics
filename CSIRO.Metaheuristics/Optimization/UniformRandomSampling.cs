@@ -90,12 +90,6 @@ namespace CSIRO.Metaheuristics.Optimization
             return result;
         }
 
-
-        public int CurrentGeneration
-        {
-            get { throw new NotImplementedException(); }
-        }
-
         public void Cancel()
         {
             isCancelled = true;

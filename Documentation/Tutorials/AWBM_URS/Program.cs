@@ -5,7 +5,6 @@ using CSIRO.Metaheuristics.SystemConfigurations;
 using CSIRO.Metaheuristics.Optimization;
 using CSIRO.Metaheuristics.RandomNumberGenerators;
 using CSIRO.Metaheuristics.Utils;
-using CSIRO.Metaheuristics.Objectives;
 using System.IO;
 using System.Collections.Generic;
 

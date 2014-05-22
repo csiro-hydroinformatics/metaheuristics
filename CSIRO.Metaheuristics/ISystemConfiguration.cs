@@ -4,7 +4,6 @@ using CSIRO.Sys;
 
 namespace CSIRO.Metaheuristics
 {
-    ///// <typeparam name="TSys">A type of system to which this system configuration applies</typeparam>
     /// <summary>
     /// The representation of the tunable 'parameters' of the optimisation problem, usually a parameter set.
     /// </summary>
@@ -31,6 +30,9 @@ namespace CSIRO.Metaheuristics
         void ApplyConfiguration( object system );
     }
 
+    /// <summary>
+    /// Interface for system configurations that support cloning. Helps to support parallelism in solvers.
+    /// </summary>
     public interface ICloneableSystemConfiguration : ISystemConfiguration, ICloningSupport<ICloneableSystemConfiguration>
     {
     }

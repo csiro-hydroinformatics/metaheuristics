@@ -84,7 +84,7 @@ namespace CSIRO.Metaheuristics.Utils
             }
         }
 
-        internal static T[] ParseConfigsFromCsv<T>(string csvContent, T templateSpace) where T : IHyperCube<double>
+        public static T[] ParseConfigsFromCsv<T>(string csvContent, T templateSpace) where T : IHyperCube<double>
         {
             string[] lines = csvContent.Split(new []{Environment.NewLine, "\n"}, StringSplitOptions.RemoveEmptyEntries);
             string[] numbers = new string[lines.Length - 1];
