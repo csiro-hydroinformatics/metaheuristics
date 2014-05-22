@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("CSIRO.Metaheuristics.Tests")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Test classes for the Metaheuristics framework")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CSIRO")]
 [assembly: AssemblyProduct("CSIRO.Metaheuristics.Tests")]
