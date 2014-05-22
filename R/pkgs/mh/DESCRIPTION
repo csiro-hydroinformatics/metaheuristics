@@ -6,6 +6,7 @@ Date: 2013-12-15
 Authors@R: c( person("Jean-Michel", "Perraud", email =
     "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
 Author: Jean-Michel Perraud [aut, cre]
+Maintainer: J-M <jean-michel.perraud@csiro.au>
 Description: Access to the CSIRO.Metaheuristics framework from R
 License: LGPL-2.1
 LazyLoad: yes

@@ -2,33 +2,32 @@
 #
 #
 
+ifeq "$(BuildConfiguration)" ""
 BuildConfiguration:=Debug
+endif
 
-TGTPLATFORM:=AnyCPU
-# Somehow, R_ARCH seems not defined.
-R_ARCH:=/x64
-
-TIME2RDIR:= ../../../../../../trunk/Partners/CSIRO/R/CSIRO.TIME2R/
-TIME2RBINDIR:= $(TIME2RDIR)bin/$(BuildConfiguration)
-CSPROJ:= $(TIME2RDIR)CSIRO.TIME2R.csproj
+SLN:= mh.sln
+RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
-TIME2RBINs:= $(TIME2RBINDIR)/*.dll* $(TIME2RBINDIR)/*.pdb
+RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb
 MSB:=xbuild
-MODE:=Rebuild
-SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration) /p:Platform="$(TGTPLATFORM)"
+MODE:=Build
+SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
 
-all: instdir $(SHLIB) Time2RLib 
+all: instdir Mh2RLib 
 
-Time2RLibComp:
-	$(MSB) $(CSPROJ) /t:$(MODE) $(SLNPROPERTIES)
+Mh2RLibComp:
+	$(MSB) $(SLN) /t:$(MODE) $(SLNPROPERTIES)
 
-Time2RLib: Time2RLibComp
-	-cp -u -p $(TIME2RBINs) $(INSTDIR)/libs
+Mh2RLib: Mh2RLibComp
+	-cp -u -p $(RMHBINs) $(INSTDIR)/libs
 
 instdir:
 	-@rm -rf $(INSTDIR)/libs
-	-@mkdir -p $(INSTDIR)/libs$(R_ARCH)
+	# the following two lines are required, even if empty folder, otherwise R complains at package load time.
+	-@mkdir -p $(INSTDIR)/libs/i386
+	-@mkdir -p $(INSTDIR)/libs/x64
 	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
 
 .PHONY: all
