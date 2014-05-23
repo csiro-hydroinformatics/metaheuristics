@@ -1,1 +1,0 @@
-You should add to this directory the build output of MPI.NET; see https://github.com/jmp75/MPI.NET for further instructions.

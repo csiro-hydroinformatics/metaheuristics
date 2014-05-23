@@ -47,10 +47,6 @@
     <Compile Include="SystemConfigPatternConverter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.csproj">
-      <Project>{7BE99303-B6A8-459E-9B2A-D2C1383CA466}</Project>
-      <Name>CSIRO.Metaheuristics.DataModel</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>

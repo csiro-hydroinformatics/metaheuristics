@@ -27,6 +27,7 @@ nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.Data
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Tests\CSIRO.Metaheuristics.Tests.csproj %pack_options%
 
 if errorlevel 1 goto bailOut
 

@@ -39,8 +39,7 @@ set mh_dir=%~d0%~p0..\
 set COPYOPTIONS=/Y /R /D
 
 :: ================== code compilation settings
-set BuildConfiguration=Release
-set BuildConfiguration=Debug
+if not "%BuildConfiguration%"=="Release" if not "%BuildConfiguration%"=="Debug" set BuildConfiguration=Release
 
 :: Setting the variable named 'Platform' seems to interfere with the nuget pack command, so 
 :: we deliberately set a variable BuildPlatform for use with MSBuild.exe
@@ -59,9 +58,8 @@ set common_ng_pack_options=-Verbosity normal -Properties Configuration=%BuildCon
 set SLN=%mh_dir%Metaheuristics.sln
 set pkg_dir=%mh_dir%packages
 
-:: See notes in next section for TIME on why we use nuget restore instead a forced reinstall of packages (nuget bug) 
 cd %pkg_dir%
-%nuget_exe% restore %SLN%
+:: %nuget_exe% restore %SLN%
 
 %MSB% %SLN% %build_options%
 
