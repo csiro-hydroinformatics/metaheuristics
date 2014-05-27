@@ -54,10 +54,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CSIRO.Metaheuristics.Tests\CSIRO.Metaheuristics.Tests.csproj">
-      <Project>{98785300-2d43-497f-943e-aee3e35eac75}</Project>
-      <Name>CSIRO.Metaheuristics.Tests</Name>
-    </ProjectReference>
     <ProjectReference Include="..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>
