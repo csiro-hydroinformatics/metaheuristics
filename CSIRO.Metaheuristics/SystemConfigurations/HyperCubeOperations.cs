@@ -22,8 +22,11 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
             IHyperCube<double> result = point.Clone( ) as IHyperCube<double> ;
             for( int i = 0; i < varNames.Length; i++ )
             {
-                double min = point.GetMinValue( varNames[i] );
-                double max = point.GetMaxValue( varNames[i] );
+                string v = varNames[i];
+                // We take the bounds of the result point, to cater for cascading parameter constraints.
+                double min = result.GetMinValue(v); 
+                double max = result.GetMaxValue(v);
+                checkFeasibleInterval(min, max, v);
                 result.SetValue( varNames[i], GetRandomisedValue(min, max) );
             }
             return result;
@@ -69,17 +72,27 @@ namespace CSIRO.Metaheuristics.SystemConfigurations
             {
                 IHyperCube<double> p = points[0].Clone() as IHyperCube<double>;
                 string[] varNames = p.GetVariableNames();
-                for( int i = 0; i < varNames.Length; i++ )
+                for (int i = 0; i < varNames.Length; i++)
                 {
+                    string v = varNames[i];
                     double minimum;
                     double maximum;
-                    GetSmallestIntervalForValues( points, varNames[i], out minimum, out maximum );
+                    GetSmallestIntervalForValues(points, v, out minimum, out maximum);
+                    minimum = Math.Max(minimum, p.GetMinValue(v));
+                    maximum = Math.Min(maximum, p.GetMaxValue(v));
+                    checkFeasibleInterval(minimum, maximum, v);
                     p.SetValue(varNames[i], GetRandomisedValue(minimum, maximum));
                 }
 
                 return p;
             }
 
+        }
+
+        private void checkFeasibleInterval(double minimum, double maximum, string varName)
+        {
+            if (maximum < minimum)
+                throw new NotSupportedException(string.Format("Impossible to generate random value for variable {0}: min={1}, max={2}", varName, minimum, maximum));
         }
 
         #endregion

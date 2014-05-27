@@ -27,13 +27,19 @@ namespace CSIRO.Metaheuristics.Logging
         public void Write(IHyperCube<double> newPoint, IDictionary<string, string> tags)
         {
             if (log.IsInfoEnabled)
-                log.Info(new SysConfigLogInfo(new IHyperCube<double>[] { newPoint }, tags));
+                log.Info(new SysConfigLogInfo(LoggerMhHelper.CreateNoScore(newPoint), tags));
         }
 
         public void Write(string message)
         {
             if (log.IsInfoEnabled)
                 log.Info(message);
+        }
+
+
+        public void Write(string message, IDictionary<string, string> tags)
+        {
+            throw new NotImplementedException();
         }
     }
 }

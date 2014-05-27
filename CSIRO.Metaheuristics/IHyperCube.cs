@@ -56,4 +56,12 @@ namespace CSIRO.Metaheuristics
         /// <returns>A new instance of an hypercube, result of the transformation</returns>
         IHyperCube<T> HomotheticTransform(IHyperCube<T> point, double factor);
     }
+
+    public interface IHyperCubeSetBounds<T> : IHyperCube<T> where T : IComparable
+    {
+        void SetMinValue(string variableName, T value);
+        void SetMaxValue(string variableName, T value);
+        void SetMinMaxValue(string variableName, T min, T max, T value);
+    }
+
 }

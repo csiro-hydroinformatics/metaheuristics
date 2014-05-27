@@ -1,0 +1,16 @@
+.*\.tlog
+.*\.ilk
+.*\.idb
+.*\.obj
+.*\.sdf
+.*\.suo
+.*ipch.*
+.*\.lastbuildstate
+.*\.intermediate\..*
+.*\Debug\..*
+.*\Release\..*
+.*\MonoDebug\..*
+.*\MonoInstallDebug\..*
+.*\MonoInstall\..*
+.*\bin\..*
+.*\obj\..*

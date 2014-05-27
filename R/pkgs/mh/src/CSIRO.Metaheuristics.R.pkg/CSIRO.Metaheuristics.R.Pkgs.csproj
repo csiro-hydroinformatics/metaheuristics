@@ -4,15 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{409BFC04-B6DF-4BAB-97AD-5596D303905B}</ProjectGuid>
+    <ProjectGuid>{805B5F3F-4EBA-4B1C-8557-DC0BD0BFEB41}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CSIRO.Metaheuristics.R</RootNamespace>
-    <AssemblyName>CSIRO.Metaheuristics.R</AssemblyName>
+    <RootNamespace>CSIRO.Metaheuristics.R.Pkgs</RootNamespace>
+    <AssemblyName>CSIRO.Metaheuristics.R.Pkgs</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProductVersion>12.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,16 +30,42 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.0.10\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.Parallel">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.R">
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.0.10\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.0.10\lib\net40\CSIRO.Sys.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Utilities, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Utilities.0.7.0.10\lib\net40\CSIRO.Utilities.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet, Version=1.5.13.32474, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.13\lib\net40\RDotNet.dll</HintPath>
+    <Reference Include="MPI">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\MPI.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet.NativeLibrary, Version=1.5.13.32474, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="MPIUtils">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\MPIUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.13\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet">
+      <HintPath>..\packages\R.NET.1.5.12\lib\net40\RDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary">
+      <HintPath>..\packages\R.NET.1.5.12\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,47 +75,14 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="nunit.framework">
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\CSIRO.Metaheuristics\Properties\SolutionInfo.cs">
-      <Link>Properties\SolutionInfo.cs</Link>
-    </Compile>
-    <Compile Include="CSharpCompositeObjectiveEvaluator.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="DebugHelpers.cs" />
-    <Compile Include="LogHelper.cs" />
+    <Compile Include="OptimizerHelper.cs" />
+    <Compile Include="SysConfigHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RCompositeObjectiveEvaluator.cs" />
-    <Compile Include="Tests\TestLogHelperR.cs" />
-    <Compile Include="Tests\TestPercentiles.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.csproj">
-      <Project>{2E78BA8E-0628-49C8-8EA8-E8F139843F04}</Project>
-      <Name>CSIRO.Metaheuristics.Parallel</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
-      <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
-      <Name>CSIRO.Metaheuristics</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSIRO.Sys\CSIRO.Sys.csproj">
-      <Project>{58313B13-A161-4B90-B94E-A66B175BAF4E}</Project>
-      <Name>CSIRO.Sys</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CSIRO.Utilities\CSIRO.Utilities.csproj">
-      <Project>{455AC82C-D225-49E0-8F7C-7F33183C9E9E}</Project>
-      <Name>CSIRO.Utilities</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

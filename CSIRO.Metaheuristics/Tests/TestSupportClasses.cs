@@ -105,7 +105,49 @@ namespace CSIRO.Metaheuristics.Tests
         {
             throw new NotImplementedException();
         }
+
+        public static TestHyperCube CreatePoint(double val, double min, double max, params double[] components)
+        {
+            var hc = new TestHyperCube(components.Length, val, min, max);
+            for (int i = 0; i < components.Length; i++)
+            {
+                hc.SetValue(i.ToString(), components[i]);
+            }
+            return hc;
+        }
     }
+
+    public class TwoParamsConstraints : TestHyperCube
+    {
+        private string name1;
+        private string name2;
+        public TwoParamsConstraints() : base(2, 5, 0, 10) 
+        {
+            var names = GetVariableNames();
+            this.name1 = names[0];
+            this.name2 = names[1];
+        }
+
+        public bool IsWithinBounds { get { return MetaheuristicsHelper.CheckInBounds(this); } }
+
+        public override void SetValue(string variableName, double value)
+        {
+            SetValue(variableName, value, false);
+        }
+
+        public override double GetMaxValue(string variableName)
+        {
+            var unconstrained = base.GetMaxValue(variableName);
+            if (name1 == null) return unconstrained; // parent constructor is calling; no constraints yet.
+            if (variableName == name1)
+                return unconstrained;
+            else if (variableName == name2)
+                return Math.Min(unconstrained, GetValue(name1));
+            else
+                throw new ArgumentException("variableName");
+        }
+    }
+
 
     public class IdentityObjEval : IObjectiveEvaluator<TestHyperCube>
     {
@@ -116,7 +158,7 @@ namespace CSIRO.Metaheuristics.Tests
             for (int i = 0; i < names.Length; i++)
             {
                 var name = names[i];
-                scores[i] = new DoubleObjectiveScore(name, sysConfig.GetValue(name), maximise: false);
+                scores[i] = new DoubleObjectiveScore(name + "_s", sysConfig.GetValue(name), maximise: false);
             }
             return new MultipleScores<TestHyperCube>(scores, sysConfig);
         }

@@ -13,6 +13,6 @@ namespace CSIRO.Metaheuristics.Logging
         void Write(IObjectiveScores[] scores, IDictionary<string, string> tags);
         void Write(FitnessAssignedScores<double> worstPoint, IDictionary<string, string> tags);
         void Write(IHyperCube<double> newPoint, IDictionary<string, string> tags);
-        void Write(string message);
+        void Write(string message, IDictionary<string, string> tags);
     }
 }

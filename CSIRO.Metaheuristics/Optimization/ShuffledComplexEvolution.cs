@@ -387,7 +387,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
             CurrentShuffle = 1;
             var isFinished = terminationCondition.IsFinished( );
-            if (isFinished) loggerWrite(string.Format("Termination condition using {0} is met", terminationCondition.GetType().Name));
+            if(isFinished) logTerminationConditionMet();
             while (!isFinished && !isCancelled)
             {
                 if( evaluator.SupportsThreadSafeCloning )
@@ -414,6 +414,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
                 CurrentShuffle++;
                 isFinished = terminationCondition.IsFinished();
+                if (isFinished) logTerminationConditionMet();
             }
             //saveLog( logPopulation, fullLogFileName );
             IObjectiveScores[] population = aggregate( complexes );
@@ -421,14 +422,20 @@ namespace CSIRO.Metaheuristics.Optimization
             return new BasicOptimizationResults<T>( population );
         }
 
+        private void logTerminationConditionMet()
+        {
+            var tags = createSimpleMsg("Termination condition", "Termination condition");
+            loggerWrite(string.Format("Termination condition using {0} is met", terminationCondition.GetType().Name), tags);
+        }
+
         private IDictionary<string, string> createSimpleMsg(string message, string category)
         {
             return LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("Message", message), LoggerMhHelper.MkTuple("Category", category));
         }
 
-        private void loggerWrite(string infoMsg)
+        private void loggerWrite(string infoMsg, IDictionary<string, string> tags)
         {
-            LoggerMhHelper.Write(infoMsg, logger);
+            LoggerMhHelper.Write(infoMsg, tags, logger);
         }
 
         private void loggerWrite(IObjectiveScores[] scores, IDictionary<string, string> tags)
@@ -465,7 +472,7 @@ namespace CSIRO.Metaheuristics.Optimization
                         result =>
                         {
                             Thread.Sleep( 100 );
-                            Console.WriteLine( "All Task Somehow Finished." );
+                            //Console.WriteLine( "All Task Somehow Finished." );
                         } );
             
             last.Wait( );
@@ -501,22 +508,38 @@ namespace CSIRO.Metaheuristics.Optimization
             return population;
         }
 
-        private IObjectiveScores[] evaluateScores( IObjectiveEvaluator<T> evaluator, T[] population )
+        private IObjectiveScores[] evaluateScores( IClonableObjectiveEvaluator<T> evaluator, T[] population )
         {
-            //return Array.ConvertAll<T, IObjectiveScores>( population, evaluator.EvaluateScore );           
-            IObjectiveScores[] tmp = new IObjectiveScores[population.Count()];
-            for( int i = 0; i < tmp.Length; i++ )
+
+            var procCount = System.Environment.ProcessorCount;
+            if (!evaluator.SupportsThreadSafeCloning)
+                procCount = 1;
+            T[][] subPop = MetaheuristicsHelper.MakeBins(population, procCount);
+            var offsets = new int[subPop.Length];
+            IClonableObjectiveEvaluator<T>[] cloneEval = new IClonableObjectiveEvaluator<T>[subPop.Length];
+            offsets[0] = 0;
+            cloneEval[0] = evaluator;
+            for (int i = 1; i < offsets.Length; i++)
             {
-                if (!isCancelled)
+                offsets[i] = offsets[i - 1] + subPop[i - 1].Length;
+                cloneEval[i] = evaluator.Clone();
+			}
+
+            IObjectiveScores[] result = new IObjectiveScores[population.Length];
+            Parallel.For(0, subPop.Length, i =>
+            {
+                var offset = offsets[i];
+                for (int j = 0; j < subPop[i].Length; j++)
                 {
-                    tmp[i] = evaluator.EvaluateScore(population[i]);
-                }                    
-                else
-                {                    
-                    tmp[ i ] = tmp[ i-1 ];
+                    if (!isCancelled)
+                        result[offset + j] = cloneEval[i].EvaluateScore(population[offset + j]);
+                    else
+                        result[offset + j] = null;
                 }
             }
-            return tmp;
+
+            );
+            return result;
         }
 
         private T[] initialisePopulation( )
@@ -826,10 +849,6 @@ namespace CSIRO.Metaheuristics.Optimization
 
             public void Evolve( )
             {
-                if (ComplexId != null)
-                    if (logger != null)
-                        logger.Write(ComplexId + " started");
-                    Console.WriteLine();
                 if (Thread.CurrentThread.Name == null)
                 {
                     Thread.CurrentThread.Name = ComplexId;
@@ -872,6 +891,8 @@ namespace CSIRO.Metaheuristics.Optimization
                                 loggerWrite(fitReflectedPoint, 
                                     createTagConcat(LoggerMhHelper.MkTuple("Message", "Reflected point in subcomplex - Failed"),createTagCatComplexNo()));
                                 subComplex = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
+                                if (subComplex == null) // this can happen if the feasible region of the parameter space is not convex.
+                                    subComplex = fitnessAssignment.AssignFitness(bufferComplex);
                             }
                         }
                         else
@@ -918,6 +939,12 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 if (logger != null)
                     logger.Write(point, tags);
+            }
+
+            private void loggerWrite(string message, IDictionary<string, string> tags)
+            {
+                if (logger != null)
+                    logger.Write(message, tags);
             }
 
             //private void loggerWrite(IHyperCube<double> point, IDictionary<string, string> tags)
@@ -1037,24 +1064,32 @@ namespace CSIRO.Metaheuristics.Optimization
                 FitnessAssignedScores<double>[] result;
                 FitnessAssignedScores<double>[] candidateSubcomplex = null;
                 T contractionPoint = contract( worstPoint, centroid );
-                FitnessAssignedScores<double> fitReflectedPoint = evaluateNewSet( contractionPoint, withoutWorstPoint, out candidateSubcomplex );
-                if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
+                FitnessAssignedScores<double> fitReflectedPoint = null;
+                if (contractionPoint != null)
                 {
-                    result = candidateSubcomplex;
-                    loggerWrite(fitReflectedPoint, createTagConcat(
-                        LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex"),
-                        createTagCatComplexNo()));
+                    fitReflectedPoint = evaluateNewSet(contractionPoint, withoutWorstPoint, out candidateSubcomplex);
+                    if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
+                    {
+                        result = candidateSubcomplex;
+                        loggerWrite(fitReflectedPoint, createTagConcat(
+                            LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex"),
+                            createTagCatComplexNo()));
+                        return result;
+                    }
                 }
-                else
-                {
+                if (contractionPoint != null && fitReflectedPoint != null)
                     loggerWrite(fitReflectedPoint, createTagConcat(
                         LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex-Failed"),
                         createTagCatComplexNo()));
-                    // 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
-                    // implementation showed a slower rate of convergence. 
-                    // result = addRandomInHypercube(withoutWorstPoint, bufferComplex);
-                    result = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
+                else
+                {
+                    var msg = "Contracted point unfeasible";
+                    loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
                 }
+                // 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
+                // implementation showed a slower rate of convergence. 
+                // result = addRandomInHypercube(withoutWorstPoint, bufferComplex);
+                result = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
                 return result;
             }
 
@@ -1097,7 +1132,12 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 var tmp = convertAllToHyperCube(popForHypercubeDefn);
                 IHyperCube<double> newPoint = hyperCubeOps.GenerateRandomWithinHypercube(tmp);
-
+                if(newPoint == null)
+                {
+                    var msg = "Random point within hypercube bounds is unfeasible";
+                    loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
+                    return null;
+                }
                 var newScore = evaluator.EvaluateScore((T)newPoint);
                 loggerWrite(newScore, createTagConcat(
                     LoggerMhHelper.MkTuple("Message", "Adding a random point in hypercube"),

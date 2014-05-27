@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany( "CSIRO" )]
-[assembly: AssemblyCopyright( "Copyright © CSIRO 2010-2013" )]
+[assembly: AssemblyCopyright( "Copyright © CSIRO 2010-2014" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 [assembly: AssemblyConfiguration("")]
@@ -17,5 +17,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion( "0.7.0.6" )]
-[assembly: AssemblyFileVersion( "0.7.0.6" )]
+[assembly: AssemblyVersion( "0.7.1.0" )]
+[assembly: AssemblyFileVersion( "0.7.1.0" )]

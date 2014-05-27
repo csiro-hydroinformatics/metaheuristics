@@ -239,6 +239,20 @@ namespace CSIRO.Metaheuristics.Utils
             return true;
         }
 
+        public static bool CheckInBounds<T>(IHyperCube<T> point) where T: IComparable
+        {
+            foreach (var varName in point.GetVariableNames())
+            {
+                var min = point.GetMinValue(varName);
+                var max = point.GetMaxValue(varName);
+                var val = point.GetValue(varName);
+                if (!MetaheuristicsHelper.CheckInBounds(val, min, max, throwIfFalse: false))
+                    return false;
+            }
+            return true;
+        }
+
+
         public static IObjectiveScores[] InterpolateBetweenPoints<T>(IObjectiveEvaluator<T> evaluator, IEnumerable<IObjectiveScores> points, double stepSize)
             where T : IHyperCube<double>
         {
@@ -272,6 +286,22 @@ namespace CSIRO.Metaheuristics.Utils
         {
             var dblScore = new DoubleObjectiveScore(scoreName, result, maximise: maximise);
             return new MultipleScores<T>(new IObjectiveScore[] { dblScore }, sysConfig);
+        }
+
+        public static T[][] MakeBins<T>(T[] population, int numBins)
+        {
+            int div = population.Length / numBins;
+            int remainder = population.Length % numBins;
+            T[][] result = new T[numBins][];
+            int offset = 0;
+            for (int i = 0; i < numBins; i++)
+            {
+                int len = (i < remainder ? div+1 : div);
+                result[i] = new T[len];
+                Array.Copy(population, offset, result[i], 0, len);
+                offset += len;
+            }
+            return result;
         }
     }
 }
