@@ -27,6 +27,24 @@ setHyperCube <- function(paramSet, specsFrame, setBounds=FALSE) {
   }
 }
 
+#' Builds a parameter set from a line in a data frame.
+#'
+#' Builds a parameter set from a line in a data frame, typically a line from a calibration log.
+#'
+#' @param paramSet A parameter set template, an object that implements IHyperCubeSetBounds<double>
+#' @param dataFrame a data frame with at least column names including all the names of the template parameter set.
+#' @param rownum The row index to use; defaults to 1
+#' @return A new parameter set, cloned from the template and with updated values
+#' @export
+buildParamSet <- function(paramSet, dataFrame, rownum=1) {
+  p <- clrCall(paramSet, 'Clone')
+  psdf <- pSetAsDataFrame(p)
+  pn <- rownames(psdf)
+  psdf[pn,'Value'] <- as.numeric(dataFrame[rownum,pn])
+  setHyperCube(p, psdf)
+  p
+}
+
 #' Apply a system configuration to a compatible model  
 #'
 #' Apply a system configuration to a compatible model  

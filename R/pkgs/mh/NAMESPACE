@@ -1,6 +1,7 @@
 export(applySysConfig)
 export(boundValues)
 export(boundValuesDf)
+export(buildParamSet)
 export(copyMhData)
 export(createSceOptim)
 export(getLoggerContent)
