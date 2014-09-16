@@ -37,6 +37,10 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
+    <ProjectReference Include="..\..\..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj">
+      <Project>{db39806a-caff-4c09-8bbd-8f467f9f9e89}</Project>
+      <Name>CSIRO.Modelling.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
       <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
       <Name>EnvModellingSample</Name>
