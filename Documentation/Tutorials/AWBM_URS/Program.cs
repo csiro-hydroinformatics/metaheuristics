@@ -63,12 +63,19 @@ namespace AWBM_URS
 
             public IObjectiveScores<BasicHyperCube> EvaluateScore(BasicHyperCube systemConfiguration)
             {
-                // What follows needs explanation. 
-                // systemConfiguration is general purpose; we need to find the appropriate model itself.
-                systemConfiguration.ApplyConfiguration(((ModelSimulation)simulation).TsModel);
+                apply(systemConfiguration, simulation);
                 simulation.Execute();
                 double result = sumSquares(simulation.GetRecorded("Runoff"), this.observedData);
                 return MetaheuristicsHelper.CreateSingleObjective(systemConfiguration, result, "Sum Squares");
+            }
+
+            private void apply(BasicHyperCube systemConfiguration, IModelSimulation<double[], double, int> simulation)
+            {
+                var varNames = systemConfiguration.GetVariableNames();
+                foreach (var varName in varNames)
+                {
+                    simulation.SetVariable(varName, systemConfiguration.GetValue(varName));
+                }
             }
 
             double sumSquares(double[] calculated, double[] observedData)

@@ -27,19 +27,20 @@ namespace NativeModelSample
             IClonableObjectiveEvaluator<BasicHyperCube> evaluator;
             IEvolutionEngine<BasicHyperCube> uniformRandomSampling;
 
-            var simulation = new AwbmWrapper();
-            var data = DataHandling.GetSampleClimate();
-            SimulationFactory.SetSampleSimulation(simulation, data);
-            int from = simulation.GetStart();
-            int to = simulation.GetEnd();
+            using (var simulation = new AwbmWrapper())
+            {
+                var data = DataHandling.GetSampleClimate();
+                SimulationFactory.SetSampleSimulation(simulation, data);
+                int from = simulation.GetStart();
+                int to = simulation.GetEnd();
 
-            evaluator = AWBM_URS.MainClass.BuildUrsEvaluator(simulation, data.Runoff, from, to);
+                evaluator = AWBM_URS.MainClass.BuildUrsEvaluator(simulation, data.Runoff, from, to);
 
-            var paramSpace = AWBM_URS.MainClass.CreateFeasibleAwbmParameterSpace();
-            uniformRandomSampling = new UniformRandomSampling<BasicHyperCube>(evaluator, new BasicRngFactory(0), paramSpace, 3000);
-            var ursResults = uniformRandomSampling.Evolve();
-            Console.WriteLine(MetaheuristicsHelper.GetHumanReadable(ursResults));
-
+                var paramSpace = AWBM_URS.MainClass.CreateFeasibleAwbmParameterSpace();
+                uniformRandomSampling = new UniformRandomSampling<BasicHyperCube>(evaluator, new BasicRngFactory(0), paramSpace, 3000);
+                var ursResults = uniformRandomSampling.Evolve();
+                Console.WriteLine(MetaheuristicsHelper.GetHumanReadable(ursResults));
+            }
         }
     }
 }

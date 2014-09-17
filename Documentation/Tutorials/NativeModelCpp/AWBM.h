@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <string>
 
 class AWBM
 {
@@ -26,6 +27,11 @@ public:
 	void SetC1(double value) { capacities[0] = value; }
 	void SetC2(double value) { capacities[1] = value; }
 	void SetC3(double value) { capacities[2] = value; }
+
+	void SetVariable(std::string& variableIdentifier, double value);
+	double GetVariable(std::string& variableIdentifier);
+
+	double * GetPtr(std::string& variableIdentifier);
 
 private:
 	// State values, can be considered as outputs depending on the modelling objective.
