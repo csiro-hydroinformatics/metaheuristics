@@ -6,6 +6,7 @@ using CSIRO.Metaheuristics.SystemConfigurations;
 using CSIRO.Metaheuristics.Objectives;
 using CSIRO.Sys;
 using CSIRO.Metaheuristics.Utils;
+using System.Threading;
 
 namespace CSIRO.Metaheuristics.Tests
 {
@@ -164,65 +165,113 @@ namespace CSIRO.Metaheuristics.Tests
         }
     }
 
-    public class ParaboloidObjEval<T> : IClonableObjectiveEvaluator<T>
-        where T : IHyperCube<double>
-
+    public abstract class TestObjEval<T> : IClonableObjectiveEvaluator<T>
+    where T : IHyperCube<double>
     {
-        protected double bestParam;
-
-        public ParaboloidObjEval(double bestParam=0)
-        {
-            this.bestParam = bestParam;
-        }
-        IObjectiveScores<T> IObjectiveEvaluator<T>.EvaluateScore(T systemConfiguration)
+        public IObjectiveScores<T> EvaluateScore(T systemConfiguration)
         {
             return evalScore(systemConfiguration);
         }
+        protected abstract IObjectiveScores<T> evalScore(T sysConfig);
+        public bool SupportsDeepCloning
+        {
+            get { return true; }
+        }
 
-        private IObjectiveScores<T> evalScore(T sysConfig)
+        public bool SupportsThreadSafeCloning
+        {
+            get { return true; }
+        }
+
+        protected abstract IClonableObjectiveEvaluator<T> deepClone();
+
+        public IClonableObjectiveEvaluator<T> Clone()
+        {
+            return deepClone();
+        }
+    }
+
+    public class ParaboloidObjEval<T> : TestObjEval<T>
+        where T : IHyperCube<double>
+    {
+        protected double bestParam;
+        private bool addSine;
+        private double sineFreq;
+
+        public ParaboloidObjEval(double bestParam=0, bool addSine=false, double sineFreq=Math.PI)
+        {
+            this.bestParam = bestParam;
+            this.addSine = addSine;
+            this.sineFreq = sineFreq;
+        }
+
+        protected override IObjectiveScores<T> evalScore(T sysConfig)
         {
             var names = sysConfig.GetVariableNames();
+            double result = calcObjective(sysConfig, names);
+            var dblScore = new DoubleObjectiveScore("Paraboloid", result, maximise: false);
+            return new MultipleScores<T>(new IObjectiveScore[] { dblScore }, sysConfig);
+        }
+
+        protected virtual double calcObjective(T sysConfig, string[] names)
+        {
             double result = 0;
             for (int i = 0; i < names.Length; i++)
             {
                 var name = names[i];
                 double v = (sysConfig.GetValue(name) - bestParam);
                 result += v * v;
+                if (addSine) result += addSinusoidalSignal(v);
             }
-            var dblScore = new DoubleObjectiveScore("Paraboloid", result, maximise: false);
-            return new MultipleScores<T>(new IObjectiveScore[] { dblScore }, sysConfig);
+            return result;
         }
 
-        bool ICloningSupport.SupportsDeepCloning
+        private double addSinusoidalSignal(double v)
         {
-            get { return true; }
+            return 1 - Math.Cos(v * sineFreq);
         }
 
-        bool ICloningSupport.SupportsThreadSafeCloning
-        {
-            get { return true; }
-        }
-
-        protected virtual IClonableObjectiveEvaluator<T> deepClone()
+        protected override IClonableObjectiveEvaluator<T> deepClone()
         {
             return new ParaboloidObjEval<T>(bestParam: this.bestParam);
         }
+    }
 
-        IClonableObjectiveEvaluator<T> ICloningSupport<IClonableObjectiveEvaluator<T>>.Clone()
+    public class ObjEvalTestHyperCube : IClonableObjectiveEvaluator<TestHyperCube>
+    {
+        public ObjEvalTestHyperCube(TestObjEval<TestHyperCube> innerObjCalc, double pauseSeconds = 0.0)
+        {
+            this.pauseSeconds = pauseSeconds;
+            this.innerObjCalc = innerObjCalc;
+        }
+        private double pauseSeconds;
+        private TestObjEval<TestHyperCube> innerObjCalc;
+
+        protected IClonableObjectiveEvaluator<TestHyperCube> deepClone()
+        {
+            return new ObjEvalTestHyperCube((TestObjEval<TestHyperCube>)innerObjCalc.Clone(), this.pauseSeconds);
+        }
+
+        public IObjectiveScores<TestHyperCube> EvaluateScore(TestHyperCube systemConfiguration)
+        {
+            if (pauseSeconds > 0.0)
+                Thread.Sleep((int)(pauseSeconds * 1000));
+            return innerObjCalc.EvaluateScore(systemConfiguration);
+        }
+
+        public IClonableObjectiveEvaluator<TestHyperCube> Clone()
         {
             return deepClone();
         }
-    }
 
-    public class ParaboloidObjEvalTest : ParaboloidObjEval<TestHyperCube>
-    {
-        public ParaboloidObjEvalTest(double bestParam = 0) : base(bestParam: bestParam)
+        public bool SupportsDeepCloning
         {
+            get { return innerObjCalc.SupportsDeepCloning; }
         }
 
-        protected override IClonableObjectiveEvaluator<TestHyperCube> deepClone()
+        public bool SupportsThreadSafeCloning
         {
-            return new ParaboloidObjEvalTest(bestParam: this.bestParam);
+            get { return innerObjCalc.SupportsThreadSafeCloning; }
         }
     }
 }

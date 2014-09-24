@@ -9,6 +9,7 @@ using CSIRO.Metaheuristics.CandidateFactories;
 using CSIRO.Metaheuristics.Fitness;
 using CSIRO.Metaheuristics.Objectives;
 using System.Threading;
+using System.Diagnostics;
 
 namespace CSIRO.Metaheuristics.Tests
 {
@@ -49,17 +50,84 @@ namespace CSIRO.Metaheuristics.Tests
 
             termination = new ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition(threshold: threshold, maxHours: 0.1);
             var rng = new BasicRngFactory(0);
-            var evaluator = new ParaboloidObjEvalTest(bestParam: 2);
+            var evaluator = new ObjEvalTestHyperCube(new ParaboloidObjEval<TestHyperCube>(bestParam: 2));
+            var engine = createSce(termination, rng, evaluator);
+            var results = engine.Evolve();
+            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            Assert.IsFalse(termination.HasReachedMaxTime());
+        }
+
+        [Test]
+        public void TestMaxWallClockSceInitalPopulation()
+        {
+            double threshold = 2.5e-2;
+            double hours = 1.0;
+            double objCalcPauseSec = 0.2;
+
+            var engine = createSce(threshold, hours, objCalcPauseSec, maxShuffle:1);
+            double deltaT = timeOptimizer(engine);
+            double initPopDeltaT = deltaT;
+
+            hours = (deltaT / 2) / 3600;
+
+            double expectedMaxSeconds = deltaT / 2 * 1.1; // within 10% of the max runtime specified. Large, but given the problem size and calc delay, needed.
+            deltaT = testOptimMaxruntimeTermination(threshold, hours, objCalcPauseSec, expectedMaxSeconds);
+            Assert.IsTrue(deltaT > hours);
+        }
+
+        [Test]
+        public void TestMaxWallClockSceShuffle()
+        {
+            double threshold = 2.5e-3;
+            double hours = 7.0 / 3600;
+            double objCalcPauseSec = 0.03;
+            double expectedMaxSeconds = 7.2;
+
+            var deltaT = testOptimMaxruntimeTermination(threshold, hours, objCalcPauseSec, expectedMaxSeconds, new ParaboloidObjEval<TestHyperCube>(bestParam: 2, addSine: true, sineFreq:10*Math.PI));
+            // Make sure that this is not a fluke on any machine, and that at least the max runtime elapsed.
+            Assert.IsTrue(deltaT > 7.0);
+        }
+
+        private static double testOptimMaxruntimeTermination(double threshold, double hours, double objCalcPauseSec, double expectedMaxSeconds, TestObjEval<TestHyperCube> innerObjCalc = null)
+        {
+            var engine = createSce(threshold, hours, objCalcPauseSec, innerObjCalc);
+            var deltaT = timeOptimizer(engine);
+            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            Assert.IsTrue(deltaT < expectedMaxSeconds);
+            return deltaT;
+        }
+
+
+        private static double timeOptimizer(ShuffledComplexEvolution<TestHyperCube> engine)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            var results = engine.Evolve();
+            sw.Stop();
+            var deltaT = sw.Elapsed.TotalSeconds;
+            return deltaT;
+        }
+
+        private static ShuffledComplexEvolution<TestHyperCube> createSce(double cvThreshold, double maxHours, double objCalcPauseSec, TestObjEval<TestHyperCube> innerObjCalc=null, int maxShuffle=15)
+        {
+            var termination = new ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition(threshold: cvThreshold, maxHours: maxHours);
+            var rng = new BasicRngFactory(0);
+            if (innerObjCalc == null) innerObjCalc = new ParaboloidObjEval<TestHyperCube>(bestParam: 2);
+            var evaluator = new ObjEvalTestHyperCube(innerObjCalc, pauseSeconds: objCalcPauseSec);
+            var engine = createSce(termination, rng, evaluator, maxShuffle: maxShuffle);
+            return engine;
+        }
+
+        private static ShuffledComplexEvolution<TestHyperCube> createSce(ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition termination, BasicRngFactory rng, ObjEvalTestHyperCube evaluator, int maxShuffle = 15)
+        {
             var engine = new ShuffledComplexEvolution<TestHyperCube>(
                 evaluator,
                 new UniformRandomSamplingFactory<TestHyperCube>(rng.CreateFactory(), new TestHyperCube(2, 0, -10, 10)),
                 termination,
-                5, 20, 10, 3, 20, 1,
+                5, 20, 10, 3, 20, maxShuffle,
                 rng,
                 new DefaultFitnessAssignment());
-            var results = engine.Evolve();
-            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
-            Assert.IsFalse(termination.HasReachedMaxTime());
+            return engine;
         }
 
         [Test]

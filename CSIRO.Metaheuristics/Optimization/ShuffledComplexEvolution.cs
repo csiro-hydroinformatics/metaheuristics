@@ -382,12 +382,18 @@ namespace CSIRO.Metaheuristics.Optimization
             isCancelled = false;
             IObjectiveScores[] scores = evaluateScores( evaluator, initialisePopulation( ) );
             loggerWrite(scores, createSimpleMsg("Initial Population", "Initial Population"));
+            var isFinished = terminationCondition.IsFinished();
+            if (isFinished)
+            {
+                logTerminationConditionMet();
+                return packageResults(scores);
+            }
             IComplex[] complexes = partition(scores);
 
             //OnAdvanced( new ComplexEvolutionEvent( complexes ) );
 
             CurrentShuffle = 1;
-            var isFinished = terminationCondition.IsFinished( );
+            isFinished = terminationCondition.IsFinished( );
             if(isFinished) logTerminationConditionMet();
             while (!isFinished && !isCancelled)
             {
@@ -417,10 +423,21 @@ namespace CSIRO.Metaheuristics.Optimization
                 isFinished = terminationCondition.IsFinished();
                 if (isFinished) logTerminationConditionMet();
             }
+            return packageResults(complexes);
+        }
+
+        private static IOptimizationResults<T> packageResults(IComplex[] complexes)
+        {
             //saveLog( logPopulation, fullLogFileName );
-            IObjectiveScores[] population = aggregate( complexes );
+            IObjectiveScores[] population = aggregate(complexes);
             //saveLogParetoFront( population );
-            return new BasicOptimizationResults<T>( population );
+            return packageResults(population);
+        }
+
+        private static IOptimizationResults<T> packageResults(IObjectiveScores[] population)
+        {
+            // cater for cases where we have null references (e.g. if the termination condition was in the middle of the population creation)
+            return new BasicOptimizationResults<T>(population.Where(p => (p != null)).ToArray());
         }
 
         private void logTerminationConditionMet()
@@ -511,7 +528,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private IObjectiveScores[] evaluateScores( IClonableObjectiveEvaluator<T> evaluator, T[] population )
         {
-            return Evaluations.EvaluateScores(evaluator, population, () => this.isCancelled);
+            return Evaluations.EvaluateScores(evaluator, population, () => (this.isCancelled || terminationCondition.IsFinished()));
         }
 
         private T[] initialisePopulation( )
