@@ -141,6 +141,78 @@ namespace CSIRO.Metaheuristics.Tests
             Assert.IsTrue(termination.HasReachedMaxTime());
         }
 
+
+        private class TestPopulationAlgorithm : IPopulation<double>, IEvolutionEngine<ICloneableSystemConfiguration>
+        {
+            double[] fitnessValues;
+            int counter = 0;
+
+            int Counter { get { return counter; } }
+
+            public TestPopulationAlgorithm(IEnumerable<double> values)
+            {
+                this.fitnessValues = values.ToArray();
+            }
+
+            public int Step()
+            {
+                counter++;
+                return counter;
+            }
+
+            public FitnessAssignedScores<double>[] Population
+            {
+                get { return new[]{new FitnessAssignedScores<double>(null, fitnessValues[counter])}; }
+            }
+
+            public IOptimizationResults<ICloneableSystemConfiguration> Evolve()
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetDescription()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Cancel()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Test]
+        public void TestMargnalImprovementTerminationCriterion()
+        {
+            double hours = 1.0;
+            var termination = new ShuffledComplexEvolution<ICloneableSystemConfiguration>.MarginalImprovementTerminationCondition(maxHours: hours, tolerance: 1e-6, cutoffNoImprovement: 5);
+            var algo = new TestPopulationAlgorithm(new double[] { 1, 2, 3, 4, 5, 6, 6, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9 });
+            termination.SetEvolutionEngine(algo);
+            Assert.IsFalse(termination.IsFinished()); // 1,
+            for (int i = 1; i < 6; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 2, 3, 4, 5, 6,
+            }
+            for (int i = 6; i < 8; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 6, 6,
+            }
+            for (int i = 8; i < 11; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 7, 8, 9,
+            }
+            for (int i = 11; i < 16; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 9, 9, 9, 9, 9,
+            }
+            algo.Step();
+            Assert.IsTrue(termination.IsFinished()); // 9, 
+        }
+
         private IObjectiveScores[] createSample(bool converged = false)
         {
             /*

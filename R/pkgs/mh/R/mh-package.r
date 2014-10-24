@@ -10,8 +10,8 @@
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.1-1\cr
-#' Date: \tab 2013-04-04\cr
+#' Version: \tab 0.3-1\cr
+#' Date: \tab 2014-10-24\cr
 #' License: \tab LGPL 2.1\cr
 #' }
 #'

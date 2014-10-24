@@ -1,3 +1,5 @@
+using System;
+
 namespace CSIRO.Metaheuristics
 {
     /// <summary>
@@ -26,4 +28,13 @@ namespace CSIRO.Metaheuristics
 
     }
 
+    /// <summary>
+    /// An interface for population based search algorithms
+    /// </summary>
+    /// <typeparam name="V">The type of the fitness score used to evolve the algorithm</typeparam>
+    public interface IPopulation<V> 
+        where V : IComparable
+    {
+        FitnessAssignedScores<V>[] Population { get; }
+    }
 }

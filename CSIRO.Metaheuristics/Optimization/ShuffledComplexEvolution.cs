@@ -93,7 +93,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
     // TODO: should there be a further type constraint such that T can only be a HyperCube? 
     // problem is that the HyperCube is generic itself, makes things complex
-    public class ShuffledComplexEvolution<T> : IEvolutionEngine<T> 
+    public class ShuffledComplexEvolution<T> : IEvolutionEngine<T>, IPopulation<double>
         where T : ICloneableSystemConfiguration
     {
         public ShuffledComplexEvolution(IClonableObjectiveEvaluator<T> evaluator,
@@ -183,7 +183,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         int pmin = 5;
         int p = 5, m = 27, q = 14, alpha = 3, beta = 27;
-        int numShuffle = 18;
+        int numShuffle = -1;
 
         int seed = 0;
         //IObjectiveEvaluator<ISystemConfiguration> evaluator;
@@ -209,6 +209,56 @@ namespace CSIRO.Metaheuristics.Optimization
             }
 
             #endregion
+        }
+
+        public class MarginalImprovementTerminationCondition : MaxWalltimeCheck, ITerminationCondition<T>
+        {
+            public MarginalImprovementTerminationCondition(double maxHours, double tolerance, int cutoffNoImprovement)
+                : base(maxHours)
+            {
+                this.tolerance = tolerance;
+                this.maxConverge = cutoffNoImprovement;
+            }
+
+            private IPopulation<double> algorithm;
+            public void SetEvolutionEngine(IEvolutionEngine<T> engine)
+            {
+                this.algorithm = (IPopulation<double>)engine;
+            }
+
+
+            double oldBest = double.NaN;
+            double tolerance = 1e-6;
+            int converge = 0;
+            int maxConverge = 10;
+            public bool IsFinished()
+            {
+                // https://jira.csiro.au/browse/WIRADA-129
+//current SWIFT SCE implementation uses this algorithm to define convergence and it normally guarantees 
+// reproducible optimum is found. It needs two parameters, Tolerance (normally of the order of 10e-6) 
+// and maxConverge (normally of the order of 10)
+
+                if (this.HasReachedMaxTime())
+                    return true;
+                FitnessAssignedScores<double>[] currentPopulation = algorithm.Population;
+                var currentBest = currentPopulation.First().FitnessValue;
+                if (double.IsNaN(oldBest))
+                {
+                    oldBest = currentBest; 
+                    return false;
+                }
+                if (Math.Abs(currentBest - oldBest) <= Math.Abs(oldBest * tolerance))
+                {
+                    converge++;
+                }
+                else
+                {
+                    converge = 0;
+                }
+                oldBest = currentBest;
+                if (converge > maxConverge) return true;
+                return false;
+            }
         }
 
         public class CoefficientOfVariationTerminationCondition : ITerminationCondition<T>
@@ -237,7 +287,7 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 if (this.HasReachedMaxTime())
                     return true;
-                if (algorithm.CurrentShuffle >= algorithm.numShuffle)
+                if (algorithm.numShuffle >= 0 && algorithm.CurrentShuffle >= algorithm.numShuffle)
                     return true;
                 if (algorithm.PopulationAtShuffling == null)
                     return false; // start of the algorithm.
@@ -312,15 +362,31 @@ namespace CSIRO.Metaheuristics.Optimization
             }
         }
 
-        public class MaxWalltimeTerminationCondition : ITerminationCondition<T>
+        public abstract class MaxWalltimeCheck
         {
             private double maxHours;
             private Stopwatch stopWatch;
-            public MaxWalltimeTerminationCondition(double maxHours)
+
+            protected MaxWalltimeCheck(double maxHours)
             {
                 this.maxHours = maxHours;
                 this.stopWatch = new Stopwatch();
                 stopWatch.Start();
+            }
+
+            public bool HasReachedMaxTime()
+            {
+                if (this.maxHours <= 0)
+                    return false;
+                double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
+                return (this.maxHours < hoursElapsed);
+            }
+        }
+
+        public class MaxWalltimeTerminationCondition : MaxWalltimeCheck, ITerminationCondition<T>
+        {
+            public MaxWalltimeTerminationCondition(double maxHours) : base(maxHours)
+            {
             }
 
             public virtual void SetEvolutionEngine(IEvolutionEngine<T> engine)
@@ -331,18 +397,6 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 return this.HasReachedMaxTime();
             }
-
-            private bool HasReachedMaxTime()
-            {
-                double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
-                if (this.maxHours <= 0)
-                    return false;
-                else if (this.maxHours < hoursElapsed)
-                    return true;
-                else
-                    return false;
-            }
-
         }
 
 
@@ -365,6 +419,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private CancellationTokenSource tokenSource = new CancellationTokenSource( );
         private SceOptions options = SceOptions.None;
+        private IComplex[] complexes = null;
 
         public double ContractionRatio { get; set; }
         public double ReflectionRatio { get; set; }
@@ -388,7 +443,7 @@ namespace CSIRO.Metaheuristics.Optimization
                 logTerminationConditionMet();
                 return packageResults(scores);
             }
-            IComplex[] complexes = partition(scores);
+            this.complexes = partition(scores);
 
             //OnAdvanced( new ComplexEvolutionEvent( complexes ) );
 
@@ -1201,5 +1256,7 @@ namespace CSIRO.Metaheuristics.Optimization
         */
 
         public FitnessAssignedScores<double>[] PopulationAtShuffling { get; set; }
+
+        public FitnessAssignedScores<double>[] Population { get { return sortByFitness(aggregate(complexes)); } }
     }
 }
