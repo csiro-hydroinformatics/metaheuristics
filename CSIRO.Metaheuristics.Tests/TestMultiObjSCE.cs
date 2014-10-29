@@ -19,8 +19,14 @@ namespace CSIRO.Metaheuristics.Tests
         [Test]
         public void TestSceDualObj()
         {
+            var evaluator = new SCH1ObjectiveEvaluator(false);
+            var engine = createSce(evaluator);
+            var results = engine.Evolve();
+        }
+
+        private static ShuffledComplexEvolution<ICloneableSystemConfiguration> createSce(IClonableObjectiveEvaluator<ICloneableSystemConfiguration> evaluator)
+        {
             var rng = new BasicRngFactory(0);
-            var evaluator = new SCH1ObjectiveEvaluator();
             var engine = new ShuffledComplexEvolution<ICloneableSystemConfiguration>(
                 evaluator,
                 new UniformRandomSamplingFactory<IHyperCube<double>>(rng.CreateFactory(), new UnivariateReal(0)),
@@ -28,8 +34,18 @@ namespace CSIRO.Metaheuristics.Tests
                 5, 20, 10, 3, 20, 7,
                 rng,
                 new ZitlerThieleFitnessAssignment());
-            Results = engine.Evolve();
+            return engine;
+        }
 
+        [Test]
+        public void TestSceMaxParallelOptions()
+        {
+            var evaluator = new SCH1ObjectiveEvaluator(true);
+            var engine = createSce(evaluator);
+            engine.MaxDegreeOfParallelism = -1;
+            var results = engine.Evolve();
+            engine.MaxDegreeOfParallelism = 2;
+            results = engine.Evolve();
         }
 
         [Test]
@@ -53,7 +69,7 @@ namespace CSIRO.Metaheuristics.Tests
             var evaluator = new ObjEvalTestHyperCube(new ParaboloidObjEval<TestHyperCube>(bestParam: 2));
             var engine = createSce(termination, rng, evaluator);
             var results = engine.Evolve();
-            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            //Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
             Assert.IsFalse(termination.HasReachedMaxTime());
         }
 
@@ -92,7 +108,7 @@ namespace CSIRO.Metaheuristics.Tests
         {
             var engine = createSce(threshold, hours, objCalcPauseSec, innerObjCalc);
             var deltaT = timeOptimizer(engine);
-            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            //Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
             Assert.IsTrue(deltaT < expectedMaxSeconds);
             return deltaT;
         }
@@ -246,7 +262,7 @@ namespace CSIRO.Metaheuristics.Tests
             return Array.ConvertAll(pset, (x => new MultipleScores<TestHyperCube>(new IObjectiveScore[] { d }, x)));
         }
 
-        public IOptimizationResults<ICloneableSystemConfiguration> Results;
+        //public IOptimizationResults<ICloneableSystemConfiguration> Results;
 
         private class UnivariateRealUniformRandomSampler
         {
@@ -359,6 +375,12 @@ namespace CSIRO.Metaheuristics.Tests
 
         private class SCH1ObjectiveEvaluator : IClonableObjectiveEvaluator<ICloneableSystemConfiguration>
         {
+            private bool claimParallelizable;
+            public SCH1ObjectiveEvaluator(bool claimParallelizable)
+            {
+                this.claimParallelizable = claimParallelizable;
+            }
+
             public IObjectiveScores<ICloneableSystemConfiguration> EvaluateScore(ICloneableSystemConfiguration systemConfiguration)
             {
                 double x = ((UnivariateReal)systemConfiguration).Value;
@@ -435,17 +457,17 @@ namespace CSIRO.Metaheuristics.Tests
 
             public bool SupportsDeepCloning
             {
-                get { return false; }
+                get { return claimParallelizable; }
             }
 
             public bool SupportsThreadSafeCloning
             {
-                get { return false; }
+                get { return claimParallelizable; }
             }
 
             public IClonableObjectiveEvaluator<ICloneableSystemConfiguration> Clone()
             {
-                throw new NotImplementedException();
+                return new SCH1ObjectiveEvaluator(claimParallelizable);
             }
 
             #endregion

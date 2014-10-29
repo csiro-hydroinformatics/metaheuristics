@@ -81,8 +81,8 @@ maxWallTimeTermination <- function(sysConfigType, maxHours = 0.1) {
 #' Create an termination criterion based on the rate of marginal fitness improvement
 #'
 #' @param sysConfigType The type of the system configuration to use for Generics.
-#' @param tolerance the maximum wall time runtime for the optimisation
-#' @param cutoffNoImprovement the maximum wall time runtime for the optimisation
+#' @param tolerance the increment in the objective below which the improvement is considered negligible
+#' @param cutoffNoImprovement the maximum number of successive times the algorithm fails to improve the objective function.
 #' @param maxHours the maximum wall time runtime for the optimisation
 #' @return a CLR termination criterion.
 #' @export

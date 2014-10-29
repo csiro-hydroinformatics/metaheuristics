@@ -241,6 +241,8 @@ namespace CSIRO.Metaheuristics.Optimization
                 if (this.HasReachedMaxTime())
                     return true;
                 FitnessAssignedScores<double>[] currentPopulation = algorithm.Population;
+                if (currentPopulation == null)
+                    return false;
                 var currentBest = currentPopulation.First().FitnessValue;
                 if (double.IsNaN(oldBest))
                 {
@@ -414,6 +416,13 @@ namespace CSIRO.Metaheuristics.Optimization
 
         public int CurrentShuffle { get; private set; }
 
+        public int MaxDegreeOfParallelism 
+        {
+            get { return parallelOptions.MaxDegreeOfParallelism;}
+            set { parallelOptions.MaxDegreeOfParallelism = value;}
+        }
+        private ParallelOptions parallelOptions = new ParallelOptions();
+
         private bool isCancelled = false;
         private IComplex currentComplex;
 
@@ -526,29 +535,11 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private void execParallel( IComplex[] complexes )
         {
-            List<Task> tasks = new List<Task>( );
-            //tokenSource = new CancellationTokenSource( ); //commented by Bill Wang on 24/02/2011
-
-            for( int i = 0; i < complexes.Count( ); i++ )
+            Parallel.For(0, complexes.Length, parallelOptions, i =>
             {
-                int j = i;
-                IComplex complex = complexes[i];
-                complex.ComplexId = i.ToString( );
-                var task = Task.Factory.StartNew( complex.Evolve, tokenSource.Token );
-                tasks.Add( task );
-                var displaySuccess = task.ContinueWith( successTask => Console.WriteLine( "task " + j + " success" ), TaskContinuationOptions.OnlyOnRanToCompletion );
-                var displayCancel = task.ContinueWith( cancelTask => Console.WriteLine( "task " + j + " canceled" ), TaskContinuationOptions.OnlyOnCanceled );
-            }
-            Thread.Sleep( 10 );
-            //tokenSource.Cancel( ); //commented by Bill Wang on 24/02/2011
-            var last = Task.Factory.ContinueWhenAll( tasks.ToArray( ),
-                        result =>
-                        {
-                            Thread.Sleep( 100 );
-                            //Console.WriteLine( "All Task Somehow Finished." );
-                        } );
-            
-            last.Wait( );
+                complexes[i].ComplexId = i.ToString();
+                complexes[i].Evolve();
+            });
 
         }
 
@@ -583,7 +574,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private IObjectiveScores[] evaluateScores( IClonableObjectiveEvaluator<T> evaluator, T[] population )
         {
-            return Evaluations.EvaluateScores(evaluator, population, () => (this.isCancelled || terminationCondition.IsFinished()));
+            return Evaluations.EvaluateScores(evaluator, population, () => (this.isCancelled || terminationCondition.IsFinished()), parallelOptions);
         }
 
         private T[] initialisePopulation( )
@@ -1257,6 +1248,14 @@ namespace CSIRO.Metaheuristics.Optimization
 
         public FitnessAssignedScores<double>[] PopulationAtShuffling { get; set; }
 
-        public FitnessAssignedScores<double>[] Population { get { return sortByFitness(aggregate(complexes)); } }
+        public FitnessAssignedScores<double>[] Population 
+        { 
+            get 
+            {
+                if (complexes == null) return null;
+                return sortByFitness(aggregate(complexes));
+            }
+        }
+
     }
 }

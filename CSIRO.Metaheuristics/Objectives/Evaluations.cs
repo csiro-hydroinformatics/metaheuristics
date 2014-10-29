@@ -9,8 +9,11 @@ namespace CSIRO.Metaheuristics.Objectives
 {
     public static class Evaluations
     {
-        public static IObjectiveScores[] EvaluateScores<T>(IClonableObjectiveEvaluator<T> evaluator, T[] population, Func<bool> isCancelled) where T : ISystemConfiguration
+        public static IObjectiveScores[] EvaluateScores<T>(IClonableObjectiveEvaluator<T> evaluator, T[] population, Func<bool> isCancelled, ParallelOptions parallelOptions = null) where T : ISystemConfiguration
         {
+            if(parallelOptions == null)
+                parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
+
             var procCount = System.Environment.ProcessorCount;
             if (!evaluator.SupportsThreadSafeCloning)
                 procCount = 1;
@@ -26,7 +29,7 @@ namespace CSIRO.Metaheuristics.Objectives
             }
 
             IObjectiveScores[] result = new IObjectiveScores[population.Length];
-            Parallel.For(0, subPop.Length, i =>
+            Parallel.For(0, subPop.Length, parallelOptions, i =>
             {
                 var offset = offsets[i];
                 for (int j = 0; j < subPop[i].Length; j++)

@@ -11,7 +11,7 @@
     <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A metaheuristics software framework for .NET</description>
-    <releaseNotes>Add a new convergence criterion for optimisation, based on relative improvement of the fitness score</releaseNotes>
+    <releaseNotes>Customizable maximum number of threads for shuffled complex evolution.</releaseNotes>
     <copyright>Copyright 2014 CSIRO</copyright>
     <tags>Metaheuristics Optimisation Optimization Calibration</tags>
   </metadata>
