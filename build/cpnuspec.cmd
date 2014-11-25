@@ -8,7 +8,7 @@ set THIS_DIR=%~d0%~p0
 REM set THIS_DIR=F:\src\github_jm\metaheuristics\build\
 set src_nuspec=%THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.nuspec
 if not exist "%src_nuspec%" goto noSrcNuspec
-if "%BuildConfiguration%" == "" set BuildConfiguration=Debug
+if not defined BuildConfiguration set BuildConfiguration=Debug
 set COPYOPTIONS=/Y /R /D
 
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.nuspec %COPYOPTIONS%
