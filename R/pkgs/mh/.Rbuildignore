@@ -6,7 +6,7 @@
 .*\.suo
 .*ipch.*
 .*\.lastbuildstate
-.*/.intermediate/.*
+.*\.intermediate\..*
 .*/Debug/.*
 .*/Release/.*
 .*/MonoDebug/.*
