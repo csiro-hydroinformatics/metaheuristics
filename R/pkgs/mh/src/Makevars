@@ -10,7 +10,7 @@ SLN:= mh.sln
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
-RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb
+RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.mdb
 MSB:=xbuild
 MODE:=Build
 SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
