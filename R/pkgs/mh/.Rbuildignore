@@ -7,10 +7,10 @@
 .*ipch.*
 .*\.lastbuildstate
 .*\.intermediate\..*
-.*\Debug\..*
-.*\Release\..*
-.*\MonoDebug\..*
-.*\MonoInstallDebug\..*
-.*\MonoInstall\..*
-.*\bin\..*
-.*\obj\..*
+.*/Debug/.*
+.*/Release/.*
+.*/MonoDebug/.*
+.*/MonoInstallDebug/.*
+.*/MonoInstall/.*
+.*/bin/.*
+.*/obj/.*
