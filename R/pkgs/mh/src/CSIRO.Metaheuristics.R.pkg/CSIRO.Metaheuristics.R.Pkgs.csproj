@@ -62,14 +62,14 @@
     <Reference Include="CSIRO.Utilities">
       <HintPath>..\packages\CSIRO.Utilities.0.7.5.0\lib\net40\CSIRO.Utilities.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet">
-      <HintPath>..\packages\R.NET.Community.1.5.19\lib\net40\RDotNet.dll</HintPath>
-    </Reference>
-    <Reference Include="RDotNet.NativeLibrary">
-      <HintPath>..\packages\R.NET.Community.1.5.19\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet">
+      <HintPath>..\packages\R.NET.Community.1.5.20\lib\net40\RDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary">
+      <HintPath>..\packages\R.NET.Community.1.5.20\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

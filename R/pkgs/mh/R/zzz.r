@@ -13,7 +13,7 @@
   if( !file.exists(f) ) {
     packageStartupMessage('Could not find path to CSIRO.Metaheuristics.R.Pkgs.dll, you will have to load it manually')
   } else {
-    clrLoadAssembly(f)
+    rClr::clrLoadAssembly(f)
   }
 }
 
