@@ -30,50 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.5.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.4.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.4.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.5.0\lib\net40\CSIRO.Sys.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Utilities, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Utilities.0.7.4.0\lib\net40\CSIRO.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
-    </Reference>
-    <Reference Include="MPI, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPI.dll</HintPath>
-    </Reference>
-    <Reference Include="MPIUtils, Version=0.1.0.0, Culture=neutral, PublicKeyToken=e35b242c18c115bc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPIUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="RDotNet, Version=1.5.16.30632, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.16\lib\net40\RDotNet.dll</HintPath>
-    </Reference>
-    <Reference Include="RDotNet.NativeLibrary, Version=1.5.16.30632, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.16\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
@@ -82,6 +38,39 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="CSIRO.Metaheuristics">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.5.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.Parallel">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.4.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.R">
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.4.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.5.0\lib\net40\CSIRO.Sys.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MPI">
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPI.dll</HintPath>
+    </Reference>
+    <Reference Include="MPIUtils">
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPIUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Utilities">
+      <HintPath>..\packages\CSIRO.Utilities.0.7.5.0\lib\net40\CSIRO.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet">
+      <HintPath>..\packages\R.NET.Community.1.5.19\lib\net40\RDotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary">
+      <HintPath>..\packages\R.NET.Community.1.5.19\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OptimizerHelper.cs" />
