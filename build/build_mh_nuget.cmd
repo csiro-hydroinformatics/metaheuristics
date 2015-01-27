@@ -67,6 +67,8 @@ if exist %mh_dir%build\packages\*.nupkg del %mh_dir%build\packages\*.nupkg
 call %mh_dir%build\cpnuspec.cmd
 xcopy %mh_dir%build\packages\*.nupkg %repo_dir% %COPYOPTIONS%
 
+cd %~d0%~p0
+
 goto completed
 
 :MSBuild_not_found
