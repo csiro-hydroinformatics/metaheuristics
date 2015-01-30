@@ -30,17 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\R\pkgs\mh\src\packages\CSIRO.Metaheuristics.0.7.6.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+    <Reference Include="CSIRO.Metaheuristics">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.6.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Modelling.Core, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\R\pkgs\mh\src\packages\CSIRO.Modelling.Core.0.5.0.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    <Reference Include="CSIRO.Modelling.Core">
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.5.0.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\R\pkgs\mh\src\packages\CSIRO.Metaheuristics.0.7.6.0\lib\net40\CSIRO.Sys.dll</HintPath>
+    <Reference Include="CSIRO.Sys">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.6.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

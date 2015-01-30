@@ -13,6 +13,11 @@ namespace EnvModellingSample
             public double[] Evapotranspiration { get; internal set; }
             public double[] Runoff { get; internal set; }
         }
+
+        public static double[] GetSampleRainfall() {    return GetSampleClimate().Rainfall ; }
+        public static double[] GetSampleEvaporation() { return GetSampleClimate().Evapotranspiration ; }
+        public static double[] GetSampleRunoff() {      return GetSampleClimate().Runoff ; }
+
         public static SampleClimate GetSampleClimate()
         {
             List<double[]> result = new List<double[]>();

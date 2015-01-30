@@ -27,6 +27,26 @@ setHyperCube <- function(paramSet, specsFrame, setBounds=FALSE) {
   }
 }
 
+#' Gets the CLR type for IHyperCubeSetBounds<double>
+#'
+#' Gets the CLR type for IHyperCubeSetBounds<double>. This function is sometimes needed to pass arguments to some functions requiring an explicit type of system configuration, e.g. createSceOptim.
+#'
+#' @return a System.Type
+#' @export
+hyperCubeSetBoundsType <- function() {
+  return(clrGet(sysConfigHelper, 'TypeofIHyperCubeSetBounds'))
+}
+
+#' Gets the CLR type for IHyperCube<double>
+#'
+#' Gets the CLR type for IHyperCube<double>. This function is sometimes needed to pass arguments to some functions requiring an explicit type of system configuration, e.g. createSceOptim.
+#'
+#' @return a System.Type
+#' @export
+hyperCubeType <- function() {
+  return(clrGet(sysConfigHelper, 'TypeofIHyperCube'))
+}
+
 #' Builds a parameter set from a line in a data frame.
 #'
 #' Builds a parameter set from a line in a data frame, typically a line from a calibration log.

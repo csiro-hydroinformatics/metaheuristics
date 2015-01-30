@@ -8,7 +8,7 @@ endif
 
 SLN:= mh.sln
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
-SAMPLEBINDIR:=../../../../Documentation/Tutorials/ModellingSampleAdapter/bin/$(BuildConfiguration)
+SAMPLEBINDIR:=./ModellingSampleAdapter/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
 RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb $(SAMPLEBINDIR)/*.dll $(SAMPLEBINDIR)/*.pdb 
@@ -19,6 +19,7 @@ SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
 all: instdir Mh2RLib 
 
 Mh2RLibComp:
+	nuget restore $(SLN)
 	$(MSB) $(SLN) /t:$(MODE) $(SLNPROPERTIES)
 
 Mh2RLib: Mh2RLibComp

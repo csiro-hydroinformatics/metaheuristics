@@ -50,6 +50,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSIRO.Modelling.Core, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.5.0.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -67,26 +71,25 @@
       <Project>{3db7010e-e47d-45c5-b03e-30f5f1f9c16e}</Project>
       <Name>CSIRO.Metaheuristics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj">
-      <Project>{db39806a-caff-4c09-8bbd-8f467f9f9e89}</Project>
-      <Name>CSIRO.Modelling.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
       <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
       <Name>CSIRO.Sys</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\R\pkgs\mh\src\EnvModellingSample\EnvModellingSample.csproj">
+      <Project>{653139cf-8aa9-42df-b262-f022bc1c9174}</Project>
+      <Name>EnvModellingSample</Name>
     </ProjectReference>
     <ProjectReference Include="..\AWBM_URS\AWBM_URS.csproj">
       <Project>{3ed5931b-9713-4008-861c-b08555daeddf}</Project>
       <Name>AWBM_URS</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
-      <Project>{653139cf-8aa9-42df-b262-f022bc1c9174}</Project>
-      <Name>EnvModellingSample</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NativeModelWrapper\NativeModelWrapper.csproj">
       <Project>{ab3003aa-f25a-4e44-803d-a7111c5d5f2d}</Project>
       <Name>NativeModelWrapper</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

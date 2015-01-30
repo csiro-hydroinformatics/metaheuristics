@@ -17,8 +17,10 @@ namespace ModellingSampleAdapter
     /// </remarks>
     public class OptimizationAdapter
     {
-        public static IClonableObjectiveEvaluator<IHyperCube<double>> BuildEvaluator(IModelSimulation<double[], double, int> simulation, double[] observation, int from, int to)
+        public static IClonableObjectiveEvaluator<IHyperCube<double>> BuildEvaluator(IModelSimulation<double[], double, int> simulation, double[] observation, int from, int to, string statisticsId="ss")
         {
+            if (statisticsId != "ss")
+                throw new NotSupportedException("Only the sum of squared differences objective function is supported in this sample code...");
             return new SumSquareRunoffEvaluator(simulation, observation, from, to);
         }
 
@@ -63,7 +65,7 @@ namespace ModellingSampleAdapter
                 double res = 0, d;
                 for (int i = from; i < to; i++)
                 {
-                    if (observedData[i] < 0)
+                    if (double.IsNaN(observedData[i]) || observedData[i] < 0)
                         continue;
                     d = calculated[i] - observedData[i];
                     res += d * d;
@@ -90,6 +92,8 @@ namespace ModellingSampleAdapter
 
         public static IHyperCube<double> BuildParameterSpace(IModelSimulation<double[], double, int> simulation)
         {
+            // TODO there could be a protocol to at least verify that the parameters defined are compatible with a given simulation. 
+            // However this is a lot of work for a very generic system.
             var paramSpace = new BasicHyperCube(new[] {
                 "C1",
                 "C2",
