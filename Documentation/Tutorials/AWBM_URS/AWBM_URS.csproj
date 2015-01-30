@@ -83,5 +83,9 @@
       <Project>{58313B13-A161-4B90-B94E-A66B175BAF4E}</Project>
       <Name>CSIRO.Sys</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ModellingSampleAdapter\ModellingSampleAdapter.csproj">
+      <Project>{e923ee32-d781-4a68-8a2a-672ef4edbf81}</Project>
+      <Name>ModellingSampleAdapter</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

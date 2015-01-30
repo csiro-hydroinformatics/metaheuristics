@@ -8,9 +8,10 @@ endif
 
 SLN:= mh.sln
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
+SAMPLEBINDIR:=../../../../Documentation/Tutorials/ModellingSampleAdapter/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
-RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.mdb
+RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb $(SAMPLEBINDIR)/*.dll $(SAMPLEBINDIR)/*.pdb 
 MSB:=xbuild
 MODE:=Build
 SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)

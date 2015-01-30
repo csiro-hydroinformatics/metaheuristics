@@ -1,5 +1,3 @@
-# Later on:
-# @import rClr
 ## Note to self: see the roxygen vignette for examples
 
 ## update the documentation with:
@@ -10,12 +8,14 @@
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.3-2\cr
-#' Date: \tab 2014-10-29\cr
+#' Version: \tab 0.4-1\cr
+#' Date: \tab 2015-01-30\cr
+#' Release Notes: \tab Added a vignette for basic usage of the package\cr
 #' License: \tab LGPL 2.1\cr
 #' }
 #'
 #' @import ggplot2
+#' @import rClr
 #'
 #' @name mh-package
 #' @aliases mh

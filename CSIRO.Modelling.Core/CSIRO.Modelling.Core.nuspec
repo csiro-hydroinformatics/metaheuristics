@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Jean-Michel Perraud</authors>
+    <owners>CSIRO</owners>
+    <licenseUrl>https://github.com/jmp75/metaheuristics/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/jmp75/metaheuristics</projectUrl>
+    <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A software pattern to organise and manipulate model simulations more consistently across projects</description>
+    <releaseNotes>First Nuget release for use in the vignette of the R 'mh' package</releaseNotes>
+    <copyright>Copyright 2015 CSIRO</copyright>
+    <tags>Simulation Modelling Framework</tags>
+  </metadata>
+</package>

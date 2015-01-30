@@ -8,9 +8,15 @@ namespace EnvModellingSample
 {
     public class SimulationFactory
     {
-        public static IModelSimulation<double[], double, int> CreateAwbmSimulation()
+        public static IModelSimulation<double[], double, int> CreateAwbmSimulation(bool setSampleData=false)
         {
-            return new ModelSimulation(new AWBM());
+            var result = new ModelSimulation(new AWBM());
+            if (setSampleData)
+            {
+                var data = DataHandling.GetSampleClimate();
+                SimulationFactory.SetSampleSimulation(result, data);
+            }
+            return result;
         }
 
         public static void SetSampleSimulation(IModelSimulation<double[], double, int> simulation, DataHandling.SampleClimate data)

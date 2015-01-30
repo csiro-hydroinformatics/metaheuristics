@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("CSIRO.Modelling.Core")]
-[assembly: AssemblyDescription("A software pattern to organise and manipulate model simulations more consistently across projects")]
+[assembly: AssemblyTitle("ModellingSampleAdapter")]
+[assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("CSIRO")]
-[assembly: AssemblyProduct("CSIRO.Modelling.Core")]
+[assembly: AssemblyProduct("ModellingSampleAdapter")]
 [assembly: AssemblyCopyright("Copyright © CSIRO 2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("f7b05199-11e7-49c4-b32c-d960f469a6d1")]
+[assembly: Guid("c005ba9f-9980-4228-b949-014c2895657a")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.5.0.0")]
-[assembly: AssemblyFileVersion("0.5.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyFileVersion("1.0.0.0")]

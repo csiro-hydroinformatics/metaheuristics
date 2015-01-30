@@ -1,0 +1,105 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Getting started with the 'mh' package}
+-->
+
+
+=================
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(out.extra='style="display:block; margin: auto"', fig.align="center", fig.width=10, fig.height=8, dev='png')
+```
+
+# About this document
+
+This document was generated from an R markdown file on `r as.character(Sys.time())`. It illustrates how to set up a calibration on a time stepping model simulation.
+
+# Getting started
+
+```{r}
+library(lubridate)
+library(mh)
+
+mhDllDir <- system.file(package='mh', 'libs')
+sampleEnv <- file.path(mhDllDir, "EnvModellingSample.dll" )
+stopifnot(file.exists(sampleEnv))
+clrLoadAssembly(sampleEnv)
+clrGetTypesInAssembly("EnvModellingSample")
+clrGetStaticMethods("EnvModellingSample.SimulationFactory")
+simul <- clrCallStatic("EnvModellingSample.SimulationFactory", "CreateAwbmSimulation", TRUE)
+
+clrCall(simul, 'Record', 'Runoff')
+
+data <- clrCallStatic("EnvModellingSample.DataHandling", "GetSampleClimate")
+SimulationFactory.SetSampleSimulation(simulation, data);
+int from = simulation.GetStart();
+int to = simulation.GetEnd();
+
+clrCall(simul, 'Execute')
+modelled <- clrCall(simul, 'GetRecord', 'Runoff')
+modelled <- clrCall(simul, 'GetRecorded', 'Runoff')
+head(modelled)
+modelled
+history()
+
+
+```{r}
+
+
+```{r}
+objective <- createObjective(ms, outflowVarname, flow, 'NSE', w, e)
+score <- getScore(objective, p)
+print(score)
+```
+
+We have our objectives defined, and the parameter space 'p' in which to search. Let's create an optimizer and we are ready to go. While the optimizer can be created in one line, we show how to choose one custom termination criterion and how to configure the optimizer to capture a detailed log of the process.
+
+```{r}
+term <- getMarginalTermination(tolerance = 1e-05, cutoffNoImprovement = 7, maxHours = 1.5) 
+optimizer <- createSceOptimSwift(objective, p, termination=term)
+calibLogger <- setCalibrationLogger(optimizer)
+```
+
+At this point you may want to specify the maximum number of cores that can be used by the optimizer, for instance if you wish to keep one core free to work in parallel on something else.
+
+```{r, eval=TRUE}
+# clrSet(optimizer, "MaxDegreeOfParallelism", 3L)
+```
+
+```{r}
+startTime <- now()
+calibResults <- executeOptimization(optimizer)
+endTime <- now()
+calibWallTime <- endTime-startTime
+print(paste( 'Optimization completed in ', calibWallTime, attr(calibWallTime, 'units')))
+```
+
+Processing the calibration log:
+
+```{r}
+logMh <- ophct::processLogger(optimizer, fitness='NSE')
+geomOps <- mh::subsetByMessage(logMh)
+str(geomOps@data)
+```
+
+We can then visualize how the calibration evolved. There are many types of visualisations included in the **mh** package, and numerous customizations possible, but starting with the overall population evolution:
+
+```{r}
+pVarIds <- (pSetAsDataFrame(p))$Name
+for (pVarId in pVarIds) {
+	print(plotParamEvolution(geomOps, pVarId, objLims=c(0,1)))
+}
+```
+
+Finally, let's have a visual of the fitted streamflow data at Abbeyard:
+
+```{r}
+d <- geomOps@data
+bestPset <- buildSwiftParamSet(p,d[nrow(d)-1,])
+(score <- getScore(objective, bestPset))
+applySysConfig(bestPset, ms)
+execSimulation(ms)
+modRunoff <- getRecorded(ms, outflowVarname)
+plotTwoSeries(flow, modRunoff, startTime=end(modRunoff)-years(3), endTime=end(modRunoff))
+```

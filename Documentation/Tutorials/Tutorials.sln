@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HelloWorld", "HelloWorld\HelloWorld.csproj", "{36ED95D7-B50D-4A45-A333-695CB8F28675}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeModelCpp", "NativeModelCpp\NativeModelCpp.vcxproj", "{3980DF9F-3766-4D63-8FEC-9F2EB970C084}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NativeModelWrapper", "NativeModelWrapper\NativeModelWrapper.csproj", "{AB3003AA-F25A-4E44-803D-A7111C5D5F2D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModellingSampleAdapter", "ModellingSampleAdapter\ModellingSampleAdapter.csproj", "{E923EE32-D781-4A68-8A2A-672EF4EDBF81}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -191,6 +193,20 @@ Global
 		{AB3003AA-F25A-4E44-803D-A7111C5D5F2D}.Release|x64.ActiveCfg = Release|x64
 		{AB3003AA-F25A-4E44-803D-A7111C5D5F2D}.Release|x64.Build.0 = Release|x64
 		{AB3003AA-F25A-4E44-803D-A7111C5D5F2D}.Release|x86.ActiveCfg = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|Win32.ActiveCfg = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|Win32.ActiveCfg = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|x64.ActiveCfg = Release|Any CPU
+		{E923EE32-D781-4A68-8A2A-672EF4EDBF81}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
