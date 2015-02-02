@@ -40,7 +40,12 @@ namespace ModellingSampleAdapter
 
             public IClonableObjectiveEvaluator<IHyperCube<double>> Clone()
             {
-                throw new NotImplementedException();
+                return new SumSquareRunoffEvaluator(
+                    simulation.Clone(),
+                    observedData,
+                    from,
+                    to
+                    );
             }
 
             public IObjectiveScores<IHyperCube<double>> EvaluateScore(IHyperCube<double> systemConfiguration)
@@ -77,7 +82,7 @@ namespace ModellingSampleAdapter
             {
                 get
                 {
-                    return false;
+                    return simulation.SupportsDeepCloning;
                 }
             }
 
@@ -85,7 +90,7 @@ namespace ModellingSampleAdapter
             {
                 get
                 {
-                    return false;
+                    return simulation.SupportsDeepCloning;
                 }
             }
         }

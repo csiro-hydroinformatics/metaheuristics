@@ -11,7 +11,7 @@ namespace CSIRO.Modelling.Core
     /// <typeparam name="D">The type of the object that handles inputs/outputs for the simulation, typically an type holding time series data</typeparam>
     /// <typeparam name="V"></typeparam>
     /// <typeparam name="T">The type representing the units for the simulation span; typically DateTime, sometimes Int32 for array oriented systems</typeparam>
-    public interface IModelSimulation<D, V, T>
+    public interface IModelSimulation<D, V, T> : CSIRO.Sys.ICloningSupport<IModelSimulation<D, V, T>>
     {
         /// <summary>
         /// Execute the simulation, given the current configuration of this object

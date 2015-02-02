@@ -14,8 +14,9 @@
 #' License: \tab LGPL 2.1\cr
 #' }
 #'
-#' @import ggplot2
 #' @import rClr
+#' @import ggplot2
+#' @import stringr
 #'
 #' @name mh-package
 #' @aliases mh

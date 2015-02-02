@@ -111,5 +111,33 @@ namespace EnvModellingSample
         {
             return endIndex;
         }
+
+        public IModelSimulation<double[], double, int> Clone()
+        {
+            if (!SupportsThreadSafeCloning)
+                throw new NotSupportedException();
+            var res = new ModelSimulation(TsModel.Clone());
+            res.startIndex = startIndex;
+            res.endIndex = endIndex;
+            foreach (var input in this.inputs)
+            {
+                res.inputs[input.Key] = inputs[input.Key];
+            }
+            foreach (var output in outputs)
+            {
+                res.outputs[output.Key] = (double[])outputs[output.Key].Clone();
+            }
+            return res;
+        }
+
+        public bool SupportsDeepCloning
+        {
+            get { return TsModel.IsClonable; }
+        }
+
+        public bool SupportsThreadSafeCloning
+        {
+            get { return TsModel.IsClonable; }
+        }
     }
 }

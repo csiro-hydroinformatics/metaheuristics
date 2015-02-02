@@ -13,5 +13,7 @@ LazyLoad: yes
 URL: https://github.com/jmp75/metaheuristics/R/packages/mh
 Depends:
     R (>= 3.0.0),
-    rClr,
+    rClr (>= 0.7.3),
+    stringr,
     ggplot2
+VignetteBuilder: knitr

@@ -61,6 +61,12 @@
     <Compile Include="Interop\INativeHandle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSIRO.Sys\CSIRO.Sys.csproj">
+      <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
+      <Name>CSIRO.Sys</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

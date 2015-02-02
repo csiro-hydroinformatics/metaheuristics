@@ -22,6 +22,10 @@ namespace CSIRO.Metaheuristics.R.Pkgs
             }
         }
 
+        public static Type TypeofIHyperCubeSetBounds { get { return typeof(IHyperCubeSetBounds<double>); } }
+
+        public static Type TypeofIHyperCube { get { return typeof(IHyperCube<double>); } }
+
         public static HyperCubeInterop ToDataFrame(IHyperCube<double> paramSet)
         {
             var names = paramSet.GetVariableNames();

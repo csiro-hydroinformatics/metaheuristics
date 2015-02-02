@@ -9,5 +9,7 @@ namespace EnvModellingSample
     {
         void RunOneTimeStep();
         void Reset();
+        ITimeStepModel Clone();
+        bool IsClonable { get; }
     }
 }
