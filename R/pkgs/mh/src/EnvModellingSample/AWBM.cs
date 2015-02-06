@@ -124,7 +124,6 @@ namespace EnvModellingSample
             }
         }
 
-
         public bool IsClonable
         {
             get { return true; }

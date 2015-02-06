@@ -275,7 +275,7 @@ mkOptimLog <- function(logDataFrame,fitness = "NSE", messages = "Message", categ
   dfNames <- names(logDataFrame)
   checkValidName <- function(x, name) {
     if(!(fitness %in% dfNames)) {
-      d <- paste(dfNames, collapse=TRUE, sep=', ')
+      d <- paste(dfNames, collapse=', ', sep=', ')
       stop(paste0('specified string "', x, '" for "', name, '" not found in data frame names: ', d))
     }
   }

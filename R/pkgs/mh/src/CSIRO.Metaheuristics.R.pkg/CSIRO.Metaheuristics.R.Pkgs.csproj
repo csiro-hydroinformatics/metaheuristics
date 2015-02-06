@@ -30,9 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.6.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.7.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
     </Reference>
     <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -42,9 +42,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.6.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Sys, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.6.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.7.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
     <Reference Include="CSIRO.Utilities, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OptimizerHelper.cs" />
+    <Compile Include="RFunctionObjectiveCalculator.cs" />
     <Compile Include="SysConfigHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -71,6 +71,7 @@
     <Compile Include="LogHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RCompositeObjectiveEvaluator.cs" />
+    <Compile Include="RFunctionObjectiveCalculator.cs" />
     <Compile Include="Tests\TestLogHelperR.cs" />
     <Compile Include="Tests\TestPercentiles.cs" />
   </ItemGroup>

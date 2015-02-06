@@ -11,7 +11,7 @@
     <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A metaheuristics software framework for .NET</description>
-    <releaseNotes>Customizable maximum number of threads for shuffled complex evolution.</releaseNotes>
+    <releaseNotes>Minor change to allow optimization from R with the 'mh' package, with reentrant calls to R functions for the objective calculations.</releaseNotes>
     <copyright>Copyright 2014 CSIRO</copyright>
     <tags>Metaheuristics Optimisation Optimization Calibration</tags>
   </metadata>
