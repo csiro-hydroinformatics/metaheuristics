@@ -3,7 +3,7 @@
 \alias{maxWallTimeTermination}
 \title{Create an termination criterion with a max wall time}
 \usage{
-maxWallTimeTermination(sysConfigType, maxHours = 0.1)
+maxWallTimeTermination(sysConfigType = hyperCubeType(), maxHours = 0.1)
 }
 \arguments{
 \item{sysConfigType}{The type of the system configuration to use for Generics.}

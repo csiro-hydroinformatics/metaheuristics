@@ -11,9 +11,9 @@ An R programming interface and utilities to access the metaheuristics framework
 \tabular{ll}{
 Package: \tab mh\cr
 Type: \tab Package\cr
-Version: \tab 0.4-1\cr
-Date: \tab 2015-01-30\cr
-Release Notes: \tab Added a vignette for basic usage of the package\cr
+Version: \tab 0.4-3\cr
+Date: \tab 2015-02-09\cr
+Release Notes: \tab Non parallel Calibration with reentrant call to an R function for the objective evaluation from SCE works on Linux \cr
 License: \tab LGPL 2.1\cr
 }
 }

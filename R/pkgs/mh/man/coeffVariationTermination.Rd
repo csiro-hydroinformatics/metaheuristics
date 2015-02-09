@@ -3,8 +3,8 @@
 \alias{coeffVariationTermination}
 \title{Create an termination criterion based on a coefficient of variation of the parameter sets}
 \usage{
-coeffVariationTermination(sysConfigType, cvThreshold = 0.025,
-  maxHours = 0.1)
+coeffVariationTermination(sysConfigType = hyperCubeType(),
+  cvThreshold = 0.025, maxHours = 0.1)
 }
 \arguments{
 \item{sysConfigType}{The type of the system configuration to use for Generics.}

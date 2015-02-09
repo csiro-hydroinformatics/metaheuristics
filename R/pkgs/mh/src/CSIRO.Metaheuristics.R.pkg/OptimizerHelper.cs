@@ -24,6 +24,11 @@ namespace CSIRO.Metaheuristics.R.Pkgs
             return invokeGenericMethod("internalCreateMaxWalltime", sysConfigType, new object[] { maxHours });
         }
 
+        public static object CreateMaxNumShuffle(Type sysConfigType)
+        {
+            return invokeGenericMethod("internalCreateMaxNumShuffle", sysConfigType, new object[] {});
+        }
+
         public static object CreateMarginalImprovementTermination(Type sysConfigType, double tolerance = 1e-6, int cutoffNoImprovement = 10, double maxHours = 0.1)
         {
             return invokeGenericMethod("internalCreateMaginalCheck", sysConfigType, new object[] { maxHours, tolerance, cutoffNoImprovement });
@@ -57,6 +62,12 @@ namespace CSIRO.Metaheuristics.R.Pkgs
 
         }
 
+        private static ShuffledComplexEvolution<T>.MaxShuffleTerminationCondition internalCreateMaxNumShuffle<T>()
+            where T : ICloneableSystemConfiguration, IHyperCube<double>
+        {
+            return new ShuffledComplexEvolution<T>.MaxShuffleTerminationCondition();
+        }
+
         private static ShuffledComplexEvolution<T>.MaxWalltimeTerminationCondition internalCreateMaxWalltime<T>(double maxHours)
             where T : ICloneableSystemConfiguration, IHyperCube<double>
         {
@@ -68,6 +79,7 @@ namespace CSIRO.Metaheuristics.R.Pkgs
         {
             return new ShuffledComplexEvolution<T>.CoefficientOfVariationTerminationCondition(threshold: cvThreshold, maxHours: maxHours);
         }
+
         private static ShuffledComplexEvolution<T>.MarginalImprovementTerminationCondition internalCreateMaginalCheck<T>(double maxHours, double tolerance, int cutoffNoImprovement)
             where T : ICloneableSystemConfiguration, IHyperCube<double>
         {

@@ -8,8 +8,8 @@
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.4-2\cr
-#' Date: \tab 2015-02-06\cr
+#' Version: \tab 0.4-3\cr
+#' Date: \tab 2015-02-09\cr
 #' Release Notes: \tab Non parallel Calibration with reentrant call to an R function for the objective evaluation from SCE works on Linux \cr
 #' License: \tab LGPL 2.1\cr
 #' }

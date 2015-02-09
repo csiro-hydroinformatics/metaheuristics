@@ -72,8 +72,19 @@ createSceParameters <- function(alpha=1, beta=9, contractRatio=0.5, reflectRatio
 #' @param maxHours the maximum wall time runtime for the optimisation
 #' @return a CLR termination criterion.
 #' @export
-maxWallTimeTermination <- function(sysConfigType, maxHours = 0.1) {
+maxWallTimeTermination <- function(sysConfigType = hyperCubeType(), maxHours = 0.1) {
   clrCallStatic(optimHelper, 'CreateMaxWalltime', sysConfigType, as.numeric(maxHours))
+}
+
+#' Create an termination criterion using SCE's maximum number of shuffles
+#'
+#' Create an termination criterion using SCE's maximum number of shuffles
+#'
+#' @param sysConfigType The type of the system configuration to use for Generics.
+#' @return a CLR termination criterion.
+#' @export
+maxSceShuffleTermination <- function(sysConfigType = hyperCubeType()) {
+  clrCallStatic(optimHelper, 'CreateMaxNumShuffle', sysConfigType)
 }
 
 #' Create an termination criterion based on the rate of marginal fitness improvement
@@ -86,7 +97,7 @@ maxWallTimeTermination <- function(sysConfigType, maxHours = 0.1) {
 #' @param maxHours the maximum wall time runtime for the optimisation
 #' @return a CLR termination criterion.
 #' @export
-marginalImprovementTermination <- function(sysConfigType, tolerance = 1e-6, cutoffNoImprovement = 10, maxHours = 0.1) {
+marginalImprovementTermination <- function(sysConfigType = hyperCubeType(), tolerance = 1e-6, cutoffNoImprovement = 10, maxHours = 0.1) {
   clrCallStatic(optimHelper, 'CreateMarginalImprovementTermination', sysConfigType, as.numeric(tolerance), as.integer(cutoffNoImprovement), as.numeric(maxHours))
 }
 
@@ -99,7 +110,7 @@ marginalImprovementTermination <- function(sysConfigType, tolerance = 1e-6, cuto
 #' @param maxHours the maximum wall time runtime for the optimisation
 #' @return a CLR termination criterion.
 #' @export
-coeffVariationTermination <- function(sysConfigType, cvThreshold = 0.025, maxHours = 0.1) {
+coeffVariationTermination <- function(sysConfigType = hyperCubeType(), cvThreshold = 0.025, maxHours = 0.1) {
   clrCallStatic(optimHelper, 'CreateCoeffVariationTermination', sysConfigType, as.numeric(cvThreshold), as.numeric(maxHours))
 }
 

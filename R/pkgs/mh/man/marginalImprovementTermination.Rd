@@ -3,8 +3,8 @@
 \alias{marginalImprovementTermination}
 \title{Create an termination criterion based on the rate of marginal fitness improvement}
 \usage{
-marginalImprovementTermination(sysConfigType, tolerance = 1e-06,
-  cutoffNoImprovement = 10, maxHours = 0.1)
+marginalImprovementTermination(sysConfigType = hyperCubeType(),
+  tolerance = 1e-06, cutoffNoImprovement = 10, maxHours = 0.1)
 }
 \arguments{
 \item{sysConfigType}{The type of the system configuration to use for Generics.}

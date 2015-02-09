@@ -1,8 +1,8 @@
 Package: mh
 Type: Package
 Title: Access to the CSIRO.Metaheuristics framework from R
-Version: 0.4-2
-Date: 2015-02-06
+Version: 0.4-3
+Date: 2015-02-09
 Authors@R: c( person("Jean-Michel", "Perraud", email =
     "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
 Author: Jean-Michel Perraud [aut, cre]
