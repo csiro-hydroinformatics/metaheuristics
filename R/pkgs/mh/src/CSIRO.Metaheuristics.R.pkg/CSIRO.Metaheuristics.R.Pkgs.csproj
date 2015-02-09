@@ -89,7 +89,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OptimizerHelper.cs" />
-    <Compile Include="RFunctionObjectiveCalculator.cs" />
     <Compile Include="SysConfigHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
