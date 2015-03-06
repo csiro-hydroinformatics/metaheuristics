@@ -7,6 +7,15 @@ BuildConfiguration:=Debug
 endif
 
 SLN:= mh.sln
+
+# Maybe ifeq "$(R_OSTYPE)" "windows"
+NUGET:=$(shell which nuget)
+ifneq "$(NUGET)" ""
+NUGET_RESTORE:=$(NUGET) restore $(SLN)
+else
+NUGET_RESTORE:=
+endif
+
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
 SAMPLEBINDIR:=./ModellingSampleAdapter/bin/$(BuildConfiguration)
 
@@ -19,6 +28,7 @@ SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
 all: instdir Mh2RLib 
 
 Mh2RLibComp:
+	$(NUGET_RESTORE);
 	$(MSB) $(SLN) /t:$(MODE) $(SLNPROPERTIES)
 
 Mh2RLib: Mh2RLibComp
