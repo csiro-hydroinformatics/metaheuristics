@@ -2,15 +2,16 @@
 
 ## update the documentation with:
 # library(roxygen2) ; library(devtools) ; document('F:/src/github_jm/metaheuristics/R/pkgs/mh')
+# library(roxygen2) ; roxygenize('F:/src/github_jm/metaheuristics/R/pkgs/mh')
 
 #' An R programming interface and utilities to access the metaheuristics framework
 #' 
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.4-3\cr
-#' Date: \tab 2015-02-09\cr
-#' Release Notes: \tab Non parallel Calibration with reentrant call to an R function for the objective evaluation from SCE works on Linux \cr
+#' Version: \tab 0.4-4\cr
+#' Date: \tab 2015-03-27\cr
+#' Release Notes: \tab Update dependencies due to a change in parameter logging precision to double,in CSIRO.Metaheuristics \cr
 #' License: \tab LGPL 2.1\cr
 #' }
 #'

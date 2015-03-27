@@ -53,9 +53,9 @@ namespace CSIRO.Metaheuristics.DataModel
                 result.Variables.Add(new VariableSpecification 
                 { 
                     Name = varName, 
-                    Value = (float)hc.GetValue(varName),
-                    Minimum = (float)hc.GetMinValue(varName),
-                    Maximum = (float)hc.GetMaxValue(varName)
+                    Value = hc.GetValue(varName),
+                    Minimum = hc.GetMinValue(varName),
+                    Maximum = hc.GetMaxValue(varName)
                 });
             }
             return result;

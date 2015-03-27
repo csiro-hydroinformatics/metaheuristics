@@ -30,25 +30,25 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.7.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.8.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.6.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.8.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.6.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.8.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Sys, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.7.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Utilities, Version=0.7.6.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Utilities, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Utilities.0.7.6.0\lib\net40\CSIRO.Utilities.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Utilities.0.7.8.0\lib\net40\CSIRO.Utilities.dll</HintPath>
     </Reference>
     <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -70,13 +70,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet, Version=1.5.21.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="RDotNet, Version=1.5.22.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.21\lib\net40\RDotNet.dll</HintPath>
+      <HintPath>..\packages\R.NET.Community.1.5.22\lib\net40\RDotNet.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet.NativeLibrary, Version=1.5.21.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="RDotNet.NativeLibrary, Version=1.5.22.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\R.NET.Community.1.5.21\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+      <HintPath>..\packages\R.NET.Community.1.5.22\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
