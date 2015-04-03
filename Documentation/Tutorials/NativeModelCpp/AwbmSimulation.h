@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <map>
 #include "AWBM.h"
 
@@ -8,30 +9,35 @@
 class VariablePtr
 {
 public:
-	VariablePtr(double * modelVariable, double * data) { this->modelVariable = modelVariable; this->data = data; }
-	void DisposeData() { if (data != nullptr) delete[] data; }
-	void InitData(int length) { DisposeData(); data = new double[length]; }
+	VariablePtr(double * modelVariable, const std::vector<double>& data) { this->modelVariable = modelVariable; this->data = data; }
+	VariablePtr(double * modelVariable) { this->modelVariable = modelVariable; }
+	void InitData(int length) {
+		if (data.size() != length)
+			data.resize(length);
+	}
 	void Record(int index) { data[index] = *modelVariable; }
 	void Play(int index) { *modelVariable = data[index]; }
 	~VariablePtr() {}
 	VariablePtr() {}
+	// Note: the following should be private...
 	double * modelVariable = nullptr;
-	double * data = nullptr;
+	std::vector<double> data;
 };
 
 class AwbmSimulation
 {
 public:
 	AwbmSimulation();
+	AwbmSimulation(const AwbmSimulation& src);
 	~AwbmSimulation();
 
 	void Execute();
-	double * GetRecorded(std::string& variableIdentifier);
+	std::vector<double> GetRecorded(const std::string& variableIdentifier);
 	void SetSpan(int from, int to);
-	void Play(std::string& variableIdentifier, double * values);
-	void Record(std::string& variableIdentifier);
-	void SetVariable(std::string& variableIdentifier, double value);
-	double GetVariable(std::string& variableIdentifier);
+	void Play(const std::string& variableIdentifier, const std::vector<double>& values);
+	void Record(const std::string& variableIdentifier);
+	void SetVariable(const std::string& variableIdentifier, double value);
+	double GetVariable(const std::string& variableIdentifier);
 	int GetStart();
 	int GetEnd();
 	int NumSteps() { return GetEnd() - GetStart() + 1; }

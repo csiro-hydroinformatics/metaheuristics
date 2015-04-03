@@ -34,13 +34,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CSIRO.Metaheuristics.0.7.8.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Modelling.Core, Version=0.5.1.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Modelling.Core, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.5.1.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
     </Reference>
     <Reference Include="CSIRO.Sys, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

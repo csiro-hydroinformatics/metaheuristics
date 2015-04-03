@@ -6,13 +6,21 @@ AwbmSimulation::AwbmSimulation()
 	model.Reset();
 }
 
+AwbmSimulation::AwbmSimulation(const AwbmSimulation& src)
+{
+	for (auto& x : src.outputs) {
+		outputs[x.first] = new VariablePtr(model.GetPtr(x.first));;
+	}
+	for (auto& x : src.inputs) {
+		inputs[x.first] = new VariablePtr(model.GetPtr(x.first), x.second->data);;
+	}
+	fromIndex = src.fromIndex;
+	toIndex = src.toIndex;
+	model.Reset();
+}
 
 AwbmSimulation::~AwbmSimulation()
 {
-	// Clean output buffers
-	for (auto& x : outputs) {
-		x.second->DisposeData();
-	}
 }
 
 void AwbmSimulation::Execute()
@@ -25,35 +33,35 @@ void AwbmSimulation::Execute()
 		getStates(i - fromIndex);
 	}
 }
-double * AwbmSimulation::GetRecorded(std::string& variableIdentifier)
+std::vector<double> AwbmSimulation::GetRecorded(const std::string& variableIdentifier)
 {
 	return this->outputs[variableIdentifier]->data;
 }
 
-void   AwbmSimulation::SetSpan(int from, int to)
+void AwbmSimulation::SetSpan(int from, int to)
 {
 	fromIndex = from;
 	toIndex = to;
 }
 
-void   AwbmSimulation::Play(std::string& variableIdentifier, double * values)
+void   AwbmSimulation::Play(const std::string& variableIdentifier, const std::vector<double>& values)
 {
 	// TODO: in prod system you'd check pre-existing key
 	inputs[variableIdentifier] = new VariablePtr(model.GetPtr(variableIdentifier), values);
 }
 
-void   AwbmSimulation::Record(std::string& variableIdentifier)
+void   AwbmSimulation::Record(const std::string& variableIdentifier)
 {
 	// TODO: in prod system you'd check pre-existing key
-	outputs[variableIdentifier] = new VariablePtr(model.GetPtr(variableIdentifier), new double[]);;
+	outputs[variableIdentifier] = new VariablePtr(model.GetPtr(variableIdentifier));;
 }
 
-void   AwbmSimulation::SetVariable(std::string& variableIdentifier, double value)
+void   AwbmSimulation::SetVariable(const std::string& variableIdentifier, double value)
 {
 	model.SetVariable(variableIdentifier, value);
 }
 
-double AwbmSimulation::GetVariable(std::string& variableIdentifier)
+double AwbmSimulation::GetVariable(const std::string& variableIdentifier)
 {
 	return model.GetVariable(variableIdentifier);
 }

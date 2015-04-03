@@ -59,9 +59,13 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Modelling.Core, Version=0.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Modelling.Core, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.5.0.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
     <Reference Include="System" />
   </ItemGroup>
@@ -74,10 +78,6 @@
     <ProjectReference Include="..\..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
-      <Project>{58313B13-A161-4B90-B94E-A66B175BAF4E}</Project>
-      <Name>CSIRO.Sys</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\R\pkgs\mh\src\EnvModellingSample\EnvModellingSample.csproj">
       <Project>{653139cf-8aa9-42df-b262-f022bc1c9174}</Project>

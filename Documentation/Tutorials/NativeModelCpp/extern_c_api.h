@@ -24,6 +24,8 @@ extern "C" {
 	NATIVE_AWBM_API int GetStart(AwbmSimulation * modelSimulation);
 	NATIVE_AWBM_API int GetEnd(AwbmSimulation * modelSimulation);
 	NATIVE_AWBM_API AwbmSimulation * CreateSimulation();
+	NATIVE_AWBM_API AwbmSimulation * Clone(AwbmSimulation * src);
+	NATIVE_AWBM_API bool SupportsThreadSafeCloning(AwbmSimulation * src);
 	NATIVE_AWBM_API void Dispose(AwbmSimulation * modelSimulation);
 
 #ifdef __cplusplus

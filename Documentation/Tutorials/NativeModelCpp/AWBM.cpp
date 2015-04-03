@@ -91,7 +91,7 @@ void AWBM::Reset()
 	}
 }
 
-double * AWBM::GetPtr(std::string& variableIdentifier)
+double * AWBM::GetPtr(const std::string& variableIdentifier)
 {
 	if (variableIdentifier == "Rainfall") return &Rainfall;
 	else if (variableIdentifier == "Evapotranspiration") return &Evapotranspiration;
@@ -103,7 +103,7 @@ double * AWBM::GetPtr(std::string& variableIdentifier)
 	else throw "Unknown or unsupported model variable";
 }
 
-void   AWBM::SetVariable(std::string& variableIdentifier, double value)
+void   AWBM::SetVariable(const std::string& variableIdentifier, double value)
 {
 	if (variableIdentifier == "Rainfall") Rainfall = value;
 	else if (variableIdentifier == "Evapotranspiration") Evapotranspiration = value;
@@ -119,7 +119,7 @@ void   AWBM::SetVariable(std::string& variableIdentifier, double value)
 
 }
 
-double AWBM::GetVariable(std::string& variableIdentifier)
+double AWBM::GetVariable(const std::string& variableIdentifier)
 {
 	if (variableIdentifier == "Rainfall") return Rainfall;
 	else if (variableIdentifier == "Evapotranspiration") return Evapotranspiration;

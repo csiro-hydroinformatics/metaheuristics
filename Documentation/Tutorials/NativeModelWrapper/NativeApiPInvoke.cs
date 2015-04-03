@@ -15,6 +15,9 @@ namespace NativeModelWrapper
         [DllImport("NativeModelCpp.dll", EntryPoint = "CreateSimulation", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr CreateSimulation();
 
+        [DllImport("NativeModelCpp.dll", EntryPoint = "Clone", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr Clone(IntPtr nativeModel);
+
         [DllImport("NativeModelCpp.dll", EntryPoint = "Dispose", CallingConvention = CallingConvention.Cdecl)]
         internal static extern void Dispose(IntPtr nativeModel);
 
@@ -63,6 +66,10 @@ namespace NativeModelWrapper
 
         [DllImport("NativeModelCpp.dll", EntryPoint = "GetEnd", CallingConvention = CallingConvention.Cdecl)]
         internal static extern int GetEnd(
+            [In] IntPtr nativeModel);
+
+        [DllImport("NativeModelCpp.dll", EntryPoint = "SupportsThreadSafeCloning", CallingConvention = CallingConvention.Cdecl)]
+        internal static extern bool SupportsThreadSafeCloning(
             [In] IntPtr nativeModel);
 
     }

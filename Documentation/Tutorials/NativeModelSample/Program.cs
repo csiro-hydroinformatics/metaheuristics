@@ -24,8 +24,10 @@ namespace NativeModelSample
              * a use case often encountered (e.g. to calibrate existing models written in 
              * C++ , C, or Fortran)
              */
-            IClonableObjectiveEvaluator<BasicHyperCube> evaluator;
-            IEvolutionEngine<BasicHyperCube> uniformRandomSampling;
+            IClonableObjectiveEvaluator<IHyperCube<double>> evaluator;
+            IEvolutionEngine<IHyperCube<double>> uniformRandomSampling;
+
+            NativeModelWrapper.AwbmWrapper.PermitMultiThreading = true;
 
             using (var simulation = new AwbmWrapper())
             {
@@ -36,8 +38,8 @@ namespace NativeModelSample
 
                 evaluator = AWBM_URS.MainClass.BuildUrsEvaluator(simulation, data.Runoff, from, to);
 
-                var paramSpace = AWBM_URS.MainClass.CreateFeasibleAwbmParameterSpace();
-                uniformRandomSampling = new UniformRandomSampling<BasicHyperCube>(evaluator, new BasicRngFactory(0), paramSpace, 3000);
+                var paramSpace = AWBM_URS.MainClass.CreateFeasibleAwbmParameterSpace(simulation);
+                uniformRandomSampling = new UniformRandomSampling<IHyperCube<double>>(evaluator, new BasicRngFactory(0), paramSpace, 3000);
                 var ursResults = uniformRandomSampling.Evolve();
                 Console.WriteLine(MetaheuristicsHelper.GetHumanReadable(ursResults));
             }

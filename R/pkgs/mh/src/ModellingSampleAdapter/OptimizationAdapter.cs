@@ -78,11 +78,13 @@ namespace ModellingSampleAdapter
                 return res;
             }
 
+            public static bool PermitMultiThreading = true;
+
             public bool SupportsDeepCloning
             {
                 get
                 {
-                    return simulation.SupportsDeepCloning;
+                    return (PermitMultiThreading && simulation.SupportsDeepCloning);
                 }
             }
 
@@ -90,7 +92,7 @@ namespace ModellingSampleAdapter
             {
                 get
                 {
-                    return simulation.SupportsDeepCloning;
+                    return (PermitMultiThreading && simulation.SupportsDeepCloning);
                 }
             }
         }

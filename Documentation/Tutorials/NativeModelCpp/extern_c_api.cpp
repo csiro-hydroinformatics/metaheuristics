@@ -8,6 +8,16 @@ AwbmSimulation * CreateSimulation()
 	return new AwbmSimulation();
 }
 
+AwbmSimulation * Clone(AwbmSimulation * src)
+{
+	return new AwbmSimulation(*src);
+}
+
+bool SupportsThreadSafeCloning(AwbmSimulation * src)
+{
+	return true;
+}
+
 void Dispose(AwbmSimulation * modelSimulation)
 {
 	delete modelSimulation;
@@ -22,7 +32,7 @@ void GetRecorded(AwbmSimulation * modelSimulation, char * variableIdentifier, do
 {
 	int simulLen = modelSimulation->NumSteps();
 	if (simulLen != arrayLength) throw "data length specifications are inconsistent";
-	double * tmp = modelSimulation->GetRecorded(std::string(variableIdentifier));
+	auto tmp = modelSimulation->GetRecorded(std::string(variableIdentifier));
 	for (int i = 0; i < arrayLength; i++)
 		values[i] = tmp[i]; // TODO: faster options? memcopy?
 
@@ -35,7 +45,12 @@ void SetSpan(AwbmSimulation * modelSimulation, int from, int to)
 
 void Play(AwbmSimulation * modelSimulation, char * variableIdentifier, double * values, int arrayLength)
 {
-	modelSimulation->Play(std::string(variableIdentifier), values);
+	std::vector<double> d;
+	for (size_t i = 0; i < arrayLength; i++)
+	{
+		d.push_back(values[i]);
+	}
+	modelSimulation->Play(std::string(variableIdentifier), d);
 }
 
 void Record(AwbmSimulation * modelSimulation, char * variableIdentifier)

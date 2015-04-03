@@ -34,6 +34,11 @@ namespace NativeModelWrapper
             return NativeApiPInvoke.CreateSimulation();
         }
 
+        internal IntPtr Clone(M modelWrapper)
+        {
+            return NativeApiPInvoke.Clone(modelWrapper.DangerousGetHandle());
+        }
+
         internal void Dispose(M modelWrapper)
         {
             NativeApiPInvoke.Dispose(modelWrapper.DangerousGetHandle());
@@ -93,5 +98,9 @@ namespace NativeModelWrapper
             return NativeApiPInvoke.GetEnd(modelWrapper.DangerousGetHandle());
         }
 
+        internal bool SupportsThreadSafeCloning(M modelWrapper)
+        {
+            return NativeApiPInvoke.SupportsThreadSafeCloning(modelWrapper.DangerousGetHandle());
+        }
     }
 }

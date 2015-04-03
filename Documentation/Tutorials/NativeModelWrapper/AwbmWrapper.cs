@@ -16,10 +16,21 @@ namespace NativeModelWrapper
         IModelSimulation<double[], double, int>, 
         INativeHandle
     {
-        public AwbmWrapper() : base(IntPtr.Zero, true)
+        public AwbmWrapper()
+            : base(IntPtr.Zero, true)
         {
             api = new NativeApi<AwbmWrapper>();
             IntPtr pointer = api.CreateSimulation();
+            SetHandle(pointer);
+        }
+
+        private AwbmWrapper(AwbmWrapper src)
+            : base(IntPtr.Zero, true)
+        {
+            api = new NativeApi<AwbmWrapper>();
+            if (!src.SupportsThreadSafeCloning)
+                throw new NotSupportedException("source model says it cannot be cloned in a thread-safe manner");
+            IntPtr pointer = api.Clone(src);
             SetHandle(pointer);
         }
 
@@ -82,6 +93,29 @@ namespace NativeModelWrapper
         public int GetEnd()
         {
             return api.GetEnd(this);
+        }
+
+        public IModelSimulation<double[], double, int> Clone()
+        {
+            return new AwbmWrapper(this);
+        }
+
+        public static bool PermitMultiThreading = true;
+
+        public bool SupportsDeepCloning
+        {
+            get
+            {
+                return (PermitMultiThreading && api.SupportsThreadSafeCloning(this));
+            }
+        }
+
+        public bool SupportsThreadSafeCloning
+        {
+            get
+            {
+                return (PermitMultiThreading && api.SupportsThreadSafeCloning(this));
+            }
         }
     }
 }

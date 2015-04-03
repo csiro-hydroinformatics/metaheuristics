@@ -28,10 +28,10 @@ public:
 	void SetC2(double value) { capacities[1] = value; }
 	void SetC3(double value) { capacities[2] = value; }
 
-	void SetVariable(std::string& variableIdentifier, double value);
-	double GetVariable(std::string& variableIdentifier);
+	void SetVariable(const std::string& variableIdentifier, double value);
+	double GetVariable(const std::string& variableIdentifier);
 
-	double * GetPtr(std::string& variableIdentifier);
+	double * GetPtr(const std::string& variableIdentifier);
 
 private:
 	// State values, can be considered as outputs depending on the modelling objective.
