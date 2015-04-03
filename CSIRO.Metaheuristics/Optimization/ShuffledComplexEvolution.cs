@@ -535,12 +535,9 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private void execParallel( IComplex[] complexes )
         {
-            Parallel.For(0, complexes.Length, parallelOptions, i =>
-            {
-                complexes[i].ComplexId = i.ToString();
-                complexes[i].Evolve();
-            });
-
+			for (int i = 0; i < complexes.Length; i++)
+				complexes[i].ComplexId = i.ToString();
+            Parallel.ForEach(complexes, parallelOptions, c => c.Evolve());
         }
 
         public string GetDescription( )

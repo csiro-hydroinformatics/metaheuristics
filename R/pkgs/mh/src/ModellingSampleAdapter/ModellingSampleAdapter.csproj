@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -30,18 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.8.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Modelling.Core, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -49,6 +37,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="CSIRO.Modelling.Core">
+      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys">
+      <HintPath>..\..\..\..\..\Documentation\Tutorials\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OptimizationAdapter.cs" />
@@ -56,12 +50,13 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
-      <Project>{653139cf-8aa9-42df-b262-f022bc1c9174}</Project>
+      <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
       <Name>EnvModellingSample</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\..\..\..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
+      <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
+      <Name>CSIRO.Metaheuristics</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -71,4 +66,7 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
 </Project>

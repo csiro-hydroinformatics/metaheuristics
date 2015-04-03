@@ -11,50 +11,83 @@ namespace CSIRO.Metaheuristics.Objectives
     {
         public static IObjectiveScores[] EvaluateScores<T>(IClonableObjectiveEvaluator<T> evaluator, T[] population, Func<bool> isCancelled, ParallelOptions parallelOptions = null) where T : ISystemConfiguration
         {
+            if (population.Length == 0)
+                return new IObjectiveScores[0];
             if(parallelOptions == null)
                 parallelOptions = new ParallelOptions() { MaxDegreeOfParallelism = -1 };
 
             var procCount = System.Environment.ProcessorCount;
-            if (!evaluator.SupportsThreadSafeCloning)
-            {
-                // Changes needed to solve https://github.com/jmp75/rClr/issues/5
-                procCount = 1;
-            }
-            IObjectiveScores[] result = new IObjectiveScores[population.Length];
 
-            T[][] subPop = MetaheuristicsHelper.MakeBins(population, procCount);
-            var offsets = new int[subPop.Length];
-            IClonableObjectiveEvaluator<T>[] cloneEval = new IClonableObjectiveEvaluator<T>[subPop.Length];
-            offsets[0] = 0;
-            cloneEval[0] = evaluator;
-            for (int i = 1; i < offsets.Length; i++)
-            {
-                offsets[i] = offsets[i - 1] + subPop[i - 1].Length;
-                cloneEval[i] = evaluator.Clone();
-            }
-
-            if (evaluator.SupportsThreadSafeCloning)
-            {
-                Parallel.For (0, subPop.Length, parallelOptions, i => {
-                    EvaluateScores (population, isCancelled, offsets, subPop, i, result, cloneEval [i]);
-                });
+            IObjectiveScores[] result;
+            if (evaluator.SupportsThreadSafeCloning) {
+                // There is presumably no point cloning 
+                // the system more times than the max level of parallelism
+                int nParallel=procCount;
+                if (parallelOptions.MaxDegreeOfParallelism > 0)
+                    nParallel = Math.Min(nParallel, parallelOptions.MaxDegreeOfParallelism);
+                T[][] subPop = MetaheuristicsHelper.MakeBins(population, nParallel);
+                var taskPkgs = new List<Tuple<T[],IClonableObjectiveEvaluator<T>>>();
+                taskPkgs.Add(Tuple.Create(subPop[0], evaluator));
+                for (int i = 1; i < subPop.Length; i++)
+                    taskPkgs.Add(Tuple.Create(subPop[i], evaluator.Clone()));
+                // Need to use Parallel.ForEach rather than Parallel.For to work around a Parallel.For 
+                // oddity in Mono 3.12.1. Need an identity to iterate over...
+                var ramp = new int[subPop.Length];
+                // Map of index of subpopulations to indices in the variable result:
+                //var offsets = new int[subPop.Length];
+                var resultBins = new IObjectiveScores[ramp.Length][];
+                for (int i = 1; i < ramp.Length; i++)
+                    ramp[i] = i;
+                Parallel.ForEach(ramp, parallelOptions, 
+                    (i => {
+                        resultBins[i] = EvaluateScoresSerial(taskPkgs[i], isCancelled);
+                    } )
+				);
+                result = Gather(resultBins);
                     
-            } else {
-                EvaluateScores (population, isCancelled, offsets, subPop, 0, result, cloneEval [0]);
-            }
-
+			} else {
+                result = new IObjectiveScores[population.Length];
+				for (int i = 0; i < population.Length; i++) {
+                    if (!isCancelled ())
+                        result [i] = evaluator.EvaluateScore (population [i]);
+                    else
+                        result [i] = null;
+				}
+			}
             return result;
         }
 
-        static void EvaluateScores<T>(T[] population, Func<bool> isCancelled, int[] offsets, T[][] subPop, int i, IObjectiveScores[] result, IClonableObjectiveEvaluator<T> evaluator) where T : ISystemConfiguration
+        static IObjectiveScores[] Gather(IObjectiveScores[][] resultBins)
         {
-            var offset = offsets [i];
-            for (int j = 0; j < subPop [i].Length; j++) {
-                if (!isCancelled ())
-                    result [offset + j] = evaluator.EvaluateScore (population [offset + j]);
-                else
-                    result [offset + j] = null;
+            var result = new List<IObjectiveScores>();
+            for (int i = 0; i < resultBins.Length; i++)
+            {
+                for (int j = 0; j < resultBins[i].Length; j++)
+                {
+                    result.Add(resultBins[i][j]);
+                }
             }
+            return result.ToArray();
+        }
+
+        static IObjectiveScores[] EvaluateScoresSerial<T>(Tuple<T[],IClonableObjectiveEvaluator<T>> task, Func<bool> isCancelled) where T : ISystemConfiguration
+        {
+            var pop = task.Item1;
+            var eval = task.Item2;
+            return EvaluateScoresSerial(pop, isCancelled, eval);
+        }
+
+        static IObjectiveScores[] EvaluateScoresSerial<T>(T[] population, Func<bool> isCancelled, 
+            IClonableObjectiveEvaluator<T> evaluator) where T : ISystemConfiguration
+        {
+            IObjectiveScores[] result = new IObjectiveScores[population.Length];
+            for (int j = 0; j < population.Length; j++) {
+                if (!isCancelled ())
+                    result [j] = evaluator.EvaluateScore (population [j]);
+                else
+                    result [j] = null;
+            }
+            return result;
         }
     }
 }
