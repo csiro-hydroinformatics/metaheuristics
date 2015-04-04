@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>Jean-Michel Perraud</authors>
+    <owners>CSIRO</owners>
+    <licenseUrl>https://github.com/jmp75/metaheuristics/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/jmp75/metaheuristics</projectUrl>
+    <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A metaheuristics software framework for .NET</description>
+    <releaseNotes>CSIRO.Metaheuristics changes to work around a mono 3.12.1 behavior with Parallel.For</releaseNotes>
+    <copyright>Copyright 2015 CSIRO</copyright>
+    <tags>Metaheuristics Optimisation Optimization Calibration</tags>
+  </metadata>
+</package>
