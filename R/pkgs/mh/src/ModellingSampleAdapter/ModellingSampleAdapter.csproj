@@ -30,13 +30,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.9.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+    </Reference>
     <Reference Include="CSIRO.Modelling.Core, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\CSIRO.Modelling.Core.0.7.9.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
     </Reference>
     <Reference Include="CSIRO.Sys, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.9.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.9.0\lib\net40\CSIRO.Sys.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,10 +58,6 @@
     <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
       <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
       <Name>EnvModellingSample</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
-      <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
-      <Name>CSIRO.Metaheuristics</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
