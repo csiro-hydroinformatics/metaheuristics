@@ -9,10 +9,10 @@
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.4-4\cr
-#' Date: \tab 2015-03-27\cr
-#' Release Notes: \tab Update dependencies due to a change in parameter logging precision to double,in CSIRO.Metaheuristics \cr
-#' License: \tab LGPL 2.1\cr
+#' Version: \tab 0.4-5\cr
+#' Date: \tab 2015-04-04\cr
+#' Release Notes: \tab Update to use CSIRO.Metaheuristics 0.4.9 - use parallel.foreach to work around Mono 3.12.1 \cr
+#' License: \tab LGPL 3\cr
 #' }
 #'
 #' @import rClr

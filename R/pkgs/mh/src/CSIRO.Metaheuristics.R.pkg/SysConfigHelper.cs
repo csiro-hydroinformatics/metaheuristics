@@ -5,6 +5,8 @@ using System.Text;
 using CSIRO.Metaheuristics;
 using CSIRO.Metaheuristics.Logging;
 using RDotNet;
+using CSIRO.Metaheuristics.SystemConfigurations;
+using System.Collections;
 
 namespace CSIRO.Metaheuristics.R.Pkgs
 {
@@ -63,6 +65,83 @@ namespace CSIRO.Metaheuristics.R.Pkgs
         public static DataFrame GetContent(IEnumerable<ILogInfo> logInfo)
         {
             return logInfo.ToDataFrame();
+        }
+
+        public static DataFrame AsDataFrame(IEnumerable<IObjectiveScores> objScores, bool stringsAsFactors = true)
+        {
+            var e = REngine.GetInstance();
+
+            IObjectiveScores[] results = objScores.ToArray();
+            List<IEnumerable> columns = new List<IEnumerable>();
+            var colNames = new List<string>();
+            if (results.Length == 0)
+            {
+                colNames.Add("empty.result.set");
+                columns.Add(new double[] { });
+            }
+            else
+            {
+                var objValues = new Dictionary<string, double[]>();
+                var scoreNames = new List<string>();
+                var anObj = results.First();
+                for (int i = 0; i < anObj.ObjectiveCount; i++)
+                    scoreNames.Add(anObj.GetObjective(i).Name);
+
+                var pNames = new List<string>();
+
+                colNames.AddRange(scoreNames);
+                foreach (var name in scoreNames)
+                {
+                    var c = new double[results.Length];
+                    columns.Add(c);
+                    objValues.Add(name, c);
+                }
+
+                // Add objective values
+                for (int i = 0; i < results.Length; i++)
+                {
+                    var obj = results[i];
+                    for (int j = 0; j < obj.ObjectiveCount; j++)
+                    {
+                        var objVal = obj.GetObjective(j);
+                        var d = (double)objVal.ValueComparable;
+                        objValues[objVal.Name][i] = objVal.Maximise ? -d : d;
+                    }
+                }
+
+                var hc = anObj.GetSystemConfiguration() as HyperCube<double>;
+                if (hc != null)
+                {
+                    var pValues = new Dictionary<string, double[]>();
+                    pNames.AddRange(hc.GetVariableNames());
+                    colNames.AddRange(pNames);
+                    foreach (var name in pNames)
+                    {
+                        var c = new double[results.Length];
+                        columns.Add(c);
+                        pValues.Add(name, c);
+                    }
+                    for (int i = 0; i < results.Length; i++)
+                    {
+                        var obj = results[i];
+                        hc = (HyperCube<double>)obj.GetSystemConfiguration();
+                        foreach (var name in pNames)
+                            pValues[name][i] = hc.GetValue(name);
+                    }
+                }
+                else
+                {
+                    colNames.Add("SysConfig");
+                    var c = new string[results.Length];
+                    for (int i = 0; i < results.Length; i++)
+                    {
+                        var obj = results[i];
+                        c[i] = obj.GetSystemConfiguration().ToString();
+                    }
+                    columns.Add(c);
+                }
+            }
+            return e.CreateDataFrame(columns.ToArray(), colNames.ToArray(), stringsAsFactors: stringsAsFactors);
         }
     }
 }

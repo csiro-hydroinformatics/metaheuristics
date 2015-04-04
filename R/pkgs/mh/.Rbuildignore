@@ -1,3 +1,5 @@
+.*\.gitignore
+.*\.git
 .*\.tlog
 .*\.ilk
 .*\.idb
@@ -9,8 +11,6 @@
 .*\.intermediate\..*
 .*/Debug/.*
 .*/Release/.*
-.*/MonoDebug/.*
-.*/MonoInstallDebug/.*
-.*/MonoInstall/.*
 .*/bin/.*
 .*/obj/.*
+.*src/packages/.*

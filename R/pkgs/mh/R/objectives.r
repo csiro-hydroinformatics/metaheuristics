@@ -18,7 +18,14 @@ getScore <- function(objectiveEvaluator, pSet) {
   list(scores=valObj, sysconfig=pSetAsDataFrame(clrGet(a,"SystemConfiguration")))
 }
 
-
-
-
+#' Convert the content of a collection of optim results as a data frame
+#'
+#' Convert the content of a collection of optim results (such as the output of an optimisation process) as a data frame
+#'
+#' @param mhObject An object that can be referenced as an IEnumerable<IObjectiveScores>. Further types may be supported later.
+#' @return a data frame
+#' @export
+asDataFrame <- function(mhObject) { 
+  clrCallStatic(sysConfigHelper, 'AsDataFrame', mhObject)
+}
 

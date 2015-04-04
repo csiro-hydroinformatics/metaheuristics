@@ -27,6 +27,96 @@ setHyperCube <- function(paramSet, specsFrame, setBounds=FALSE) {
   }
 }
 
+#' Change the minimum bound(s) of a hypercube parameter set
+#'
+#' Change the minimum bound(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements IHyperCubeSetBounds<double>
+#' @param varName character vector, name(s) of the variable(s) to change
+#' @param value numeric vector, value(s) to set the variable(s) minimum bound(s) to.
+#' @export
+setMinValue <- function(paramSet, varName, value) {
+  setParamSetValue(paramSet, varName, value, methodName='SetMinValue')
+}
+
+#' Change the maximum bound(s) of a hypercube parameter set
+#'
+#' Change the maximum bound(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements IHyperCubeSetBounds<double>
+#' @param varName character vector, name(s) of the variable(s) to change
+#' @param value numeric vector, value(s) to set the variable(s) maximum bound(s) to.
+#' @export
+setMaxValue <- function(paramSet, varName, value) {
+  setParamSetValue(paramSet, varName, value, methodName='SetMaxValue')
+}
+
+#' Change the value(s) of a hypercube parameter set
+#'
+#' Change the value(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements IHyperCubeSetBounds<double>
+#' @param varName character vector, name(s) of the variable(s) to change
+#' @param value numeric vector, value(s) to set the variable(s) value(s) to.
+#' @export
+setValue <- function(paramSet, varName, value) {
+  setParamSetValue(paramSet, varName, value, methodName='SetValue')
+}
+
+#' Get the value(s) of a hypercube parameter set
+#'
+#' Get the value(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements at least IHyperCube<double>
+#' @param varName character vector, name(s) of the variable(s) to get
+#' @return numeric vector, value(s) of the variable(s) value(s).
+#' @export
+getValue <- function(paramSet, varName) {
+  getParamSetValue(paramSet, varName, methodName='GetValue')
+}
+
+#' Get the minimum value(s) of a hypercube parameter set
+#'
+#' Get the minimum value(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements at least IHyperCube<double>
+#' @param varName character vector, name(s) of the variable(s) to get
+#' @return numeric vector, value(s) of the minimum value(s) of the variable(s).
+#' @export
+getMinValue <- function(paramSet, varName) {
+  getParamSetValue(paramSet, varName, methodName='GetMinValue')
+}
+
+#' Get the maximum value(s) of a hypercube parameter set
+#'
+#' Get the maximum value(s) of a hypercube parameter set
+#'
+#' @param paramSet An object that implements at least IHyperCube<double>
+#' @param varName character vector, name(s) of the variable(s) to get
+#' @return numeric vector, value(s) of the maximum value(s) of the variable(s).
+#' @export
+getMaxValue <- function(paramSet, varName) {
+  getParamSetValue(paramSet, varName, methodName='GetMaxValue')
+}
+
+setParamSetValue <- function(paramSet, varName, value, methodName) {
+  stopifnot(length(varName) == length(value))
+  stopifnot(is.character(varName))
+  stopifnot(is.numeric(value))
+  for (i in 1:length(varName)) {
+    clrCall(paramSet, methodName, varName[i], value[i])
+  }
+}
+
+getParamSetValue <- function(paramSet, varName, methodName) {
+  stopifnot(is.character(varName))
+  res <- numeric(length(varName))
+  for (i in 1:length(varName)) {
+    res[i] <- clrCall(paramSet, methodName, varName[i])
+  }
+  return(res)
+}
+
 #' Gets the CLR type for IHyperCubeSetBounds<double>
 #'
 #' Gets the CLR type for IHyperCubeSetBounds<double>. This function is sometimes needed to pass arguments to some functions requiring an explicit type of system configuration, e.g. createSceOptim.
