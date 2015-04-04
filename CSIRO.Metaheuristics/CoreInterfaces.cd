@@ -11,7 +11,7 @@
   <Interface Name="CSIRO.Metaheuristics.IEvolutionEngine&lt;T&gt;">
     <Position X="0.5" Y="7.75" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAQAAAAAAAIAAAAAAAAIAAAAAAIAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
       <FileName>IEvolutionEngine.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -64,25 +64,11 @@
       <FileName>IClonableObjectiveEvaluator.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="CSIRO.Metaheuristics.ICloningSupport&lt;T&gt;" Collapsed="true">
-    <Position X="4.5" Y="0.5" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABI=</HashCode>
-      <FileName>ICloningSupport.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
   <Interface Name="CSIRO.Metaheuristics.IHyperCube&lt;T&gt;" Collapsed="true">
     <Position X="0.5" Y="2.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAIAAAAoAAAAAAAAIIAAAAAAAAAAAIAAAAAAg=</HashCode>
       <FileName>IHyperCube.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
-  <Interface Name="CSIRO.Metaheuristics.IMonitoringEvent" Collapsed="true">
-    <Position X="8.75" Y="6.5" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAA=</HashCode>
-      <FileName>IMonitoringEvent.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Interface Name="CSIRO.Metaheuristics.IObjectiveScore&lt;T&gt;">
@@ -95,7 +81,7 @@
   <Interface Name="CSIRO.Metaheuristics.IOptimizationResults&lt;T&gt;" Collapsed="true">
     <Position X="3" Y="8.75" Width="2" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>IOptimizationResults.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -108,6 +94,22 @@
   </Interface>
   <Interface Name="CSIRO.Metaheuristics.ICloneableSystemConfiguration" Collapsed="true">
     <Position X="3" Y="2.25" Width="2.75" />
+    <InheritanceLine Type="CSIRO.Metaheuristics.ISystemConfiguration" FixedToPoint="true">
+      <Path>
+        <Point X="1.875" Y="1.645" />
+        <Point X="1.875" Y="1.95" />
+        <Point X="4.062" Y="1.95" />
+        <Point X="4.062" Y="2.25" />
+      </Path>
+    </InheritanceLine>
+    <InheritanceLine Type="CSIRO.Sys.ICloningSupport&lt;T&gt;" ManuallyRouted="true">
+      <Path>
+        <Point X="5.625" Y="1.13" />
+        <Point X="5.625" Y="1.846" />
+        <Point X="4.375" Y="1.846" />
+        <Point X="4.375" Y="2.25" />
+      </Path>
+    </InheritanceLine>
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>ISystemConfiguration.cs</FileName>
@@ -119,6 +121,10 @@
       <HashCode>AAAAAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>IObjectiveScores.cs</FileName>
     </TypeIdentifier>
+  </Interface>
+  <Interface Name="CSIRO.Sys.ICloningSupport&lt;T&gt;" Collapsed="true">
+    <Position X="4.75" Y="0.5" Width="1.75" />
+    <TypeIdentifier />
   </Interface>
   <Font Name="Tahoma" Size="8.25" />
 </ClassDiagram>
