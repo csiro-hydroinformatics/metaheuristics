@@ -3,7 +3,7 @@ mh - Access the CSIRO.Metaheuristics framework from R
 
 **mh** is an R package to access a metaheuristics framework [CSIRO.Metaheuristics](https://github.com/jmp75/metaheuristics) running on Microsoft .NET and Mono.
 
-Note that as of 2015-01, this package is not at a stage intended for use by many developers. The build process is not streamlined and well documented.
+As of 2015-04, this package is used by the author for project work calibrating hydrologic models, on Windows and Linux. The build process has significantly improved over the past few months, but this remains a complicated package to use. It currently requires rClr 0.7-4 at least.
 
 ## Prerequisites and package dependencies
 
@@ -15,7 +15,7 @@ The interoperability of R and .NET code relies on the [rClr](http://rclr.codeple
 
 ### Linux
 
-R Extensions
+As of 2015-04, the package has been used in a research and development, running on Linux with Mono 3.12.1.
 
 some of the tools of the Mono implementation are required to install **mh**. One of the package dependencies, the rClr package, also requires it anyway. You will find suitable instructions at [Building from source rClr](https://github.com/jmp75/rClr#from-source).
 
@@ -41,8 +41,9 @@ cd F:\path\to\the\package
 REM R.exe for either architecture is fine.
 set R="c:\Program Files\R\R-3.0.0\bin\x64\R.exe"
 REM optionally, but preferably, check the package
-%R% CMD check mh
-%R% CMD INSTALL mh
+REM %R% CMD check mh
+%R% CMD build mh
+%R% R CMD INSTALL mh_0.4-5.tar.gz
 ```
 
 Or, if you use devtools:
@@ -66,7 +67,7 @@ cd pkgs/
 # git pull
 nuget restore mh/src/mh.sln 
 R CMD build mh 
-R CMD INSTALL mh_0.4-1.tar.gz 
+R CMD INSTALL mh_0.4-5.tar.gz # or subsequent version number
 ```
 
 ## Examples
