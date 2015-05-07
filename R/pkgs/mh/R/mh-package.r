@@ -9,12 +9,18 @@
 #' \tabular{ll}{
 #' Package: \tab mh\cr
 #' Type: \tab Package\cr
-#' Version: \tab 0.4-5\cr
-#' Date: \tab 2015-04-04\cr
-#' Release Notes: \tab Update to use CSIRO.Metaheuristics 0.4.9 - use parallel.foreach to work around Mono 3.12.1 \cr
+#' Version: \tab 0.4-6\cr
+#' Date: \tab 2015-05-07\cr
+#' Release Notes: \tab Fix issue building on Ubuntu and R 3.2 \cr
 #' License: \tab LGPL 3\cr
 #' }
 #'
+#' \tabular{lll}{
+#' Version \tab Date \tab Notes \cr
+#' 0.4-5: \tab 2015-04-04 \tab Update to use CSIRO.Metaheuristics 0.4.9 - use parallel.foreach to work around Mono 3.12.1 \cr
+#' }
+#' 
+#' 
 #' @import rClr
 #' @import ggplot2
 #' @import stringr
