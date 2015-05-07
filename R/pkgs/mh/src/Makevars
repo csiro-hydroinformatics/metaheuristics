@@ -35,11 +35,9 @@ Mh2RLib: Mh2RLibComp
 	-cp -u -p $(RMHBINs) $(INSTDIR)/libs
 
 instdir:
-	-@rm -rf $(INSTDIR)/libs
-	# the following two lines are required, even if empty folder, otherwise R complains at package load time.
-	-@mkdir -p $(INSTDIR)/libs/i386
-	-@mkdir -p $(INSTDIR)/libs/x64
-	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
+	-@rm -rf $(INSTDIR)/libs$(R_ARCH)
+	-@mkdir -p $(INSTDIR) 2>/dev/null
+	-@mkdir -p $(INSTDIR)/libs$(R_ARCH) 2>/dev/null
 
 .PHONY: all
 

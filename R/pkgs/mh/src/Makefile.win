@@ -27,10 +27,10 @@ Mh2RLib: Mh2RLibComp
 
 instdir:
 	-@rm -rf $(INSTDIR)/libs
-	# the following two lines are required, even if empty folder, otherwise R complains at package load time.
-	-@mkdir -p $(INSTDIR)/libs/i386
-	-@mkdir -p $(INSTDIR)/libs/x64
 	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
+	# the following two lines are required on Windows, even if empty folder, otherwise R complains at package load time.
+	-@mkdir -p $(INSTDIR)/libs/i386 2>/dev/null
+	-@mkdir -p $(INSTDIR)/libs/x64 2>/dev/null
 
 .PHONY: all
 
