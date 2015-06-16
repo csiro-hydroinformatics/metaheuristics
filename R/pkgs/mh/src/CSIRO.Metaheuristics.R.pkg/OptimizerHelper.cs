@@ -16,7 +16,7 @@ namespace CSIRO.Metaheuristics.R.Pkgs
             var helper = getHelper();
             var t = sysConfigType ?? template.GetType();
             if (terminationCondition == null) terminationCondition = CreateMaxWalltime(t);
-            return invokeGenericMethod("internalCreateSceOptimizer", t, new object[] { evaluator, template, terminationCondition });
+            return invokeGenericMethod("internalCreateSceOptimizer", t, new object[] { evaluator, template, terminationCondition, sceParams });
         }
 
         public static object CreateMaxWalltime(Type sysConfigType, double maxHours = 0.1)
@@ -52,12 +52,12 @@ namespace CSIRO.Metaheuristics.R.Pkgs
             return helper;
         }
 
-        private static ShuffledComplexEvolution<T> internalCreateSceOptimizer<T>(IClonableObjectiveEvaluator<T> evaluator, T template, ITerminationCondition<T> terminationCondition)
+        private static ShuffledComplexEvolution<T> internalCreateSceOptimizer<T>(IClonableObjectiveEvaluator<T> evaluator, T template, ITerminationCondition<T> terminationCondition , SceParameters SceParams)
             where T : ICloneableSystemConfiguration, IHyperCube<double>
         {
             var populationInitializer = new UniformRandomSamplingFactory<T>(new CSIRO.Metaheuristics.RandomNumberGenerators.BasicRngFactory(0), template);
             var sce = new ShuffledComplexEvolution<T>(evaluator, populationInitializer,
-                terminationCondition: terminationCondition);
+                terminationCondition: terminationCondition, sceParameters: SceParams);
             return sce;
 
         }
