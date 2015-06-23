@@ -83,9 +83,9 @@ namespace CSIRO.Metaheuristics.R.Pkgs
             {
                 var objValues = new Dictionary<string, double[]>();
                 var scoreNames = new List<string>();
-                var anObj = results.First();
-                for (int i = 0; i < anObj.ObjectiveCount; i++)
-                    scoreNames.Add(anObj.GetObjective(i).Name);
+                var firstResult = results.First();
+                for (int i = 0; i < firstResult.ObjectiveCount; i++)
+                    scoreNames.Add(firstResult.GetObjective(i).Name);
 
                 var pNames = new List<string>();
 
@@ -105,11 +105,11 @@ namespace CSIRO.Metaheuristics.R.Pkgs
                     {
                         var objVal = obj.GetObjective(j);
                         var d = (double)objVal.ValueComparable;
-                        objValues[objVal.Name][i] = objVal.Maximise ? -d : d;
+                        objValues[objVal.Name][i] = d; // objVal.Maximise ? -d : d;
                     }
                 }
 
-                var hc = anObj.GetSystemConfiguration() as HyperCube<double>;
+                var hc = firstResult.GetSystemConfiguration() as IHyperCube<double>;
                 if (hc != null)
                 {
                     var pValues = new Dictionary<string, double[]>();
@@ -124,7 +124,7 @@ namespace CSIRO.Metaheuristics.R.Pkgs
                     for (int i = 0; i < results.Length; i++)
                     {
                         var obj = results[i];
-                        hc = (HyperCube<double>)obj.GetSystemConfiguration();
+                        hc = (IHyperCube<double>)obj.GetSystemConfiguration();
                         foreach (var name in pNames)
                             pValues[name][i] = hc.GetValue(name);
                     }
