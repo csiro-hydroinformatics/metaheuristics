@@ -71,10 +71,10 @@ boundValuesDf <- function(x, colname, lim=c(0,1)) {
 #' d
 #' }
 #' @export
-plotParamEvolution <- function(logMh, paramName, objLims=NULL) {
+plotParamEvolution <- function(logMh, paramName, objLims=NULL, title="Evolution of parameter values", xlab="Logged point", ylab=paramName) {
   d <- boundFitness(logMh, objLims)
   ggplot(d, aes_string(x = numColname, y = paramName, colour=logMh@fitness)) + 
-    geom_point() + ggtitle("Evolution of parameter values") + xlab("Logged point") + ylab(paramName) +
+    geom_point() + labs( title=title, x=xlab, y=ylab) +
     scale_colour_continuous(low="blue", high="red")
 }
 
