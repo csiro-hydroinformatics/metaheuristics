@@ -3,7 +3,7 @@
   <Interface Name="CSIRO.Metaheuristics.IEvolutionEngine&lt;T&gt;">
     <Position X="0.5" Y="4" Width="2.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAQAAAAAAAIAAAAAAAAIAAAAAAIAAAAAAAAAA=</HashCode>
+      <HashCode>AAAAAAAAQAAAAAAAIAAAAAAAAAAAAAAAIAAAAAAAAAA=</HashCode>
       <FileName>IEvolutionEngine.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -17,7 +17,7 @@
   <Interface Name="CSIRO.Metaheuristics.IObjectiveScores">
     <Position X="0.5" Y="2" Width="3.25" />
     <TypeIdentifier>
-      <HashCode>AAAAAAABAAAAAAAQAAAAAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
+      <HashCode>AAAAAAABAAAAAAAAAAAQAAAAAAAAAAAAAAAQAAAAAAA=</HashCode>
       <FileName>IObjectiveScores.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -38,7 +38,7 @@
   <Interface Name="CSIRO.Metaheuristics.IObjectiveScore">
     <Position X="4.25" Y="3.5" Width="2.75" />
     <TypeIdentifier>
-      <HashCode>AAAAABAAAAAAAAAIAAAAAAAAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <HashCode>AAAAABAAAAAAAAAIAAAAAAQAAAAAAAAAAAAEAAAAAAA=</HashCode>
       <FileName>IObjectiveScore.cs</FileName>
     </TypeIdentifier>
   </Interface>
@@ -56,18 +56,11 @@
       <FileName>ITerminationCondition.cs</FileName>
     </TypeIdentifier>
   </Interface>
-  <Interface Name="CSIRO.Metaheuristics.IClonableObjectiveEvaluator&lt;Tsys&gt;" Collapsed="true">
+  <Interface Name="CSIRO.Metaheuristics.IClonableObjectiveEvaluator&lt;TSysConfig&gt;" Collapsed="true">
     <Position X="8" Y="3.5" Width="3" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>IClonableObjectiveEvaluator.cs</FileName>
-    </TypeIdentifier>
-  </Interface>
-  <Interface Name="CSIRO.Metaheuristics.ICloningSupport&lt;T&gt;">
-    <Position X="9" Y="1" Width="2.75" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAABI=</HashCode>
-      <FileName>ICloningSupport.cs</FileName>
     </TypeIdentifier>
   </Interface>
   <Font Name="Tahoma" Size="8.25" />
