@@ -1,8 +1,10 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch.hpp"
 #include "../mhcpp/core.h"
+#include "../mhcpp/sce.hpp"
 
 using namespace mhcpp;
+using namespace mhcpp::optimization;
 
 SCENARIO("basic hypercubes", "[sysconfig]") {
 
@@ -38,6 +40,23 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 			REQUIRE(hc.GetValue("b") == 5);
 			REQUIRE(hc.GetMinValue("b") == 0);
 			REQUIRE(hc.GetMaxValue("b") == 10);
+		}
+	}
+}
+
+
+SCENARIO("SCE basic port", "[optimizer]") {
+
+	GIVEN("")
+	{
+		HyperCube<double> hc;
+		hc.Define("a", 1, 2, 1.5);
+		hc.Define("b", 3, 4, 3.3);
+
+		ShuffledComplexEvolution<HyperCube<double>> opt(nullptr, nullptr, nullptr,
+			SceParameters::CreateForProblemOfDimension(5, 20));
+
+		WHEN("") {
 		}
 	}
 }

@@ -1,3 +1,4 @@
+#pragma once
 
 #include <string>
 #include <vector>
@@ -27,7 +28,7 @@ namespace mhcpp
 	/// <summary>
 	/// Interface for system configurations that support cloning. Helps to support parallelism in solvers.
 	/// </summary>
-	class ICloneableSystemConfiguration : public ISystemConfiguration //, ICloningSupport<ICloneableSystemConfiguration>
+	class ICloneableSystemConfiguration : ISystemConfiguration //, ICloningSupport<ICloneableSystemConfiguration>
 	{
 	public:
 		virtual ~ICloneableSystemConfiguration() {}
@@ -38,7 +39,7 @@ namespace mhcpp
 	/// </summary>
 	/// <typeparam name="T">A comparable type; typically a float or double, but possibly integer or more esoteric type</typeparam>
 	template<typename T>
-	class IHyperCube : public ICloneableSystemConfiguration //where T : IComparable
+	class IHyperCube : ICloneableSystemConfiguration //where T : IComparable
 	{
 	public:
 		virtual ~IHyperCube() {}
@@ -91,7 +92,7 @@ namespace mhcpp
 	};
 
 	template<typename T>
-	class IHyperCubeSetBounds : public IHyperCube < T > //where T : IComparable
+	class IHyperCubeSetBounds : IHyperCube < T > //where T : IComparable
 	{
 	public:
 		virtual ~IHyperCubeSetBounds() {}
@@ -130,11 +131,10 @@ namespace mhcpp
 	/// An interface for one or more objective scores derived from the evaluation of a candidate system configuration.
 	/// </summary>
 	/// <remarks>This interface is defined without generics on purpose, to reduce complexity. Limits the unnecessary proliferation of generic classes</remarks>
-	template<typename TSysConf>
-	class IObjectiveScores
+	class IBaseObjectiveScores
 	{
 	public:
-		virtual ~IObjectiveScores() {}
+		virtual ~IBaseObjectiveScores() {}
 		/// <summary>
 		/// Gets the number of objective scores in this instance.
 		/// </summary>
@@ -154,20 +154,20 @@ namespace mhcpp
 		virtual ISystemConfiguration * GetSystemConfiguration() = 0;
 	};
 
-	///// <summary>
-	///// A generic interface for one or more objective scores derived from the evaluation of a candidate system configuration.
-	///// </summary>
-	///// <typeparam name="TSysConf">The type of the system configuration</typeparam>
-	//template<typename TSysConf>
-	//class IObjectiveScores : public IObjectiveScores //where TSysConf : ISystemConfiguration
-	//{
-	//public:
-	//	virtual ~IObjectiveScores() {}
-	//	/// <summary>
-	//	/// Gets the system configuration that led to these scores.
-	//	/// </summary>
-	//	TSysConf SystemConfiguration() = 0;
-	//};
+	/// <summary>
+	/// A generic interface for one or more objective scores derived from the evaluation of a candidate system configuration.
+	/// </summary>
+	/// <typeparam name="TSysConf">The type of the system configuration</typeparam>
+	template<typename TSysConf>
+	class IObjectiveScores : IBaseObjectiveScores //where TSysConf : ISystemConfiguration
+	{
+	public:
+		virtual ~IObjectiveScores() {}
+		/// <summary>
+		/// Gets the system configuration that led to these scores.
+		/// </summary>
+		virtual TSysConf SystemConfiguration() = 0;
+	};
 
 	template<typename T>
 	class ICandidateFactory
@@ -175,8 +175,15 @@ namespace mhcpp
 	};
 
 	template<typename T>
+	class IEvolutionEngine
+	{
+	};
+
+	template<typename T>
 	class ITerminationCondition
 	{
+	public:
+		void SetEvolutionEngine(IEvolutionEngine<T>* engine){};
 	};
 
 	template<typename T>
@@ -213,7 +220,7 @@ namespace mhcpp
 	/// </remarks>
 	//template<typename TSysConf>
 	//class IClonableObjectiveEvaluator<TSysConf> :
-	//	public IObjectiveEvaluator<TSysConf> //, ICloningSupport<IClonableObjectiveEvaluator<TSysConf>>
+	//	IObjectiveEvaluator<TSysConf> //, ICloningSupport<IClonableObjectiveEvaluator<TSysConf>>
 	//	//		where TSysConf : ISystemConfiguration
 	//{
 	//};
@@ -279,7 +286,7 @@ namespace mhcpp
 
 
 	template<typename T>
-	class HyperCube : public IHyperCube<T> //where T : IComparable
+	class HyperCube : IHyperCube<T> //where T : IComparable
 	{
 	public:
 		vector<string> GetVariableNames() {
@@ -313,6 +320,56 @@ namespace mhcpp
 			double Min, Max, Value;
 		};
 		std::map<string, MMV> def;
+	};
+
+	/// <summary>
+	/// Capture a fitness score derived from a candidate system configuration and its objective scores.
+	/// </summary>
+	/// <typeparam name="T">The type of fitness used to compare system configuration.</typeparam>
+	template<typename T, typename TSys>
+	class FitnessAssignedScores //: IComparable<FitnessAssignedScores<T>> where T : IComparable
+	{
+		/// <summary>
+		/// Creates a FitnessAssignedScores, a union of a candidate system configuration and its objective scores, and an overall fitness score.
+		/// </summary>
+		/// <param name="scores">Objective scores</param>
+		/// <param name="fitnessValue">Fitness value, derived from the scores and context information such as a candidate population.</param>
+		FitnessAssignedScores(IObjectiveScores<TSys>* scores, T fitnessValue)
+		{
+			this->Scores = scores;
+			this->FitnessValue = fitnessValue;
+		}
+		/// <summary>
+		/// Gets the objective scores
+		/// </summary>
+		IObjectiveScores<TSys>* Scores;
+
+		/// <summary>
+		/// Gets the fitness value that has been assigned to the candidate system configuration and its objective scores
+		/// </summary>
+		T FitnessValue;
+
+		/// <summary>
+		/// Compares two FitnessAssignedScores<T>.
+		/// </summary>
+		/// <param name="other">Object to compare with this object</param>
+		/// <returns>an integer as necessary to implement IComparable</returns>
+		int CompareTo(FitnessAssignedScores<T, TSys> other)
+		{
+			return this->FitnessValue.CompareTo(other.FitnessValue);
+		}
+
+		string ToString()
+		{
+			return FitnessValue.ToString() + ", " + Scores.ToString();
+		}
+	};
+
+	class IHyperCubeOperations
+	{
+		virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
+		virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
+		virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
 	};
 
 }
