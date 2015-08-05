@@ -45,18 +45,49 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 }
 
 
-SCENARIO("SCE basic port", "[optimizer]") {
+SCENARIO("Basic objective evaluator", "[objectives]") {
 
-	GIVEN("")
+	GIVEN("Something")
 	{
 		HyperCube<double> hc;
 		hc.Define("a", 1, 2, 1.5);
 		hc.Define("b", 3, 4, 3.3);
 
-		ShuffledComplexEvolution<HyperCube<double>> opt(nullptr, nullptr, nullptr,
-			SceParameters::CreateForProblemOfDimension(5, 20));
+		auto sceParams = SceParameters::CreateForProblemOfDimension(5, 20);
+		ShuffledComplexEvolution<HyperCube<double>> opt(nullptr, nullptr, nullptr, sceParams);
+
+		HyperCube<double> goal;
+		goal.Define("a", 1, 2, 1);
+		goal.Define("b", 3, 4, 3);
+
+		//IObjectiveEvaluator<HyperCube < double > >* evaluator = new TopologicalDistance<HyperCube < double > >(goal);
+		TopologicalDistance<HyperCube < double > > evaluator(goal);
+
+		IObjectiveScores<HyperCube<double>>* scores = evaluator.EvaluateScore(hc);
+		WHEN("") {
+			REQUIRE(scores->Value<double>(0) == std::sqrt(0.25 + 0.09));
+		}
+		delete scores;
+	}
+}
+
+
+SCENARIO("SCE basic port", "[optimizer]") {
+
+	GIVEN("A 2D Hypercube")
+	{
+		HyperCube<double> hc;
+		hc.Define("a", 1, 2, 1.5);
+		hc.Define("b", 3, 4, 3.3);
+
+		auto sceParams = SceParameters::CreateForProblemOfDimension(5, 20);
+		ShuffledComplexEvolution<HyperCube<double>> opt(nullptr, nullptr, nullptr, sceParams);
+
+		//ICandidateFactory<HyperCube < double > >* populationInitializer;
+		//ITerminationCondition<HyperCube < double > >* terminationCondition,
 
 		WHEN("") {
+
 		}
 	}
 }

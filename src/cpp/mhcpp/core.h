@@ -28,7 +28,7 @@ namespace mhcpp
 	/// <summary>
 	/// Interface for system configurations that support cloning. Helps to support parallelism in solvers.
 	/// </summary>
-	class ICloneableSystemConfiguration : ISystemConfiguration //, ICloningSupport<ICloneableSystemConfiguration>
+	class ICloneableSystemConfiguration : public ISystemConfiguration //, ICloningSupport<ICloneableSystemConfiguration>
 	{
 	public:
 		virtual ~ICloneableSystemConfiguration() {}
@@ -39,7 +39,7 @@ namespace mhcpp
 	/// </summary>
 	/// <typeparam name="T">A comparable type; typically a float or double, but possibly integer or more esoteric type</typeparam>
 	template<typename T>
-	class IHyperCube : ICloneableSystemConfiguration //where T : IComparable
+	class IHyperCube : public ICloneableSystemConfiguration //where T : IComparable
 	{
 	public:
 		virtual ~IHyperCube() {}
@@ -92,7 +92,7 @@ namespace mhcpp
 	};
 
 	template<typename T>
-	class IHyperCubeSetBounds : IHyperCube < T > //where T : IComparable
+	class IHyperCubeSetBounds : public IHyperCube < T > //where T : IComparable
 	{
 	public:
 		virtual ~IHyperCubeSetBounds() {}
@@ -108,7 +108,7 @@ namespace mhcpp
 		/// <summary>
 		/// Gets whether this objective is a maximizable one (higher is better).
 		/// </summary>
-		virtual bool Maximise();
+		virtual bool Maximise() = 0;
 
 		/// <summary>
 		/// Get a text represtattion of this score
@@ -121,11 +121,34 @@ namespace mhcpp
 		/// </summary>
 		virtual string Name() = 0;
 
-		//	/// <summary>
-		//	/// Gets the value of the objective. Inheritors should return the real value, and not worry about negating or not. This is taken care elsewhere.
-		//	/// </summary>
-		//IComparable ValueComparable() = 0;
+		// /// <summary>
+		// /// Gets the value of the objective. Inheritors should return the real value, and not worry about negating or not. This is taken care elsewhere.
+		// /// </summary>
+		// T Value() = 0;
 	};
+
+	bool operator==(const IObjectiveScore &a, const double &b)
+	{
+		return false; // a.GetObjective(0)->Value();
+	}
+
+	template<typename T = double>
+	class ObjectiveScore : public IObjectiveScore
+	{
+	public:
+		ObjectiveScore(T value)
+		{
+			this->value = value;
+		}
+		bool Maximise() { return this->maximise; }
+		string GetText() { return string(""); } // +value;	}
+		string Name() { return string(""); }
+		T Value() { return value; }
+	private:
+		bool maximise;
+		T value;
+	};
+
 
 	/// <summary>
 	/// An interface for one or more objective scores derived from the evaluation of a candidate system configuration.
@@ -147,11 +170,14 @@ namespace mhcpp
 		/// <returns></returns>
 		virtual IObjectiveScore * GetObjective(int i) = 0;
 
-		/// <summary>
-		/// Gets the system configuration that led to these scores.
-		/// </summary>
-		/// <returns></returns>
-		virtual ISystemConfiguration * GetSystemConfiguration() = 0;
+		template<typename U>
+		virtual U Value(int i) = 0;
+
+		///// <summary>
+		///// Gets the system configuration that led to these scores.
+		///// </summary>
+		///// <returns></returns>
+		//virtual ISystemConfiguration * GetSystemConfiguration() = 0;
 	};
 
 	/// <summary>
@@ -159,7 +185,7 @@ namespace mhcpp
 	/// </summary>
 	/// <typeparam name="TSysConf">The type of the system configuration</typeparam>
 	template<typename TSysConf>
-	class IObjectiveScores : IBaseObjectiveScores //where TSysConf : ISystemConfiguration
+	class IObjectiveScores : public IBaseObjectiveScores //where TSysConf : ISystemConfiguration
 	{
 	public:
 		virtual ~IObjectiveScores() {}
@@ -168,6 +194,17 @@ namespace mhcpp
 		/// </summary>
 		virtual TSysConf SystemConfiguration() = 0;
 	};
+
+	//template<typename TSysConf>
+	//bool operator==(const IObjectiveScores<TSysConf> &a, const double &b) 
+	//{ 
+	//	return a.GetObjective(0)->Value(); 
+	//}
+	//template<typename TSysConf>
+	//bool operator==(const double &a, const IObjectiveScores<TSysConf> &b) 
+	//{ 
+	//	return false;
+	//}
 
 	template<typename T>
 	class ICandidateFactory
@@ -205,7 +242,7 @@ namespace mhcpp
 		/// </summary>
 		/// <param name="systemConfiguration">candidate system configuration</param>
 		/// <returns>An object with one or more objective scores</returns>
-		virtual IObjectiveScores<TSysConf> EvaluateScore(TSysConf systemConfiguration) = 0;
+		virtual IObjectiveScores<TSysConf> * EvaluateScore(TSysConf systemConfiguration) = 0;
 		virtual bool IsCloneable() { return false; }
 	};
 
@@ -286,7 +323,7 @@ namespace mhcpp
 
 
 	template<typename T>
-	class HyperCube : IHyperCube<T> //where T : IComparable
+	class HyperCube : public IHyperCube<T> //where T : IComparable
 	{
 	public:
 		vector<string> GetVariableNames() {
@@ -372,4 +409,60 @@ namespace mhcpp
 		virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
 	};
 
+
+
+	template<typename TSysConf, typename T=double>
+	class ScalarObjectiveScores : public IObjectiveScores<TSysConf> //where TSysConf : ISystemConfiguration
+	{
+	public:
+		ScalarObjectiveScores(T value, const TSysConf& sysConf)
+		{
+			this->sysConf = sysConf;
+			this->value = value;
+		}
+		TSysConf SystemConfiguration() { return sysConf; }
+		size_t ObjectiveCount() { return 1; }
+		IObjectiveScore * GetObjective(int i) 
+		{
+			if (i != 0) throw std::logic_error("There is only one score");
+			return new ObjectiveScore<T>(value);
+		}
+		ISystemConfiguration * GetSystemConfiguration()
+		{
+			return new TSysConf(sysConf);
+		}
+
+	private:
+		TSysConf sysConf;
+		T value;
+
+	};
+
+	template<typename TSysConf>
+	class TopologicalDistance : public IObjectiveEvaluator<TSysConf>
+	{
+	public:
+		TopologicalDistance(const TSysConf& goal) { this->goal = goal; }
+		~TopologicalDistance() {}
+
+		/// <summary>
+		/// Evaluate the objective values for a candidate system configuration
+		/// </summary>
+		/// <param name="systemConfiguration">candidate system configuration</param>
+		/// <returns>An object with one or more objective scores</returns>
+		IObjectiveScores<TSysConf> * EvaluateScore(TSysConf systemConfiguration)
+		{
+			double sumsqr=0;
+			vector<string> varNames = goal.GetVariableNames();
+			for (auto& v : varNames)
+			{
+				auto d = goal.GetValue(v) - systemConfiguration.GetValue(v);
+				sumsqr += d*d;
+			}
+			return new ScalarObjectiveScores<TSysConf>(std::sqrt(sumsqr), systemConfiguration);
+		}
+
+	private:
+		TSysConf goal;
+	};
 }
