@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "utils.h"
 
 using namespace std;
 
@@ -101,53 +102,53 @@ namespace mhcpp
 		virtual void SetMinMaxValue(string variableName, T min, T max, T value) = 0;
 	};
 
-	class IObjectiveScore
-	{
-	public:
-		virtual ~IObjectiveScore() {}
-		/// <summary>
-		/// Gets whether this objective is a maximizable one (higher is better).
-		/// </summary>
-		virtual bool Maximise() = 0;
+	//class IObjectiveScore
+	//{
+	//public:
+	//	virtual ~IObjectiveScore() {}
+	//	/// <summary>
+	//	/// Gets whether this objective is a maximizable one (higher is better).
+	//	/// </summary>
+	//	virtual bool Maximise() = 0;
 
-		/// <summary>
-		/// Get a text represtattion of this score
-		/// </summary>
-		/// <returns></returns>
-		virtual string GetText() = 0;
+	//	/// <summary>
+	//	/// Get a text represtattion of this score
+	//	/// </summary>
+	//	/// <returns></returns>
+	//	virtual string GetText() = 0;
 
-		/// <summary>
-		/// Get name of the objective measure, typically a bivariate statistic.
-		/// </summary>
-		virtual string Name() = 0;
+	//	/// <summary>
+	//	/// Get name of the objective measure, typically a bivariate statistic.
+	//	/// </summary>
+	//	virtual string Name() = 0;
 
-		// /// <summary>
-		// /// Gets the value of the objective. Inheritors should return the real value, and not worry about negating or not. This is taken care elsewhere.
-		// /// </summary>
-		// T Value() = 0;
-	};
+	//	// /// <summary>
+	//	// /// Gets the value of the objective. Inheritors should return the real value, and not worry about negating or not. This is taken care elsewhere.
+	//	// /// </summary>
+	//	// T Value() = 0;
+	//};
 
-	bool operator==(const IObjectiveScore &a, const double &b)
-	{
-		return false; // a.GetObjective(0)->Value();
-	}
+	//bool operator==(const IObjectiveScore &a, const double &b)
+	//{
+	//	return false; // a.GetObjective(0)->Value();
+	//}
 
-	template<typename T = double>
-	class ObjectiveScore : public IObjectiveScore
-	{
-	public:
-		ObjectiveScore(T value)
-		{
-			this->value = value;
-		}
-		bool Maximise() { return this->maximise; }
-		string GetText() { return string(""); } // +value;	}
-		string Name() { return string(""); }
-		T Value() { return value; }
-	private:
-		bool maximise;
-		T value;
-	};
+	//template<typename T = double>
+	//class ObjectiveScore : public IObjectiveScore
+	//{
+	//public:
+	//	ObjectiveScore(T value)
+	//	{
+	//		this->value = value;
+	//	}
+	//	bool Maximise() { return this->maximise; }
+	//	string GetText() { return string(""); } // +value;	}
+	//	string Name() { return string(""); }
+	//	T Value() { return value; }
+	//private:
+	//	bool maximise;
+	//	T value;
+	//};
 
 
 	/// <summary>
@@ -163,15 +164,14 @@ namespace mhcpp
 		/// </summary>
 		virtual size_t ObjectiveCount() = 0;
 
-		/// <summary>
-		/// Gets one of the objective 
-		/// </summary>
-		/// <param name="i">zero-based inex of the objective</param>
-		/// <returns></returns>
-		virtual IObjectiveScore * GetObjective(int i) = 0;
+		// /// <summary>
+		// /// Gets one of the objective 
+		// /// </summary>
+		// /// <param name="i">zero-based inex of the objective</param>
+		// /// <returns></returns>
+		// virtual IObjectiveScore * GetObjective(int i) = 0;
 
-		template<typename U>
-		virtual U Value(int i) = 0;
+		virtual double Value(int i) = 0;
 
 		///// <summary>
 		///// Gets the system configuration that led to these scores.
@@ -327,8 +327,7 @@ namespace mhcpp
 	{
 	public:
 		vector<string> GetVariableNames() {
-			vector<string> res;
-			return res;
+			return mhcpp::utils::GetKeys(def);
 		}
 		void Define(string name, double min, double max, double value) {
 			def[name] = MMV(name, min, max, value);
@@ -422,14 +421,20 @@ namespace mhcpp
 		}
 		TSysConf SystemConfiguration() { return sysConf; }
 		size_t ObjectiveCount() { return 1; }
-		IObjectiveScore * GetObjective(int i) 
-		{
-			if (i != 0) throw std::logic_error("There is only one score");
-			return new ObjectiveScore<T>(value);
-		}
+		//IObjectiveScore * GetObjective(int i) 
+		//{
+		//	if (i != 0) throw std::logic_error("There is only one score");
+		//	return new ObjectiveScore<T>(value);
+		//}
 		ISystemConfiguration * GetSystemConfiguration()
 		{
 			return new TSysConf(sysConf);
+		}
+
+		double Value(int i)
+		{
+			if (i != 0) throw std::logic_error("There is only one score");
+			return value;
 		}
 
 	private:

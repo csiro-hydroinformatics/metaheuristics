@@ -1,9 +1,16 @@
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
+#include <set>
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <iostream>
+#include <iterator>
 #include "catch.hpp"
 #include "../mhcpp/core.h"
 #include "../mhcpp/sce.hpp"
 
 using namespace mhcpp;
+using namespace std;
 using namespace mhcpp::optimization;
 
 SCENARIO("basic hypercubes", "[sysconfig]") {
@@ -13,9 +20,13 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 		HyperCube<double> hc;
 		hc.Define("a", 1, 2, 1.5);
 		hc.Define("b", 3, 4, 3.3);
+		vector<string> keys;
+		keys.push_back("a");
+		keys.push_back("b");
 
 		WHEN("Read values after initial definition") {
 			REQUIRE(hc.Dimensions() == 2);
+			REQUIRE(mhcpp::utils::AreSetEqual(keys, hc.GetVariableNames()));
 			REQUIRE(hc.GetValue("a") == 1.5);
 			REQUIRE(hc.GetMinValue("a") == 1);
 			REQUIRE(hc.GetMaxValue("a") == 2);
@@ -47,7 +58,7 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 
 SCENARIO("Basic objective evaluator", "[objectives]") {
 
-	GIVEN("Something")
+	GIVEN("Single-value score")
 	{
 		HyperCube<double> hc;
 		hc.Define("a", 1, 2, 1.5);
@@ -65,7 +76,8 @@ SCENARIO("Basic objective evaluator", "[objectives]") {
 
 		IObjectiveScores<HyperCube<double>>* scores = evaluator.EvaluateScore(hc);
 		WHEN("") {
-			REQUIRE(scores->Value<double>(0) == std::sqrt(0.25 + 0.09));
+			REQUIRE(scores->ObjectiveCount() == 1);
+			REQUIRE(scores->Value(0) == std::sqrt(0.25 + 0.09));
 		}
 		delete scores;
 	}
