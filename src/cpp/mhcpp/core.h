@@ -209,6 +209,8 @@ namespace mhcpp
 	template<typename T>
 	class ICandidateFactory
 	{
+	public:
+		virtual T CreateRandomCandidate() = 0;
 	};
 
 	template<typename T>
@@ -221,11 +223,14 @@ namespace mhcpp
 	{
 	public:
 		void SetEvolutionEngine(IEvolutionEngine<T>* engine){};
+		virtual bool IsFinished() { return true } ;
 	};
 
 	template<typename T>
 	class IFitnessAssignment
 	{
+	public:
+		void AssignFitness(const std::vector<IObjectiveScores<T>>& scores) {}
 	};
 
 	class IRandomNumberGeneratorFactory

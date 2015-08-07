@@ -116,6 +116,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="core.h" />
+    <ClInclude Include="evaluations.hpp" />
     <ClInclude Include="sce.hpp" />
     <ClInclude Include="utils.h" />
   </ItemGroup>

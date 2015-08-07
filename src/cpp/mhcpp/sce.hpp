@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include "core.h"
+#include "evaluations.hpp"
 
 
 namespace mhcpp
@@ -26,11 +27,25 @@ namespace mhcpp
 	namespace optimization
 	{
 		using namespace mhcpp::logging;
+		using namespace mhcpp::objectives;
 
 		template<typename T>
 		class IOptimizationResults : public std::vector < IObjectiveScores<T> >
 			//where T : ISystemConfiguration
 		{
+		public:
+			IOptimizationResults() {}
+			IOptimizationResults(const IOptimizationResults& src) {}
+			IOptimizationResults(const std::vector<IObjectiveScores<T>>& scores) {}
+		};
+
+		template<typename T>
+		class BasicOptimizationResults : public IOptimizationResults<T>
+		{
+		public:
+			BasicOptimizationResults() {}
+			BasicOptimizationResults(const BasicOptimizationResults& src) {}
+			BasicOptimizationResults(const std::vector<IObjectiveScores<T>>& scores) {}
 		};
 
 		class SceParameters
@@ -186,6 +201,56 @@ namespace mhcpp
 				this->ContractionRatio = contractionRatio;
 			}
 
+			IOptimizationResults<T> Evolve()
+			{
+				isCancelled = false;
+				std::vector<IObjectiveScores<T>> scores = evaluateScores(evaluator, initialisePopulation());
+				loggerWrite(scores, createSimpleMsg("Initial Population", "Initial Population"));
+				auto isFinished = terminationCondition->IsFinished();
+				if (isFinished)
+				{
+					logTerminationConditionMet();
+					return packageResults(scores);
+				}
+				this->complexes = partition(scores);
+
+				//OnAdvanced( new ComplexEvolutionEvent( complexes ) );
+
+				CurrentShuffle = 1;
+				isFinished = terminationCondition->IsFinished();
+				if (isFinished) logTerminationConditionMet();
+				while (!isFinished && !isCancelled)
+				{
+					if (evaluator->IsCloneable())
+						execParallel(complexes);
+					else
+					{
+						for (int i = 0; i < complexes.size(); i++)
+						{
+							//currentComplex = complexes.at(i);
+							//currentComplex.IsCancelled = isCancelled;
+
+							//currentComplex.Evolve();
+							//auto complexPoints = currentComplex.GetObjectiveScores().ToArray();
+							//loggerWrite(sortByFitness(complexPoints).First(), createSimpleMsg("Best point in complex", "Complex No " + currentComplex.ComplexId));
+						}
+					}
+					//OnAdvanced( new ComplexEvolutionEvent( complexes ) );
+					string shuffleMsg = "Shuffling No " + std::to_string(CurrentShuffle);
+					auto shufflePoints = aggregate(complexes);
+					loggerWrite(shufflePoints, createSimpleMsg(shuffleMsg, shuffleMsg));
+					this->PopulationAtShuffling = sortByFitness(shufflePoints);
+					loggerWrite(PopulationAtShuffling[0], createSimpleMsg("Best point in shuffle", shuffleMsg));
+					complexes = shuffle(complexes);
+
+					CurrentShuffle++;
+					isFinished = terminationCondition->IsFinished();
+					if (isFinished) logTerminationConditionMet();
+				}
+				return packageResults(complexes);
+			}
+
+		private:
 			std::map<string, string> logTags;
 			IObjectiveEvaluator<T>* evaluator;
 			ICandidateFactory<T>* populationInitializer;
@@ -204,8 +269,11 @@ namespace mhcpp
 
 			class IComplex
 			{
-				virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() = 0;
-				virtual void Evolve() = 0;
+			public:
+				//virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() = 0;
+				//virtual void Evolve() = 0;
+				virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() { return std::vector<IObjectiveScores<T>>(); }
+				virtual void Evolve() { ; }
 				string ComplexId;
 				bool IsCancelled;
 			};
@@ -455,7 +523,7 @@ namespace mhcpp
 
 			//CancellationTokenSource tokenSource = new CancellationTokenSource();
 			SceOptions options = SceOptions::None;
-			std::vector<IComplex>* complexes = nullptr;
+			std::vector<IComplex> complexes;
 
 			double ContractionRatio;
 			double ReflectionRatio;
@@ -468,56 +536,7 @@ namespace mhcpp
 				//tokenSource.Cancel();
 			}
 
-			IOptimizationResults<T> Evolve()
-			{
-				isCancelled = false;
-				std::vector<IObjectiveScores<T>> scores = evaluateScores(evaluator, initialisePopulation());
-				loggerWrite(scores, createSimpleMsg("Initial Population", "Initial Population"));
-				auto isFinished = terminationCondition.IsFinished();
-				if (isFinished)
-				{
-					logTerminationConditionMet();
-					return packageResults(scores);
-				}
-				this->complexes = partition(scores);
-
-				//OnAdvanced( new ComplexEvolutionEvent( complexes ) );
-
-				CurrentShuffle = 1;
-				isFinished = terminationCondition.IsFinished();
-				if (isFinished) logTerminationConditionMet();
-				while (!isFinished && !isCancelled)
-				{
-					if (evaluator->IsCloneable())
-						execParallel(complexes);
-					else
-					{
-						for (int i = 0; i < complexes.Length; i++)
-						{
-							//currentComplex = complexes[i];
-							//currentComplex.IsCancelled = isCancelled;
-
-							//currentComplex.Evolve();
-							//auto complexPoints = currentComplex.GetObjectiveScores().ToArray();
-							//loggerWrite(sortByFitness(complexPoints).First(), createSimpleMsg("Best point in complex", "Complex No " + currentComplex.ComplexId));
-						}
-					}
-					//OnAdvanced( new ComplexEvolutionEvent( complexes ) );
-					auto shuffleMsg = "Shuffling No " + CurrentShuffle.ToString("D3");
-					auto shufflePoints = aggregate(complexes);
-					loggerWrite(shufflePoints, createSimpleMsg(shuffleMsg, shuffleMsg));
-					this->PopulationAtShuffling = sortByFitness(shufflePoints);
-					loggerWrite(PopulationAtShuffling.First(), createSimpleMsg("Best point in shuffle", shuffleMsg));
-					complexes = shuffle(complexes);
-
-					CurrentShuffle++;
-					isFinished = terminationCondition.IsFinished();
-					if (isFinished) logTerminationConditionMet();
-				}
-				return packageResults(complexes);
-			}
-
-			static IOptimizationResults<T> packageResults(std::vector<IComplex> complexes)
+			static IOptimizationResults<T> packageResults(const std::vector<IComplex>& complexes)
 			{
 				//saveLog( logPopulation, fullLogFileName );
 				std::vector<IObjectiveScores<T>> population = aggregate(complexes);
@@ -525,16 +544,17 @@ namespace mhcpp
 				return packageResults(population);
 			}
 
-			static IOptimizationResults<T> packageResults(std::vector<IObjectiveScores<T>> population)
+			static IOptimizationResults<T> packageResults(const std::vector<IObjectiveScores<T>>& population)
 			{
 				// cater for cases where we have null references (e.g. if the termination condition was in the middle of the population creation)
-				return new BasicOptimizationResults<T>(population.Where(p = > (p != nullptr)).ToArray());
+				// return new BasicOptimizationResults<T>(population.Where(p = > (p != nullptr)).ToArray());
+				return BasicOptimizationResults<T>(population);
 			}
 
 			void logTerminationConditionMet()
 			{
-				auto tags = createSimpleMsg("Termination condition", "Termination condition");
-				loggerWrite(string.Format("Termination condition using {0} is met", terminationCondition.GetType().Name), tags);
+				//auto tags = createSimpleMsg("Termination condition", "Termination condition");
+				//loggerWrite(string.Format("Termination condition using {0} is met", terminationCondition->GetType().Name), tags);
 			}
 
 			std::map<string, string> createSimpleMsg(string message, string category)
@@ -559,11 +579,11 @@ namespace mhcpp
 				//LoggerMhHelper.Write(scores, tags, logger);
 			}
 
-			void execParallel(std::vector<IComplex> complexes)
+			void execParallel(std::vector<IComplex>& complexes)
 			{
-				for (int i = 0; i < complexes.Length; i++)
-					complexes[i].ComplexId = i.ToString();
-				Parallel.ForEach(complexes, parallelOptions, c = > c.Evolve());
+				for (int i = 0; i < complexes.size(); i++)
+					complexes.at(i).ComplexId = std::to_string(i);
+				//Parallel.ForEach(complexes, parallelOptions, c = > c.Evolve());
 			}
 
 			string GetDescription()
@@ -572,53 +592,57 @@ namespace mhcpp
 			}
 
 
-			std::vector<IComplex> shuffle(std::vector<IComplex> complexes)
+			std::vector<IComplex> shuffle(const std::vector<IComplex>& complexes)
 			{
 				std::vector<IObjectiveScores<T>> population = aggregate(complexes);
-				std::vector<IComplex> newComplexes = partition(population);
+				auto newComplexes = partition(population);
 				return newComplexes;
 			}
 
-			static std::vector<IObjectiveScores<T>> aggregate(std::vector<IComplex> complexes)
+			static std::vector<IObjectiveScores<T>> aggregate(const std::vector<IComplex>& complexes)
 			{
-				List<IObjectiveScores<T>> scores = new List<IObjectiveScores<T>>();
-				foreach(auto item in complexes)
-					scores.AddRange(item.GetObjectiveScores());
-				std::vector<IObjectiveScores<T>> population = scores.ToArray();
-				return population;
+				std::vector<IObjectiveScores<T>> scores; // = new List<IObjectiveScores<T>>();
+				for (size_t i = 0; i < complexes.size(); i++)
+				{
+					IComplex &c = complexes[i];
+					for (auto& s : c.GetObjectiveScores())
+						scores.push_back(s);
+				}
+				return scores;
 			}
 
-			std::vector<IObjectiveScores<T>> evaluateScores(IObjectiveEvaluator<T> evaluator, std::vector<T> population)
+			std::vector<IObjectiveScores<T>> evaluateScores(IObjectiveEvaluator<T>* evaluator, const std::vector<T>& population)
 			{
-				return Evaluations.EvaluateScores(evaluator, population, () = > (this->isCancelled || terminationCondition.IsFinished()), parallelOptions);
+				//return Evaluations::EvaluateScores(evaluator, population, () = > (this->isCancelled || terminationCondition->IsFinished()), parallelOptions);
+				return Evaluations::EvaluateScores(evaluator, population);
 			}
 
 			std::vector<T> initialisePopulation()
 			{
-				std::vector<T> result = new T[p * m];
-				for (int i = 0; i < result.Length; i++)
-					result[i] = populationInitializer.CreateRandomCandidate();
+				std::vector<T> result(p * m);
+				for (int i = 0; i < result.size(); i++)
+					result[i] = populationInitializer->CreateRandomCandidate();
 				return result;
 			}
 
-			std::vector<IComplex> partition(std::vector<FitnessAssignedScores<double, T>> sortedScores)
+			std::vector<IComplex> partition(const std::vector<FitnessAssignedScores<double, T>>& sortedScores)
 			{
-				List<IComplex> result = new List<IComplex>();
+				std::vector<IComplex> result;
 				if (CurrentShuffle > 0)
 					if (this->pmin < this->p)
 						this->p = this->p - 1;
 				for (int a = 0; a < p; a++)
 				{
-					List<FitnessAssignedScores<double, T>> sample = new List<FitnessAssignedScores<double, T>>();
+					std::vector<FitnessAssignedScores<double, T>> sample;
 					for (int k = 1; k <= m; k++)
-						sample.Add(sortedScores[a + p * (k - 1)]);
-					std::vector<IObjectiveScores<T>> scores = getScores(sample.ToArray());
-					seed++;
+						sample.push_back(sortedScores[a + p * (k - 1)]);
+					std::vector<IObjectiveScores<T>> scores = getScores(sample);
+					seed++; // TODO: check why this was done.
 					IComplex complex = createComplex(scores);
-					complex.ComplexId = CurrentShuffle.ToString("D3") + "_" + Convert.ToString(a + 1);
-					result.Add(complex);
+					complex.ComplexId = std::to_string(CurrentShuffle) + "_" + std::to_string(a + 1);
+					result.push_back(complex);
 				}
-				return result.ToArray();
+				return result;
 			}
 
 			IComplex createComplex(std::vector<IObjectiveScores<T>> scores)
@@ -627,7 +651,7 @@ namespace mhcpp
 				if (hyperCubeOperationsFactory == nullptr)
 					throw new NotSupportedException("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
 
-				auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", this->CurrentShuffle.ToString("D3"))));
+				auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", std::to_string(this->CurrentShuffle))));
 
 				auto complex = new DefaultComplex(scores, m, q, alpha, beta,
 					(evaluator->SupportsThreadSafeCloning ? evaluator->Clone() : evaluator),
@@ -650,15 +674,15 @@ namespace mhcpp
 					return new MaxWalltimeTerminationCondition(t.RemainingHours);
 			}
 
-			std::vector<IComplex> partition(std::vector<IObjectiveScores<T>> scores)
+			std::vector<IComplex> partition(const std::vector<IObjectiveScores<T>>& scores)
 			{
 				auto sortedScores = sortByFitness(scores);
 				//logPoints( CurrentShuffle, sortedScores );
-				std::vector<IComplex> complexes = partition(sortedScores);
+				auto complexes = partition(sortedScores);
 				return complexes;
 			}
 
-			std::vector<FitnessAssignedScores<double, T>> sortByFitness(std::vector<IObjectiveScores<T>> scores)
+			std::vector<FitnessAssignedScores<double, T>> sortByFitness(const std::vector<IObjectiveScores<T>>& scores)
 			{
 				IFitnessAssignment<double> assignment = getFitnessAssignment();
 				auto fittedScores = assignment.AssignFitness(scores);
@@ -775,7 +799,7 @@ namespace mhcpp
 					if (TerminationCondition == nullptr)
 						return false;
 					else
-						return TerminationCondition.IsFinished();
+						return terminationCondition->IsFinished();
 				}
 
 				void Evolve()

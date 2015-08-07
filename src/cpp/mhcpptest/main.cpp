@@ -93,13 +93,18 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		hc.Define("b", 3, 4, 3.3);
 
 		auto sceParams = SceParameters::CreateForProblemOfDimension(5, 20);
-		ShuffledComplexEvolution<HyperCube<double>> opt(nullptr, nullptr, nullptr, sceParams);
 
+		HyperCube<double> goal;
+		goal.Define("a", 1, 2, 1);
+		goal.Define("b", 3, 4, 3);
+		TopologicalDistance<HyperCube < double > >  * evaluator = new TopologicalDistance<HyperCube < double > >(goal);
 		//ICandidateFactory<HyperCube < double > >* populationInitializer;
 		//ITerminationCondition<HyperCube < double > >* terminationCondition,
 
-		WHEN("") {
+		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, nullptr, nullptr, sceParams);
 
+		WHEN("") {
+			opt.Evolve();
 		}
 	}
 }
