@@ -211,6 +211,7 @@ namespace mhcpp
 	class ICandidateFactory
 	{
 	public:
+		virtual ~ICandidateFactory() {}
 		virtual T CreateRandomCandidate() = 0;
 	};
 
@@ -476,8 +477,6 @@ namespace mhcpp
 	};
 
 
-
-
 	class IHyperCubeOperations
 	{
 		virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
@@ -495,6 +494,46 @@ namespace mhcpp
 	};
 
 
+
+
+	template<typename TSysConfig>
+	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
+	{
+	public:
+		UniformRandomSamplingFactory(IRandomNumberGeneratorFactory rng, const TSysConfig& t)
+		{
+			this->rng = rng;
+			//if (!t.SupportsThreadSafloning)
+			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
+			this->t = new TSysConfig(t);
+			//this->hcOps = CreateIHyperCubeOperations();
+		}
+		~UniformRandomSamplingFactory() 
+		{
+			if (t != nullptr) {
+				delete t; t = nullptr;
+			}
+		}
+
+		//IHyperCubeOperations CreateNew(const IRandomNumberGeneratorFactory& rng)
+		//{
+		//	return new HyperCubeOperations(rng.CreateFactory());
+		//}
+
+		TSysConfig CreateRandomCandidate()
+		{
+			return TSysConfig();
+			//return (TSysConfig)hcOps.GenerateRandom(template);
+		}
+	private:
+		//IHyperCubeOperations CreateIHyperCubeOperations()
+		//{
+		//	return new HyperCubeOperations(rng.CreateFactory());
+		//}
+
+		IRandomNumberGeneratorFactory rng;
+		TSysConfig* t = nullptr;
+	};
 
 
 }

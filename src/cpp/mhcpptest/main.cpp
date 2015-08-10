@@ -83,6 +83,12 @@ SCENARIO("Basic objective evaluator", "[objectives]") {
 	}
 }
 
+SCENARIO("RNG basic port", "[rng]") {
+	HyperCube<double> hc;
+	hc.Define("a", 1, 2, 1.5);
+	hc.Define("b", 3, 4, 3.3);
+	auto rng = UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
+}
 
 SCENARIO("SCE basic port", "[optimizer]") {
 
@@ -93,18 +99,25 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		hc.Define("b", 3, 4, 3.3);
 
 		auto sceParams = SceParameters::CreateForProblemOfDimension(5, 20);
+		// TODO: check above
+		sceParams.P = 5;
+		sceParams.Pmin = 3;
 
 		HyperCube<double> goal;
 		goal.Define("a", 1, 2, 1);
 		goal.Define("b", 3, 4, 3);
 		TopologicalDistance<HyperCube < double > >  * evaluator = new TopologicalDistance<HyperCube < double > >(goal);
-		//ICandidateFactory<HyperCube < double > >* populationInitializer;
+		ICandidateFactory<HyperCube < double > >* populationInitializer = new UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
 		//ITerminationCondition<HyperCube < double > >* terminationCondition,
 
-		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, nullptr, nullptr, sceParams);
+		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, nullptr, sceParams);
 
 		WHEN("") {
-			opt.Evolve();
+			auto results = opt.Evolve();
+			auto first = results[0];
+			REQUIRE(first.ObjectiveCount() == 1);			
 		}
+
+		//delete evaluator;
 	}
 }

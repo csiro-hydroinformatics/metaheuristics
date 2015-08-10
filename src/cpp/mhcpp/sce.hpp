@@ -71,11 +71,11 @@ namespace mhcpp
 			/// <summary>
 			/// Number of complexes
 			/// </summary>
-			int P;
+			int P = 5;
 			/// <summary>
 			/// Minimum number of complexes (populations of points)
 			/// </summary>
-			int Pmin;
+			int Pmin = 3;
 			/// <summary>
 			/// Number of points per complex
 			/// </summary>
