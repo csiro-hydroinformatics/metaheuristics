@@ -132,7 +132,7 @@ namespace mhcpp
 				ITerminationCondition<T>* terminationCondition,
 				const SceParameters& sceParameters,
 				IRandomNumberGeneratorFactory* rng = nullptr,
-				IFitnessAssignment<double>* fitnessAssignment = nullptr,
+				IFitnessAssignment<double, T>* fitnessAssignment = nullptr,
 				std::map<string, string>* logTags = nullptr)
 			{
 				Init(evaluator, populationInitializer, terminationCondition,
@@ -163,7 +163,7 @@ namespace mhcpp
 				int beta = 13,
 				int numShuffle = 15,
 				IRandomNumberGeneratorFactory* rng = nullptr,
-				IFitnessAssignment<double>* fitnessAssignment = nullptr,
+				IFitnessAssignment<double, T>* fitnessAssignment = nullptr,
 				std::map<string, string>* logTags = nullptr,
 				double trapezoidalPdfParam = 1.8,
 				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
@@ -256,7 +256,7 @@ namespace mhcpp
 			ICandidateFactory<T>* populationInitializer;
 			ITerminationCondition<T>* terminationCondition;
 			IRandomNumberGeneratorFactory* rng;
-			IFitnessAssignment<double>* fitnessAssignment;
+			IFitnessAssignment<double, T>* fitnessAssignment;
 			double trapezoidalPdfParam;
 
 			ILoggerMh* Logger;
@@ -272,7 +272,7 @@ namespace mhcpp
 			public:
 				//virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() = 0;
 				//virtual void Evolve() = 0;
-				virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() { return std::vector<IObjectiveScores<T>>(); }
+				virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() const { return std::vector<IObjectiveScores<T>>(); }
 				virtual void Evolve() { ; }
 				string ComplexId;
 				bool IsCancelled;
@@ -560,6 +560,7 @@ namespace mhcpp
 			std::map<string, string> createSimpleMsg(string message, string category)
 			{
 				//return LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("Message", message), LoggerMhHelper.MkTuple("Category", category));
+				return std::map<string, string>();
 			}
 
 			void loggerWrite(string infoMsg, std::map<string, string> tags)
@@ -604,8 +605,7 @@ namespace mhcpp
 				std::vector<IObjectiveScores<T>> scores; // = new List<IObjectiveScores<T>>();
 				for (size_t i = 0; i < complexes.size(); i++)
 				{
-					IComplex &c = complexes[i];
-					for (auto& s : c.GetObjectiveScores())
+					for (auto& s : complexes[i].GetObjectiveScores())
 						scores.push_back(s);
 				}
 				return scores;
@@ -647,20 +647,21 @@ namespace mhcpp
 
 			IComplex createComplex(std::vector<IObjectiveScores<T>> scores)
 			{
-				IHyperCubeOperationsFactory hyperCubeOperationsFactory = populationInitializer as IHyperCubeOperationsFactory;
+				IHyperCubeOperationsFactory* hyperCubeOperationsFactory = dynamic_cast<IHyperCubeOperationsFactory*>(populationInitializer);
 				if (hyperCubeOperationsFactory == nullptr)
-					throw new NotSupportedException("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
+					throw std::logic_error("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
 
-				auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", std::to_string(this->CurrentShuffle))));
+				//auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", std::to_string(this->CurrentShuffle))));
 
-				auto complex = new DefaultComplex(scores, m, q, alpha, beta,
-					(evaluator->SupportsThreadSafeCloning ? evaluator->Clone() : evaluator),
-					rng.CreateFactory(),
-					getFitnessAssignment(), hyperCubeOperationsFactory.CreateNew(this->rng), logger: this->logger,
-				tags : loggerTags, factorTrapezoidalPDF : this->trapezoidalPdfParam,
-				   options : this->options, reflectionRatio : this->ReflectionRatio, contractionRatio : this->ContractionRatio);
+				//auto complex = new DefaultComplex(scores, m, q, alpha, beta,
+				//	(evaluator->SupportsThreadSafeCloning ? evaluator->Clone() : evaluator),
+				//	rng.CreateFactory(),
+				//	getFitnessAssignment(), hyperCubeOperationsFactory.CreateNew(this->rng), logger: this->logger,
+				//tags : loggerTags, factorTrapezoidalPDF : this->trapezoidalPdfParam,
+				//   options : this->options, reflectionRatio : this->ReflectionRatio, contractionRatio : this->ContractionRatio);
 
-				complex.TerminationCondition = createMaxWalltimeCondition(this->terminationCondition);
+				//complex.TerminationCondition = createMaxWalltimeCondition(this->terminationCondition);
+				IComplex complex;
 				return complex;
 			}
 
@@ -684,22 +685,22 @@ namespace mhcpp
 
 			std::vector<FitnessAssignedScores<double, T>> sortByFitness(const std::vector<IObjectiveScores<T>>& scores)
 			{
-				IFitnessAssignment<double> assignment = getFitnessAssignment();
+				IFitnessAssignment<double, T> assignment = getFitnessAssignment();
 				auto fittedScores = assignment.AssignFitness(scores);
-				Array.Sort(fittedScores);
+				//std::sort(fittedScores.begin(), fittedScores.end());
 				return fittedScores;
 			}
 
-			IFitnessAssignment<double> getFitnessAssignment()
+			IFitnessAssignment<double, T> getFitnessAssignment()
 			{
-				return fitnessAssignment;
+				return IFitnessAssignment<double, T>(*fitnessAssignment);
 			}
 
-			static std::vector<IObjectiveScores<T>> getScores(std::vector<FitnessAssignedScores<double, T>> fitnessedScores)
+			static std::vector<IObjectiveScores<T>> getScores(const std::vector<FitnessAssignedScores<double, T>>& fitnessedScores)
 			{
-				std::vector<IObjectiveScores<T>> result = new IObjectiveScores<T>[fitnessedScores.Length];
-				for (int i = 0; i < result.Length; i++)
-					result[i] = fitnessedScores[i].Scores;
+				std::vector<IObjectiveScores<T>> result;// = IObjectiveScores<T>[fitnessedScores.Length];
+				//for (int i = 0; i < fitnessedScores.size(); i++)
+				//	result.push_back(fitnessedScores[i].Scores);
 				return result;
 			}
 
@@ -748,7 +749,7 @@ namespace mhcpp
 				int alpha;
 				int beta;
 				DiscreteRandomNumberGenerator discreteGenerator;
-				IFitnessAssignment<double> fitnessAssignment;
+				IFitnessAssignment<double, T> fitnessAssignment;
 				IObjectiveEvaluator<T> evaluator;
 				IHyperCubeOperations* hyperCubeOps;
 				ILoggerMh* logger = nullptr; // new Log4netAdapter();
@@ -764,7 +765,7 @@ namespace mhcpp
 				//by Bill Wang on 19/9/2010
 				DefaultComplex(std::vector<IObjectiveScores<T>> scores, int m, int q, int alpha, int beta,
 					IObjectiveEvaluator<T> evaluator, IRandomNumberGeneratorFactory rng,
-					IFitnessAssignment<double> fitnessAssignment, IHyperCubeOperations* hyperCubeOperations, ILoggerMh* logger = nullptr, std::map<string, string> tags = nullptr, double factorTrapezoidalPDF = 1.8,
+					IFitnessAssignment<double, T> fitnessAssignment, IHyperCubeOperations* hyperCubeOperations, ILoggerMh* logger = nullptr, std::map<string, string> tags = nullptr, double factorTrapezoidalPDF = 1.8,
 					SceOptions options = SceOptions.None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
 				{
 					if (factorTrapezoidalPDF > 2.0 || factorTrapezoidalPDF < 0.0)
