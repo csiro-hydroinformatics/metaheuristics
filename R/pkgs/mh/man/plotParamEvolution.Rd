@@ -4,7 +4,9 @@
 \alias{plotParamEvolution}
 \title{Plot the value of a parameter along the optimisation process}
 \usage{
-plotParamEvolution(logMh, paramName, objLims = NULL)
+plotParamEvolution(logMh, paramName, objLims = NULL,
+  title = "Evolution of parameter values", xlab = "Logged point",
+  ylab = paramName)
 }
 \arguments{
 \item{logMh}{an mhData object}
