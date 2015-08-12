@@ -121,6 +121,451 @@ namespace mhcpp
 		};
 
 		template<typename T>
+		class Complex // : IComplex
+		{
+
+		private:
+			// TODO: surely can be replaced with something in Boost or the like.
+
+			/// <summary>
+			/// Discrete version of the inverse transform method
+			/// </summary>
+			/// <remarks>
+			/// Based on the method described in 
+			/// chapter 32. MONTE CARLO TECHNIQUES, K. Hagiwara et al., Physical Review D66, 010001-1 (2002)
+			/// found at http://pdg.lbl.gov/
+			/// </remarks>
+			class DiscreteRandomNumberGenerator
+			{
+			public:
+				DiscreteRandomNumberGenerator(int seed)
+				{
+					//this->random = new Random(seed);
+				}
+
+				DiscreteRandomNumberGenerator()
+				{
+					//this->random = new Random(seed);
+				}
+
+				double NextDouble()
+				{
+					return 0;
+				}
+
+				/// <summary>
+				/// Initialises the discrete PDF so that this is a trapezoidal overall shape
+				/// the shape of the trapeze is fully defined by the parameters c and itemNumbers,
+				/// knowing that the distribution function indexes are 0, 1, ..., n - 1
+				/// </summary>
+				/// <param name="c">multiplicator to apply to the index 0, must be between 0 and 2, or an exception occurs. ignored if n = 1</param>
+				/// <param name="n">number of items in the discrete PDF</param>
+				void initialiseTrapezoidal(double c, int n)
+				{
+				}
+			};
+
+
+			std::vector<IObjectiveScores<T>> scores;
+			int m;
+			int q;
+			int alpha;
+			int beta;
+			DiscreteRandomNumberGenerator* discreteGenerator;
+			IFitnessAssignment<double, T> fitnessAssignment;
+			IObjectiveEvaluator<T>* evaluator;
+			// IHyperCubeOperations* hyperCubeOps;
+			ILoggerMh* logger = nullptr; // new Log4netAdapter();
+
+			std::map<string, string> createTagConcat(std::initializer_list<std::tuple<string, string>> tuples)
+			{
+				//return LoggerMhHelper.MergeDictionaries(LoggerMhHelper.CreateTag(tuples), this->tags);
+			}
+
+
+		public:
+
+			string ComplexId;
+
+			Complex(const std::vector<IObjectiveScores<T>>& scores, int m, int q, int alpha, int beta,
+				IObjectiveEvaluator<T>* evaluator, IRandomNumberGeneratorFactory rng,
+				IFitnessAssignment<double, T> fitnessAssignment, /*IHyperCubeOperations* hyperCubeOperations, */ 
+				ILoggerMh* logger = nullptr, std::map<string, string> tags = std::map<string, string>(), double factorTrapezoidalPDF = 1.8,
+				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
+			{
+				if (factorTrapezoidalPDF > 2.0 || factorTrapezoidalPDF < 0.0)
+					throw std::logic_error("factorTrapezoidalPDF must be between 0 and 2");
+				this->scores = scores;
+				this->m = m;
+				this->q = q;
+				this->alpha = alpha;
+				this->beta = beta;
+				this->fitnessAssignment = fitnessAssignment;
+				//this->hyperCubeOps = hyperCubeOperations;
+				this->evaluator = evaluator;
+				this->logger = logger;
+				this->tags = tags;
+				this->factorTrapezoidalPDF = factorTrapezoidalPDF;
+				initialiseDiscreteGenerator(rng.Next());
+				this->options = options;
+				this->ReflectionRatio = reflectionRatio;
+				this->ContractionRatio = contractionRatio;
+			}
+
+			std::map<string, string> tags;
+			double factorTrapezoidalPDF;
+			SceOptions options;
+
+			bool IsCancelled;
+
+			ITerminationCondition<T> TerminationCondition;
+
+			bool IsFinished()
+			{
+				if (TerminationCondition == nullptr)
+					return false;
+				else
+					return terminationCondition->IsFinished();
+			}
+
+			void Evolve()
+			{
+				if (Thread.CurrentThread.Name == nullptr)
+				{
+					Thread.CurrentThread.Name = ComplexId;
+				}
+				int a, b; // counters for alpha and beta parameters
+				b = 0;
+				while (b < beta && !IsCancelled && !IsFinished)
+				{
+					std::vector<IObjectiveScores<T>> bufferComplex = (std::vector<IObjectiveScores<T>>)this->scores.Clone();
+					std::vector<IObjectiveScores<T>> leftOutFromSubcomplex = nullptr;
+					std::vector<FitnessAssignedScores<double, T>> subComplex = getSubComplex(bufferComplex, out leftOutFromSubcomplex);
+					a = 0;
+					while (a < alpha && !IsCancelled && !IsFinished)
+					{
+						FitnessAssignedScores<double, T> worstPoint = findWorstPoint(subComplex);
+						loggerWrite(worstPoint, createTagConcat(
+							LoggerMhHelper.MkTuple("Message", "Worst point in subcomplex"),
+							createTagCatComplexNo()));
+						std::vector<IObjectiveScores<T>> withoutWorstPoint = removePoint(subComplex, worstPoint);
+						loggerWrite(withoutWorstPoint, createTagConcat(
+							LoggerMhHelper.MkTuple("Message", "Subcomplex without worst point"),
+							createTagCatComplexNo()
+							));
+						T centroid = getCentroid(withoutWorstPoint);
+
+						T reflectedPoint = reflect(worstPoint, centroid);
+						if (reflectedPoint != nullptr)
+						{
+							std::vector<FitnessAssignedScores<double, T>> candidateSubcomplex = nullptr;
+							FitnessAssignedScores<double, T> fitReflectedPoint = evaluateNewSet(reflectedPoint, withoutWorstPoint, out candidateSubcomplex);
+							if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
+							{
+								subComplex = candidateSubcomplex;
+								loggerWrite(fitReflectedPoint, createTagConcat(
+									LoggerMhHelper.MkTuple("Message", "Reflected point in subcomplex"),
+									createTagCatComplexNo()));
+							}
+							else
+							{
+								loggerWrite(fitReflectedPoint,
+									createTagConcat(LoggerMhHelper.MkTuple("Message", "Reflected point in subcomplex - Failed"), createTagCatComplexNo()));
+								subComplex = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
+								if (subComplex == nullptr) // this can happen if the feasible region of the parameter space is not convex.
+									subComplex = fitnessAssignment.AssignFitness(bufferComplex);
+							}
+						}
+						else
+						{
+							// 2012-02-02 A change to fit the specs of the Duan 1993 paper, to validate the use for AWRA-L.
+							// This change is in line after discussions with Neil Viney
+							// TODO: After discussion with Neil Viney (2012-02-03): Allow for a strategy where the generation 
+							// of the random point can be based on another hypercube than the complex. Duan documents that, but this may
+							// prevent a faster convergence.
+							//subComplex = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
+							if ((options & SceOptions.RndInSubComplex) == SceOptions.RndInSubComplex)
+							{
+								// subComplex = addRandomInHypercube(withoutWorstPoint, bufferComplex);
+								if ((options & SceOptions.ReflectionRandomization) == SceOptions.ReflectionRandomization)
+									subComplex = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
+								else
+									subComplex = generateRandomWithinShuffleBounds(worstPoint, centroid, withoutWorstPoint);
+							}
+							else
+							{
+								subComplex = addRandomInHypercube(withoutWorstPoint, bufferComplex);
+							}
+						}
+						a++;
+					}
+					this->scores = aggregatePoints(subComplex, leftOutFromSubcomplex);
+					b++;
+				}
+
+			}
+
+			std::tuple<string, string> createTagCatComplexNo()
+			{
+				return LoggerMhHelper.MkTuple("Category", "Complex No " + complexId);
+			}
+
+			void loggerWrite(std::vector<IObjectiveScores<T>> points, std::map<string, string> tags)
+			{
+				if (logger != nullptr)
+					logger.Write(points, tags);
+			}
+
+			void loggerWrite(FitnessAssignedScores<double, T> point, std::map<string, string> tags)
+			{
+				if (logger != nullptr)
+					logger.Write(point, tags);
+			}
+
+			void loggerWrite(string message, std::map<string, string> tags)
+			{
+				if (logger != nullptr)
+					logger.Write(message, tags);
+			}
+
+			//void loggerWrite(IHyperCube<double> point, std::map<string, string> tags)
+			//{
+			//    if (logger != nullptr)
+			//        logger.Write(point, tags);
+			//}
+
+			void loggerWrite(IObjectiveScores<T> point, std::map<string, string> tags)
+			{
+				this->loggerWrite(new std::vector < IObjectiveScores<T> >{ point }, tags);
+			}
+
+			std::vector<IObjectiveScores<T>> aggregatePoints(std::vector<FitnessAssignedScores<double, T>> subComplex, std::vector<IObjectiveScores<T>> leftOutFromSubcomplex)
+			{
+				List<IObjectiveScores<T>> result = new List<IObjectiveScores<T>>(convertArrayToScores(subComplex));
+				result.AddRange(leftOutFromSubcomplex);
+				return result.ToArray();
+			}
+
+			FitnessAssignedScores<double, T> evaluateNewSet(T reflectedPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint, std::vector<FitnessAssignedScores<double, T>>& candidateSubcomplex)
+			{
+				List<IObjectiveScores<T>> scores = new List<IObjectiveScores<T>>();
+				scores.AddRange(withoutWorstPoint);
+				IObjectiveScores<T> scoreNewPoint = evaluator->EvaluateScore((T)reflectedPoint);
+				scores.Add(scoreNewPoint);
+				candidateSubcomplex = fitnessAssignment.AssignFitness(scores.ToArray());
+				return Array.Find<FitnessAssignedScores<double, T>>(candidateSubcomplex, (x = > (x.Scores == scoreNewPoint)));
+			}
+
+			T reflect(FitnessAssignedScores<double, T> worstPoint, T centroid)
+			{
+				//double ratio = -1.0;
+				double ratio = this->ReflectionRatio;
+				return performHomothecy(worstPoint, centroid, ratio);
+			}
+
+			static T performHomothecy(FitnessAssignedScores<double, T> worstPoint, T centroid, double ratio)
+			{
+				return (T)((IHyperCube<double>)centroid).HomotheticTransform((IHyperCube<double>)worstPoint.Scores.GetSystemConfiguration(), ratio);
+			}
+
+			T getCentroid(std::vector<IObjectiveScores<T>> withoutWorstPoint)
+			{
+				auto tmp = convertAllToHyperCube(withoutWorstPoint);
+				IHyperCube<double> result = hyperCubeOps.GetCentroid(tmp);
+				return (T)result;
+			}
+
+			static std::vector<IHyperCube<double>> convertAllToHyperCube(std::vector<IObjectiveScores<T>> withoutWorstPoint)
+			{
+				return ConvertAllToHyperCube(withoutWorstPoint);
+			}
+
+			std::vector<IObjectiveScores<T>> removePoint(std::vector<FitnessAssignedScores<double, T>> subComplex, FitnessAssignedScores<double, T> worstPoint)
+			{
+				auto tmp = Array.FindAll(subComplex, (x = > !object.ReferenceEquals(worstPoint, x)));
+				return convertArrayToScores(tmp);
+			}
+
+			static std::vector<IObjectiveScores<T>> convertArrayToScores(std::vector<FitnessAssignedScores<double, T>> tmp)
+			{
+				return Array.ConvertAll<FitnessAssignedScores<double, T>, IObjectiveScores<T>>(tmp, (x = > x.Scores));
+			}
+
+			FitnessAssignedScores<double, T> findWorstPoint(std::vector<FitnessAssignedScores<double, T>> subComplex)
+			{
+				std::vector<FitnessAssignedScores<double, T>> tmp = (std::vector<FitnessAssignedScores<double, T>>)subComplex.Clone();
+				Array.Sort(tmp);
+				return tmp[tmp.Length - 1];
+			}
+
+			void initialiseDiscreteGenerator(int seed)
+			{
+				if (discreteGenerator == nullptr)
+					discreteGenerator = new DiscreteRandomNumberGenerator(seed);
+				discreteGenerator->initialiseTrapezoidal(factorTrapezoidalPDF, m);
+			}
+
+			std::vector<FitnessAssignedScores<double, T>> getSubComplex(std::vector<IObjectiveScores<T>> bufferComplex, std::vector<IObjectiveScores<T>>& leftOutFromSubcomplex)
+			{
+				auto fitnessPoints = this->fitnessAssignment.AssignFitness(bufferComplex);
+				Array.Sort(fitnessPoints);
+
+				std::vector<IObjectiveScores<T>> result = new IObjectiveScores<T>[q];
+				int[] selectedIndices = new int[q];
+				for (int j = 0; j < selectedIndices.Length; j++)
+					selectedIndices[j] = -1; // this is not a random choice !
+
+				int i = 0;
+				int counter = 0;
+				while (counter < selectedIndices.Length)
+				{
+					i = (int)discreteGenerator.NextDouble();
+					if (Array.IndexOf(selectedIndices, i) < 0)
+					{
+						selectedIndices[counter] = i;
+						counter++;
+					}
+				}
+				for (int j = 0; j < result.Length; j++)
+					result[j] = fitnessPoints[selectedIndices[j]].Scores;
+
+				List<IObjectiveScores<T>> leftOut = new List<IObjectiveScores<T>>();
+				for (int j = 0; j < fitnessPoints.Length; j++)
+				{
+					if (Array.IndexOf(selectedIndices, j) < 0)
+						leftOut.Add(fitnessPoints[j].Scores);
+				}
+				leftOutFromSubcomplex = leftOut.ToArray();
+				return fitnessAssignment.AssignFitness(result);
+			}
+
+			std::vector<FitnessAssignedScores<double, T>> contractionOrRandom(std::vector<IObjectiveScores<T>> withoutWorstPoint,
+				FitnessAssignedScores<double, T> worstPoint, T centroid, std::vector<IObjectiveScores<T>> bufferComplex)
+			{
+				std::vector<FitnessAssignedScores<double, T>> result;
+				std::vector<FitnessAssignedScores<double, T>> candidateSubcomplex = nullptr;
+				T contractionPoint = contract(worstPoint, centroid);
+				FitnessAssignedScores<double, T> fitReflectedPoint = nullptr;
+				if (contractionPoint != nullptr)
+				{
+					fitReflectedPoint = evaluateNewSet(contractionPoint, withoutWorstPoint, out candidateSubcomplex);
+					if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
+					{
+						result = candidateSubcomplex;
+						loggerWrite(fitReflectedPoint, createTagConcat(
+							LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex"),
+							createTagCatComplexNo()));
+						return result;
+					}
+				}
+				if (contractionPoint != nullptr && fitReflectedPoint != nullptr)
+					loggerWrite(fitReflectedPoint, createTagConcat(
+					LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex-Failed"),
+					createTagCatComplexNo()));
+				else
+				{
+					auto msg = "Contracted point unfeasible";
+					loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
+				}
+				// 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
+				// implementation showed a slower rate of convergence. 
+				// result = addRandomInHypercube(withoutWorstPoint, bufferComplex);
+				result = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
+				return result;
+			}
+
+			std::vector<FitnessAssignedScores<double, T>> generateRandomWithinShuffleBounds(FitnessAssignedScores<double, T> worstPoint, T centroid, std::vector<IObjectiveScores<T>> withoutWorstPoint)
+			{
+				auto ctr = centroid as IHyperCube < double >;
+				auto sbcplx = convertAllToHyperCube(merge(withoutWorstPoint, worstPoint));
+				auto wp = worstPoint.Scores.GetSystemConfiguration() as IHyperCube < double >;
+				auto newPoint = wp.Clone() as IHyperCube < double >;
+				auto varnames = newPoint.GetVariableNames();
+				auto rand = hyperCubeOps.GenerateRandomWithinHypercube(sbcplx);
+				for (int i = 0; i < varnames.Length; i++)
+				{
+					auto v = varnames[i];
+					auto value = 2 * ctr.GetValue(v) - wp.GetValue(v);
+					if (value < wp.GetMinValue(v) || value > wp.GetMaxValue(v))
+						newPoint.SetValue(v, rand.GetValue(v));
+					else
+						newPoint.SetValue(v, value);
+				}
+				auto newScore = evaluator->EvaluateScore((T)newPoint);
+				loggerWrite(newScore, createTagConcat(
+					LoggerMhHelper.MkTuple("Message", "Adding a partially random point"),
+					LoggerMhHelper.MkTuple("Category", "Complex No " + complexId)
+					));
+				return fitnessAssignment.AssignFitness(aggregate(newScore, withoutWorstPoint));
+			}
+
+			std::vector<FitnessAssignedScores<double, T>> generateRandomWithinSubcomplex(std::vector<IObjectiveScores<T>> withoutWorstPoint, FitnessAssignedScores<double, T> worstPoint)
+			{
+				// 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
+				// implementation showed a slower rate of convergence. 
+				std::vector<FitnessAssignedScores<double, T>> result;
+				auto subCplx = merge(withoutWorstPoint, worstPoint);
+				result = addRandomInHypercube(withoutWorstPoint, subCplx);
+				return result;
+			}
+
+			std::vector<FitnessAssignedScores<double, T>> addRandomInHypercube(std::vector<IObjectiveScores<T>> withoutWorstPoint, std::vector<IObjectiveScores<T>> popForHypercubeDefn)
+			{
+				auto tmp = convertAllToHyperCube(popForHypercubeDefn);
+				IHyperCube<double> newPoint = hyperCubeOps.GenerateRandomWithinHypercube(tmp);
+				if (newPoint == nullptr)
+				{
+					auto msg = "Random point within hypercube bounds is unfeasible";
+					loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
+					return null;
+				}
+				auto newScore = evaluator->EvaluateScore((T)newPoint);
+				loggerWrite(newScore, createTagConcat(
+					LoggerMhHelper.MkTuple("Message", "Adding a random point in hypercube"),
+					createTagCatComplexNo()
+					));
+
+				std::vector<IObjectiveScores<T>> newSubComplex = aggregate(newScore, withoutWorstPoint);
+				return fitnessAssignment.AssignFitness(newSubComplex);
+			}
+
+			static std::vector<IObjectiveScores<T>> merge(std::vector<IObjectiveScores<T>> withoutWorstPoint, FitnessAssignedScores<double, T> worstPoint)
+			{
+				auto tmp = withoutWorstPoint.ToList();
+				tmp.Add(worstPoint.Scores);
+				return tmp.ToArray();
+			}
+
+			std::vector<IObjectiveScores<T>> aggregatePoints(T newPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint)
+			{
+				return aggregate(evaluator->EvaluateScore(newPoint), withoutWorstPoint);
+			}
+
+			std::vector<IObjectiveScores<T>> aggregate(IObjectiveScores<T> newPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint)
+			{
+				List<IObjectiveScores<T>> result = new List<IObjectiveScores<T>>(withoutWorstPoint);
+				result.Add(newPoint);
+				return result.ToArray();
+			}
+
+			T contract(FitnessAssignedScores<double, T> worstPoint, T centroid)
+			{
+				//double ratio = 0.5;
+				double ratio = this->ContractionRatio;
+				return performHomothecy(worstPoint, centroid, ratio);
+			}
+
+			const std::vector<IObjectiveScores<T>> GetObjectiveScores()
+			{
+				return this->scores;
+			}
+
+			double ContractionRatio;
+			double ReflectionRatio;
+		};
+
+
+		template<typename T>
 		class ShuffledComplexEvolution
 			: public IEvolutionEngine<T>
 			// , IPopulation<double>
@@ -267,16 +712,16 @@ namespace mhcpp
 
 			int seed = 0;
 
-			class IComplex
-			{
-			public:
-				//virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() = 0;
-				//virtual void Evolve() = 0;
-				virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() const { return std::vector<IObjectiveScores<T>>(); }
-				virtual void Evolve() { ; }
-				string ComplexId;
-				bool IsCancelled;
-			};
+			//class IComplex
+			//{
+			//public:
+			//	//virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() = 0;
+			//	//virtual void Evolve() = 0;
+			//	virtual std::vector<IObjectiveScores<T>> GetObjectiveScores() const { return std::vector<IObjectiveScores<T>>(); }
+			//	virtual void Evolve() { ; }
+			//	string ComplexId;
+			//	bool IsCancelled;
+			//};
 
 			//IObjectiveEvaluator<ISystemConfiguration> evaluator;
 			//string fullLogFileName = @"c:\tmp\logMoscem.csv";
@@ -523,7 +968,7 @@ namespace mhcpp
 
 			//CancellationTokenSource tokenSource = new CancellationTokenSource();
 			SceOptions options = SceOptions::None;
-			std::vector<IComplex> complexes;
+			std::vector<Complex<T>*> complexes;
 
 			double ContractionRatio;
 			double ReflectionRatio;
@@ -536,7 +981,7 @@ namespace mhcpp
 				//tokenSource.Cancel();
 			}
 
-			static IOptimizationResults<T> packageResults(const std::vector<IComplex>& complexes)
+			static IOptimizationResults<T> packageResults(const std::vector<Complex<T>*>& complexes)
 			{
 				//saveLog( logPopulation, fullLogFileName );
 				std::vector<IObjectiveScores<T>> population = aggregate(complexes);
@@ -580,10 +1025,10 @@ namespace mhcpp
 				//LoggerMhHelper.Write(scores, tags, logger);
 			}
 
-			void execParallel(std::vector<IComplex>& complexes)
+			void execParallel(std::vector<Complex<T>*>& complexes)
 			{
 				for (int i = 0; i < complexes.size(); i++)
-					complexes.at(i).ComplexId = std::to_string(i);
+					complexes.at(i)->ComplexId = std::to_string(i);
 				//Parallel.ForEach(complexes, parallelOptions, c = > c.Evolve());
 			}
 
@@ -593,22 +1038,23 @@ namespace mhcpp
 			}
 
 
-			std::vector<IComplex> shuffle(const std::vector<IComplex>& complexes)
+			std::vector<Complex<T>*> shuffle(const std::vector<Complex<T>*>& complexes)
 			{
 				std::vector<IObjectiveScores<T>> population = aggregate(complexes);
 				auto newComplexes = partition(population);
 				return newComplexes;
 			}
 
-			static std::vector<IObjectiveScores<T>> aggregate(const std::vector<IComplex>& complexes)
+			static std::vector<IObjectiveScores<T>> aggregate(const std::vector<Complex<T>*>& complexes)
 			{
-				std::vector<IObjectiveScores<T>> scores; // = new List<IObjectiveScores<T>>();
-				for (size_t i = 0; i < complexes.size(); i++)
+				std::vector<IObjectiveScores<T>> result;
+				for (auto c : complexes)
 				{
-					for (auto& s : complexes[i].GetObjectiveScores())
-						scores.push_back(s);
+					auto scores = c->GetObjectiveScores();
+					for (auto& s : scores)
+						result.push_back(s);
 				}
-				return scores;
+				return result;
 			}
 
 			std::vector<IObjectiveScores<T>> evaluateScores(IObjectiveEvaluator<T>* evaluator, const std::vector<T>& population)
@@ -625,9 +1071,9 @@ namespace mhcpp
 				return result;
 			}
 
-			std::vector<IComplex> partition(const std::vector<FitnessAssignedScores<double, T>>& sortedScores)
+			std::vector<Complex<T>*> partition(const std::vector<FitnessAssignedScores<double, T>>& sortedScores)
 			{
-				std::vector<IComplex> result;
+				std::vector<Complex<T>*> result;
 				if (CurrentShuffle > 0)
 					if (this->pmin < this->p)
 						this->p = this->p - 1;
@@ -638,14 +1084,14 @@ namespace mhcpp
 						sample.push_back(sortedScores[a + p * (k - 1)]);
 					std::vector<IObjectiveScores<T>> scores = getScores(sample);
 					seed++; // TODO: check why this was done.
-					IComplex complex = createComplex(scores);
-					complex.ComplexId = std::to_string(CurrentShuffle) + "_" + std::to_string(a + 1);
+					Complex<T>* complex = createComplex(scores);
+					complex->ComplexId = std::to_string(CurrentShuffle) + "_" + std::to_string(a + 1);
 					result.push_back(complex);
 				}
 				return result;
 			}
 
-			IComplex createComplex(std::vector<IObjectiveScores<T>> scores)
+			Complex<T>* createComplex(std::vector<IObjectiveScores<T>> scores)
 			{
 				IHyperCubeOperationsFactory* hyperCubeOperationsFactory = dynamic_cast<IHyperCubeOperationsFactory*>(populationInitializer);
 				if (hyperCubeOperationsFactory == nullptr)
@@ -661,7 +1107,7 @@ namespace mhcpp
 				//   options : this->options, reflectionRatio : this->ReflectionRatio, contractionRatio : this->ContractionRatio);
 
 				//complex.TerminationCondition = createMaxWalltimeCondition(this->terminationCondition);
-				IComplex complex;
+				Complex<T>* complex = nullptr;
 				return complex;
 			}
 
@@ -675,7 +1121,7 @@ namespace mhcpp
 					return new MaxWalltimeTerminationCondition(t.RemainingHours);
 			}
 
-			std::vector<IComplex> partition(const std::vector<IObjectiveScores<T>>& scores)
+			std::vector<Complex<T>*> partition(const std::vector<IObjectiveScores<T>>& scores)
 			{
 				auto sortedScores = sortByFitness(scores);
 				//logPoints( CurrentShuffle, sortedScores );
@@ -698,446 +1144,11 @@ namespace mhcpp
 
 			static std::vector<IObjectiveScores<T>> getScores(const std::vector<FitnessAssignedScores<double, T>>& fitnessedScores)
 			{
-				std::vector<IObjectiveScores<T>> result;// = IObjectiveScores<T>[fitnessedScores.Length];
-				//for (int i = 0; i < fitnessedScores.size(); i++)
-				//	result.push_back(fitnessedScores[i].Scores);
+				std::vector<IObjectiveScores<T>> result;
+				for (int i = 0; i < fitnessedScores.size(); i++)
+					result.push_back(fitnessedScores[i].Scores);
 				return result;
 			}
-
-			class DefaultComplex : IComplex
-			{
-
-
-				// TODO: surely can be replaced with something in Boost or the like.
-
-				/// <summary>
-				/// Discrete version of the inverse transform method
-				/// </summary>
-				/// <remarks>
-				/// Based on the method described in 
-				/// chapter 32. MONTE CARLO TECHNIQUES, K. Hagiwara et al., Physical Review D66, 010001-1 (2002)
-				/// found at http://pdg.lbl.gov/
-				/// </remarks>
-				class DiscreteRandomNumberGenerator
-				{
-					DiscreteRandomNumberGenerator(int seed)
-					{
-						//this->random = new Random(seed);
-					}
-
-					double NextDouble()
-					{
-						return 0;
-					}
-
-					/// <summary>
-					/// Initialises the discrete PDF so that this is a trapezoidal overall shape
-					/// the shape of the trapeze is fully defined by the parameters c and itemNumbers,
-					/// knowing that the distribution function indexes are 0, 1, ..., n - 1
-					/// </summary>
-					/// <param name="c">multiplicator to apply to the index 0, must be between 0 and 2, or an exception occurs. ignored if n = 1</param>
-					/// <param name="n">number of items in the discrete PDF</param>
-					void initialiseTrapezoidal(double c, int n)
-					{
-					}
-				};
-
-
-				std::vector<IObjectiveScores<T>> scores;
-				int m;
-				int q;
-				int alpha;
-				int beta;
-				DiscreteRandomNumberGenerator discreteGenerator;
-				IFitnessAssignment<double, T> fitnessAssignment;
-				IObjectiveEvaluator<T> evaluator;
-				IHyperCubeOperations* hyperCubeOps;
-				ILoggerMh* logger = nullptr; // new Log4netAdapter();
-
-				std::map<string, string> createTagConcat(std::initializer_list<std::tuple<string, string>> tuples)
-				{
-					//return LoggerMhHelper.MergeDictionaries(LoggerMhHelper.CreateTag(tuples), this->tags);
-				}
-
-				string ComplexId;
-
-				//Added new argument IHyperCuberations to avoid programming to implementation 
-				//by Bill Wang on 19/9/2010
-				DefaultComplex(std::vector<IObjectiveScores<T>> scores, int m, int q, int alpha, int beta,
-					IObjectiveEvaluator<T> evaluator, IRandomNumberGeneratorFactory rng,
-					IFitnessAssignment<double, T> fitnessAssignment, IHyperCubeOperations* hyperCubeOperations, ILoggerMh* logger = nullptr, std::map<string, string> tags = nullptr, double factorTrapezoidalPDF = 1.8,
-					SceOptions options = SceOptions.None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
-				{
-					if (factorTrapezoidalPDF > 2.0 || factorTrapezoidalPDF < 0.0)
-						throw new ArgumentOutOfRangeException("factorTrapezoidalPDF", "This must be between 0 and 2");
-					this->scores = scores;
-					this->m = m;
-					this->q = q;
-					this->alpha = alpha;
-					this->beta = beta;
-					this->fitnessAssignment = fitnessAssignment;
-					this->hyperCubeOps = hyperCubeOperations;
-					this->evaluator = evaluator;
-					this->logger = logger;
-					this->tags = tags;
-					this->factorTrapezoidalPDF = factorTrapezoidalPDF;
-					initialiseDiscreteGenerator(rng.Next());
-					this->options = options;
-					this->ReflectionRatio = reflectionRatio;
-					this->ContractionRatio = contractionRatio;
-				}
-
-				std::map<string, string> tags;
-				double factorTrapezoidalPDF;
-				SceOptions options;
-
-				bool IsCancelled;
-
-				ITerminationCondition<T> TerminationCondition;
-
-				bool IsFinished()
-				{
-					if (TerminationCondition == nullptr)
-						return false;
-					else
-						return terminationCondition->IsFinished();
-				}
-
-				void Evolve()
-				{
-					if (Thread.CurrentThread.Name == nullptr)
-					{
-						Thread.CurrentThread.Name = ComplexId;
-					}
-					int a, b; // counters for alpha and beta parameters
-					b = 0;
-					while (b < beta && !IsCancelled && !IsFinished)
-					{
-						std::vector<IObjectiveScores<T>> bufferComplex = (std::vector<IObjectiveScores<T>>)this->scores.Clone();
-						std::vector<IObjectiveScores<T>> leftOutFromSubcomplex = nullptr;
-						std::vector<FitnessAssignedScores<double, T>> subComplex = getSubComplex(bufferComplex, out leftOutFromSubcomplex);
-						a = 0;
-						while (a < alpha && !IsCancelled && !IsFinished)
-						{
-							FitnessAssignedScores<double, T> worstPoint = findWorstPoint(subComplex);
-							loggerWrite(worstPoint, createTagConcat(
-								LoggerMhHelper.MkTuple("Message", "Worst point in subcomplex"),
-								createTagCatComplexNo()));
-							std::vector<IObjectiveScores<T>> withoutWorstPoint = removePoint(subComplex, worstPoint);
-							loggerWrite(withoutWorstPoint, createTagConcat(
-								LoggerMhHelper.MkTuple("Message", "Subcomplex without worst point"),
-								createTagCatComplexNo()
-								));
-							T centroid = getCentroid(withoutWorstPoint);
-
-							T reflectedPoint = reflect(worstPoint, centroid);
-							if (reflectedPoint != nullptr)
-							{
-								std::vector<FitnessAssignedScores<double, T>> candidateSubcomplex = nullptr;
-								FitnessAssignedScores<double, T> fitReflectedPoint = evaluateNewSet(reflectedPoint, withoutWorstPoint, out candidateSubcomplex);
-								if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
-								{
-									subComplex = candidateSubcomplex;
-									loggerWrite(fitReflectedPoint, createTagConcat(
-										LoggerMhHelper.MkTuple("Message", "Reflected point in subcomplex"),
-										createTagCatComplexNo()));
-								}
-								else
-								{
-									loggerWrite(fitReflectedPoint,
-										createTagConcat(LoggerMhHelper.MkTuple("Message", "Reflected point in subcomplex - Failed"), createTagCatComplexNo()));
-									subComplex = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
-									if (subComplex == nullptr) // this can happen if the feasible region of the parameter space is not convex.
-										subComplex = fitnessAssignment.AssignFitness(bufferComplex);
-								}
-							}
-							else
-							{
-								// 2012-02-02 A change to fit the specs of the Duan 1993 paper, to validate the use for AWRA-L.
-								// This change is in line after discussions with Neil Viney
-								// TODO: After discussion with Neil Viney (2012-02-03): Allow for a strategy where the generation 
-								// of the random point can be based on another hypercube than the complex. Duan documents that, but this may
-								// prevent a faster convergence.
-								//subComplex = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
-								if ((options & SceOptions.RndInSubComplex) == SceOptions.RndInSubComplex)
-								{
-									// subComplex = addRandomInHypercube(withoutWorstPoint, bufferComplex);
-									if ((options & SceOptions.ReflectionRandomization) == SceOptions.ReflectionRandomization)
-										subComplex = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
-									else
-										subComplex = generateRandomWithinShuffleBounds(worstPoint, centroid, withoutWorstPoint);
-								}
-								else
-								{
-									subComplex = addRandomInHypercube(withoutWorstPoint, bufferComplex);
-								}
-							}
-							a++;
-						}
-						this->scores = aggregatePoints(subComplex, leftOutFromSubcomplex);
-						b++;
-					}
-
-				}
-
-				std::tuple<string, string> createTagCatComplexNo()
-				{
-					return LoggerMhHelper.MkTuple("Category", "Complex No " + complexId);
-				}
-
-				void loggerWrite(std::vector<IObjectiveScores<T>> points, std::map<string, string> tags)
-				{
-					if (logger != nullptr)
-						logger.Write(points, tags);
-				}
-
-				void loggerWrite(FitnessAssignedScores<double, T> point, std::map<string, string> tags)
-				{
-					if (logger != nullptr)
-						logger.Write(point, tags);
-				}
-
-				void loggerWrite(string message, std::map<string, string> tags)
-				{
-					if (logger != nullptr)
-						logger.Write(message, tags);
-				}
-
-				//void loggerWrite(IHyperCube<double> point, std::map<string, string> tags)
-				//{
-				//    if (logger != nullptr)
-				//        logger.Write(point, tags);
-				//}
-
-				void loggerWrite(IObjectiveScores<T> point, std::map<string, string> tags)
-				{
-					this->loggerWrite(new std::vector < IObjectiveScores<T> > { point }, tags);
-				}
-
-				std::vector<IObjectiveScores<T>> aggregatePoints(std::vector<FitnessAssignedScores<double, T>> subComplex, std::vector<IObjectiveScores<T>> leftOutFromSubcomplex)
-				{
-					List<IObjectiveScores<T>> result = new List<IObjectiveScores<T>>(convertArrayToScores(subComplex));
-					result.AddRange(leftOutFromSubcomplex);
-					return result.ToArray();
-				}
-
-				FitnessAssignedScores<double, T> evaluateNewSet(T reflectedPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint, std::vector<FitnessAssignedScores<double, T>>& candidateSubcomplex)
-				{
-					List<IObjectiveScores<T>> scores = new List<IObjectiveScores<T>>();
-					scores.AddRange(withoutWorstPoint);
-					IObjectiveScores<T> scoreNewPoint = evaluator->EvaluateScore((T)reflectedPoint);
-					scores.Add(scoreNewPoint);
-					candidateSubcomplex = fitnessAssignment.AssignFitness(scores.ToArray());
-					return Array.Find<FitnessAssignedScores<double, T>>(candidateSubcomplex, (x = > (x.Scores == scoreNewPoint)));
-				}
-
-				T reflect(FitnessAssignedScores<double, T> worstPoint, T centroid)
-				{
-					//double ratio = -1.0;
-					double ratio = this->ReflectionRatio;
-					return performHomothecy(worstPoint, centroid, ratio);
-				}
-
-				static T performHomothecy(FitnessAssignedScores<double, T> worstPoint, T centroid, double ratio)
-				{
-					return (T)((IHyperCube<double>)centroid).HomotheticTransform((IHyperCube<double>)worstPoint.Scores.GetSystemConfiguration(), ratio);
-				}
-
-				T getCentroid(std::vector<IObjectiveScores<T>> withoutWorstPoint)
-				{
-					auto tmp = convertAllToHyperCube(withoutWorstPoint);
-					IHyperCube<double> result = hyperCubeOps.GetCentroid(tmp);
-					return (T)result;
-				}
-
-				static std::vector<IHyperCube<double>> convertAllToHyperCube(std::vector<IObjectiveScores<T>> withoutWorstPoint)
-				{
-					return ConvertAllToHyperCube(withoutWorstPoint);
-				}
-
-				std::vector<IObjectiveScores<T>> removePoint(std::vector<FitnessAssignedScores<double, T>> subComplex, FitnessAssignedScores<double, T> worstPoint)
-				{
-					auto tmp = Array.FindAll(subComplex, (x = > !object.ReferenceEquals(worstPoint, x)));
-					return convertArrayToScores(tmp);
-				}
-
-				static std::vector<IObjectiveScores<T>> convertArrayToScores(std::vector<FitnessAssignedScores<double, T>> tmp)
-				{
-					return Array.ConvertAll<FitnessAssignedScores<double, T>, IObjectiveScores<T>>(tmp, (x = > x.Scores));
-				}
-
-				FitnessAssignedScores<double, T> findWorstPoint(std::vector<FitnessAssignedScores<double, T>> subComplex)
-				{
-					std::vector<FitnessAssignedScores<double, T>> tmp = (std::vector<FitnessAssignedScores<double, T>>)subComplex.Clone();
-					Array.Sort(tmp);
-					return tmp[tmp.Length - 1];
-				}
-
-				void initialiseDiscreteGenerator(int seed)
-				{
-					if (discreteGenerator == nullptr)
-						discreteGenerator = new DiscreteRandomNumberGenerator(seed);
-					discreteGenerator.initialiseTrapezoidal(factorTrapezoidalPDF, m);
-				}
-
-				std::vector<FitnessAssignedScores<double, T>> getSubComplex(std::vector<IObjectiveScores<T>> bufferComplex, std::vector<IObjectiveScores<T>>& leftOutFromSubcomplex)
-				{
-					auto fitnessPoints = this->fitnessAssignment.AssignFitness(bufferComplex);
-					Array.Sort(fitnessPoints);
-
-					std::vector<IObjectiveScores<T>> result = new IObjectiveScores<T>[q];
-					int[] selectedIndices = new int[q];
-					for (int j = 0; j < selectedIndices.Length; j++)
-						selectedIndices[j] = -1; // this is not a random choice !
-
-					int i = 0;
-					int counter = 0;
-					while (counter < selectedIndices.Length)
-					{
-						i = (int)discreteGenerator.NextDouble();
-						if (Array.IndexOf(selectedIndices, i) < 0)
-						{
-							selectedIndices[counter] = i;
-							counter++;
-						}
-					}
-					for (int j = 0; j < result.Length; j++)
-						result[j] = fitnessPoints[selectedIndices[j]].Scores;
-
-					List<IObjectiveScores<T>> leftOut = new List<IObjectiveScores<T>>();
-					for (int j = 0; j < fitnessPoints.Length; j++)
-					{
-						if (Array.IndexOf(selectedIndices, j) < 0)
-							leftOut.Add(fitnessPoints[j].Scores);
-					}
-					leftOutFromSubcomplex = leftOut.ToArray();
-					return fitnessAssignment.AssignFitness(result);
-				}
-
-				std::vector<FitnessAssignedScores<double, T>> contractionOrRandom(std::vector<IObjectiveScores<T>> withoutWorstPoint,
-					FitnessAssignedScores<double, T> worstPoint, T centroid, std::vector<IObjectiveScores<T>> bufferComplex)
-				{
-					std::vector<FitnessAssignedScores<double, T>> result;
-					std::vector<FitnessAssignedScores<double, T>> candidateSubcomplex = nullptr;
-					T contractionPoint = contract(worstPoint, centroid);
-					FitnessAssignedScores<double, T> fitReflectedPoint = nullptr;
-					if (contractionPoint != nullptr)
-					{
-						fitReflectedPoint = evaluateNewSet(contractionPoint, withoutWorstPoint, out candidateSubcomplex);
-						if (fitReflectedPoint.CompareTo(worstPoint) <= 0)
-						{
-							result = candidateSubcomplex;
-							loggerWrite(fitReflectedPoint, createTagConcat(
-								LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex"),
-								createTagCatComplexNo()));
-							return result;
-						}
-					}
-					if (contractionPoint != nullptr && fitReflectedPoint != nullptr)
-						loggerWrite(fitReflectedPoint, createTagConcat(
-						LoggerMhHelper.MkTuple("Message", "Contracted point in subcomplex-Failed"),
-						createTagCatComplexNo()));
-					else
-					{
-						auto msg = "Contracted point unfeasible";
-						loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
-					}
-					// 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
-					// implementation showed a slower rate of convergence. 
-					// result = addRandomInHypercube(withoutWorstPoint, bufferComplex);
-					result = generateRandomWithinSubcomplex(withoutWorstPoint, worstPoint);
-					return result;
-				}
-
-				std::vector<FitnessAssignedScores<double, T>> generateRandomWithinShuffleBounds(FitnessAssignedScores<double, T> worstPoint, T centroid, std::vector<IObjectiveScores<T>> withoutWorstPoint)
-				{
-					auto ctr = centroid as IHyperCube < double > ;
-					auto sbcplx = convertAllToHyperCube(merge(withoutWorstPoint, worstPoint));
-					auto wp = worstPoint.Scores.GetSystemConfiguration() as IHyperCube < double > ;
-					auto newPoint = wp.Clone() as IHyperCube < double > ;
-					auto varnames = newPoint.GetVariableNames();
-					auto rand = hyperCubeOps.GenerateRandomWithinHypercube(sbcplx);
-					for (int i = 0; i < varnames.Length; i++)
-					{
-						auto v = varnames[i];
-						auto value = 2 * ctr.GetValue(v) - wp.GetValue(v);
-						if (value < wp.GetMinValue(v) || value > wp.GetMaxValue(v))
-							newPoint.SetValue(v, rand.GetValue(v));
-						else
-							newPoint.SetValue(v, value);
-					}
-					auto newScore = evaluator->EvaluateScore((T)newPoint);
-					loggerWrite(newScore, createTagConcat(
-						LoggerMhHelper.MkTuple("Message", "Adding a partially random point"),
-						LoggerMhHelper.MkTuple("Category", "Complex No " + complexId)
-						));
-					return fitnessAssignment.AssignFitness(aggregate(newScore, withoutWorstPoint));
-				}
-
-				std::vector<FitnessAssignedScores<double, T>> generateRandomWithinSubcomplex(std::vector<IObjectiveScores<T>> withoutWorstPoint, FitnessAssignedScores<double, T> worstPoint)
-				{
-					// 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
-					// implementation showed a slower rate of convergence. 
-					std::vector<FitnessAssignedScores<double, T>> result;
-					auto subCplx = merge(withoutWorstPoint, worstPoint);
-					result = addRandomInHypercube(withoutWorstPoint, subCplx);
-					return result;
-				}
-
-				std::vector<FitnessAssignedScores<double, T>> addRandomInHypercube(std::vector<IObjectiveScores<T>> withoutWorstPoint, std::vector<IObjectiveScores<T>> popForHypercubeDefn)
-				{
-					auto tmp = convertAllToHyperCube(popForHypercubeDefn);
-					IHyperCube<double> newPoint = hyperCubeOps.GenerateRandomWithinHypercube(tmp);
-					if (newPoint == nullptr)
-					{
-						auto msg = "Random point within hypercube bounds is unfeasible";
-						loggerWrite(msg, createTagConcat(LoggerMhHelper.MkTuple("Message", msg), createTagCatComplexNo()));
-						return null;
-					}
-					auto newScore = evaluator->EvaluateScore((T)newPoint);
-					loggerWrite(newScore, createTagConcat(
-						LoggerMhHelper.MkTuple("Message", "Adding a random point in hypercube"),
-						createTagCatComplexNo()
-						));
-
-					std::vector<IObjectiveScores<T>> newSubComplex = aggregate(newScore, withoutWorstPoint);
-					return fitnessAssignment.AssignFitness(newSubComplex);
-				}
-
-				static std::vector<IObjectiveScores<T>> merge(std::vector<IObjectiveScores<T>> withoutWorstPoint, FitnessAssignedScores<double, T> worstPoint)
-				{
-					auto tmp = withoutWorstPoint.ToList();
-					tmp.Add(worstPoint.Scores);
-					return tmp.ToArray();
-				}
-
-				std::vector<IObjectiveScores<T>> aggregatePoints(IHyperCube<double> newPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint)
-				{
-					return aggregate(evaluator->EvaluateScore((T)newPoint), withoutWorstPoint);
-				}
-
-				std::vector<IObjectiveScores<T>> aggregate(IObjectiveScores<T> newPoint, std::vector<IObjectiveScores<T>> withoutWorstPoint)
-				{
-					List<IObjectiveScores<T>> result = new List<IObjectiveScores<T>>(withoutWorstPoint);
-					result.Add(newPoint);
-					return result.ToArray();
-				}
-
-				T contract(FitnessAssignedScores<double, T> worstPoint, T centroid)
-				{
-					//double ratio = 0.5;
-					double ratio = this->ContractionRatio;
-					return performHomothecy(worstPoint, centroid, ratio);
-				}
-
-				std::vector<IObjectiveScores<T>> GetObjectiveScores()
-				{
-					return (std::vector<IObjectiveScores<T>>)this->scores.Clone();
-				}
-
-				double ContractionRatio;
-				double ReflectionRatio;
-			};
 
 			/*
 			class ComplexEvolutionEvent : EventArgs, IMonitoringEvent

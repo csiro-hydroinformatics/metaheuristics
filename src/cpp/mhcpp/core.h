@@ -159,20 +159,6 @@ namespace mhcpp
 	{
 	public:
 		virtual ~IBaseObjectiveScores() {}
-		/// <summary>
-		/// Gets the number of objective scores in this instance.
-		/// </summary>
-		virtual size_t ObjectiveCount() { return 0; }
-		//virtual size_t ObjectiveCount() = 0;
-
-		// /// <summary>
-		// /// Gets one of the objective 
-		// /// </summary>
-		// /// <param name="i">zero-based inex of the objective</param>
-		// /// <returns></returns>
-		// virtual IObjectiveScore * GetObjective(int i) = 0;
-
-		virtual double Value(int i) { return 0; } //= 0;
 
 		///// <summary>
 		///// Gets the system configuration that led to these scores.
@@ -186,14 +172,87 @@ namespace mhcpp
 	/// </summary>
 	/// <typeparam name="TSysConf">The type of the system configuration</typeparam>
 	template<typename TSysConf>
-	class IObjectiveScores : public IBaseObjectiveScores //where TSysConf : ISystemConfiguration
+	class IObjectiveScores //: public IBaseObjectiveScores //where TSysConf : ISystemConfiguration
 	{
 	public:
+		IObjectiveScores(const TSysConf& sysConfig, const string& name, double value, bool maximizable = false)
+		{
+			this->sys = sysConfig;
+			this->objectives.push_back(ObjectiveValue(name, value, maximizable));
+		}
+
+		IObjectiveScores(const IObjectiveScores<TSysConf>& src)
+		{
+			this->sys = src.sys;
+			this->objectives = src.objectives;
+		}
+
+		IObjectiveScores<TSysConf>& operator=(const IObjectiveScores<TSysConf> &src)
+		{
+			if (&src == this){
+				return *this;
+			}
+			this->sys = src.sys;
+			this->objectives = src.objectives;
+			return *this;
+		}
+
+		IObjectiveScores<TSysConf>& operator=(const IObjectiveScores<TSysConf>&& src)
+		{
+			if (&src == this){
+				return *this;
+			}
+			std::swap(sys, src.sys);
+			std::swap(objectives, src.objectives);
+			return *this;
+		}
+
+		IObjectiveScores() {}
+
 		virtual ~IObjectiveScores() {}
+
 		/// <summary>
 		/// Gets the system configuration that led to these scores.
 		/// </summary>
-		virtual TSysConf SystemConfiguration() { return TSysConf(); } //= 0;
+		virtual const TSysConf SystemConfiguration() { return sys; }
+
+		/// <summary>
+		/// Gets the number of objective scores in this instance.
+		/// </summary>
+		virtual const size_t ObjectiveCount() { return this->objectives.size(); }
+		//virtual size_t ObjectiveCount() = 0;
+
+		// /// <summary>
+		// /// Gets one of the objective 
+		// /// </summary>
+		// /// <param name="i">zero-based inex of the objective</param>
+		// /// <returns></returns>
+		// virtual IObjectiveScore * GetObjective(int i) = 0;
+
+		const virtual double Value(int i) { return objectives[i].Value; } //= 0;
+
+	private:
+		class ObjectiveValue
+		{
+		public:
+			ObjectiveValue(){}
+			ObjectiveValue(string name, double value, bool maximizable) :
+				Name(name), Value(value), Maximizable(maximizable)
+			{
+			}
+
+			ObjectiveValue(const ObjectiveValue& src) :
+				Name(src.Name), Value(src.Value), Maximizable(src.Maximizable)
+			{
+			}
+			string Name;
+			double Value;
+			bool Maximizable;
+		};
+
+		TSysConf sys;
+		std::vector<ObjectiveValue> objectives;
+
 	};
 
 	//template<typename TSysConf>
@@ -225,7 +284,9 @@ namespace mhcpp
 	{
 	public:
 		void SetEvolutionEngine(IEvolutionEngine<T>* engine){};
-		virtual bool IsFinished() { return true; }
+		virtual bool IsFinished() { return false; }
+	private:
+		IEvolutionEngine<T>* engine = nullptr;
 	};
 
 	/// <summary>
@@ -241,7 +302,7 @@ namespace mhcpp
 		/// </summary>
 		/// <param name="scores">Objective scores</param>
 		/// <param name="fitnessValue">Fitness value, derived from the scores and context information such as a candidate population.</param>
-		FitnessAssignedScores(IObjectiveScores<TSys>* scores, T fitnessValue)
+		FitnessAssignedScores(const IObjectiveScores<TSys>& scores, T fitnessValue)
 		{
 			this->Scores = scores;
 			this->FitnessValue = fitnessValue;
@@ -249,7 +310,7 @@ namespace mhcpp
 		/// <summary>
 		/// Gets the objective scores
 		/// </summary>
-		IObjectiveScores<TSys>* Scores;
+		IObjectiveScores<TSys> Scores;
 
 		/// <summary>
 		/// Gets the fitness value that has been assigned to the candidate system configuration and its objective scores
@@ -272,21 +333,23 @@ namespace mhcpp
 		}
 	};
 
-	template<typename T, typename TSys>
+	template<typename TVal, typename TSys>
 	class IFitnessAssignment
 	{
 	public:
-		std::vector<FitnessAssignedScores<T, TSys>> AssignFitness(const std::vector<IObjectiveScores<TSys>>& scores)
+		std::vector<FitnessAssignedScores<TVal, TSys>> AssignFitness(const std::vector<IObjectiveScores<TSys>>& scores)
 		{
-			std::vector<FitnessAssignedScores<T, TSys>> result;
-			//for (auto& s : scores)
-			//	result.push_back();
+			std::vector<FitnessAssignedScores<TVal, TSys>> result;
+			for (IObjectiveScores<TSys> s : scores)
+				result.push_back(FitnessAssignedScores<TVal, TSys>(s, s.Value(0)));
 			return result;
 		}
 	};
 
 	class IRandomNumberGeneratorFactory
 	{
+	public:
+		size_t Next() { return 1; }
 	};
 
 	template<typename TSysConf>
@@ -299,7 +362,7 @@ namespace mhcpp
 		/// </summary>
 		/// <param name="systemConfiguration">candidate system configuration</param>
 		/// <returns>An object with one or more objective scores</returns>
-		virtual IObjectiveScores<TSysConf> * EvaluateScore(TSysConf systemConfiguration) = 0;
+		virtual IObjectiveScores<TSysConf> EvaluateScore(TSysConf systemConfiguration) = 0;
 		virtual bool IsCloneable() { return false; }
 	};
 
@@ -383,6 +446,12 @@ namespace mhcpp
 	class HyperCube : public IHyperCube<T> //where T : IComparable
 	{
 	public:
+		HyperCube() {}
+
+		HyperCube(const HyperCube& src)
+		{
+			this->def = src.def;
+		}
 		vector<string> GetVariableNames() {
 			return mhcpp::utils::GetKeys(def);
 		}
@@ -415,39 +484,6 @@ namespace mhcpp
 		std::map<string, MMV> def;
 	};
 
-	template<typename TSysConf, typename T=double>
-	class ScalarObjectiveScores : public IObjectiveScores<TSysConf> //where TSysConf : ISystemConfiguration
-	{
-	public:
-		ScalarObjectiveScores(T value, const TSysConf& sysConf)
-		{
-			this->sysConf = sysConf;
-			this->value = value;
-		}
-		TSysConf SystemConfiguration() { return sysConf; }
-		size_t ObjectiveCount() { return 1; }
-		//IObjectiveScore * GetObjective(int i) 
-		//{
-		//	if (i != 0) throw std::logic_error("There is only one score");
-		//	return new ObjectiveScore<T>(value);
-		//}
-		ISystemConfiguration * GetSystemConfiguration()
-		{
-			return new TSysConf(sysConf);
-		}
-
-		double Value(int i)
-		{
-			if (i != 0) throw std::logic_error("There is only one score");
-			return value;
-		}
-
-	private:
-		TSysConf sysConf;
-		T value;
-
-	};
-
 	template<typename TSysConf>
 	class TopologicalDistance : public IObjectiveEvaluator<TSysConf>
 	{
@@ -460,7 +496,7 @@ namespace mhcpp
 		/// </summary>
 		/// <param name="systemConfiguration">candidate system configuration</param>
 		/// <returns>An object with one or more objective scores</returns>
-		IObjectiveScores<TSysConf> * EvaluateScore(TSysConf systemConfiguration)
+		IObjectiveScores<TSysConf> EvaluateScore(TSysConf systemConfiguration)
 		{
 			double sumsqr=0;
 			vector<string> varNames = goal.GetVariableNames();
@@ -469,7 +505,7 @@ namespace mhcpp
 				auto d = goal.GetValue(v) - systemConfiguration.GetValue(v);
 				sumsqr += d*d;
 			}
-			return new ScalarObjectiveScores<TSysConf>(std::sqrt(sumsqr), systemConfiguration);
+			return IObjectiveScores<TSysConf>(systemConfiguration, "L2 distance", std::sqrt(sumsqr));
 		}
 
 	private:
@@ -479,9 +515,9 @@ namespace mhcpp
 
 	class IHyperCubeOperations
 	{
-		virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
-		virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
-		virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
+		//virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
+		//virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
+		//virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
 	};
 
 	class IHyperCubeOperationsFactory
@@ -522,10 +558,22 @@ namespace mhcpp
 
 		TSysConfig CreateRandomCandidate()
 		{
-			return TSysConfig();
+			TSysConfig rt(*t);
+			for (auto& vname : rt.GetVariableNames())
+			{
+				double min = rt.GetMinValue(vname);
+				double max = rt.GetMaxValue(vname);
+				rt.SetValue(vname, min + Urand() * (max - min));
+			}
+			return rt;
 			//return (TSysConfig)hcOps.GenerateRandom(template);
 		}
 	private:
+		double Urand()
+		{
+			// TODO
+			return 0.3333;
+		}
 		//IHyperCubeOperations CreateIHyperCubeOperations()
 		//{
 		//	return new HyperCubeOperations(rng.CreateFactory());

@@ -74,20 +74,53 @@ SCENARIO("Basic objective evaluator", "[objectives]") {
 		//IObjectiveEvaluator<HyperCube < double > >* evaluator = new TopologicalDistance<HyperCube < double > >(goal);
 		TopologicalDistance<HyperCube < double > > evaluator(goal);
 
-		IObjectiveScores<HyperCube<double>>* scores = evaluator.EvaluateScore(hc);
+		IObjectiveScores<HyperCube<double>> scores = evaluator.EvaluateScore(hc);
 		WHEN("") {
-			REQUIRE(scores->ObjectiveCount() == 1);
-			REQUIRE(scores->Value(0) == std::sqrt(0.25 + 0.09));
+			REQUIRE(scores.ObjectiveCount() == 1);
+			REQUIRE(scores.Value(0) == std::sqrt(0.25 + 0.09));
 		}
-		delete scores;
 	}
 }
 
-SCENARIO("RNG basic port", "[rng]") {
+SCENARIO("RNG basics", "[rng]") {
 	HyperCube<double> hc;
 	hc.Define("a", 1, 2, 1.5);
 	hc.Define("b", 3, 4, 3.3);
 	auto rng = UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
+	HyperCube<double> p = rng.CreateRandomCandidate();
+
+	REQUIRE(p.GetMinValue("a") == 1.0);
+	REQUIRE(p.GetMaxValue("a") == 2.0);
+	REQUIRE(p.GetMinValue("b") == 3.0);
+	REQUIRE(p.GetMaxValue("b") == 4.0);
+	REQUIRE(p.GetValue("a") != 1.5);
+	REQUIRE(p.GetValue("b") != 3.3);
+
+	REQUIRE(p.GetValue("a") >= 1.0);
+	REQUIRE(p.GetValue("b") >= 3.0);
+
+	REQUIRE(p.GetValue("a") <= 2.0);
+	REQUIRE(p.GetValue("b") <= 4.0);
+}
+
+SCENARIO("Complex for SCE", "[optimizer]") {
+	GIVEN("A 2D Hypercube")
+	{
+		using T = HyperCube < double > ;
+		std::vector < IObjectiveScores<T> > scores;
+		int m = 1;
+		int q = 1, alpha = 1, beta = 1;
+		IObjectiveEvaluator<T>* evaluator = nullptr;
+		IRandomNumberGeneratorFactory rng;
+		IFitnessAssignment<double, T> fitnessAssignment;
+		/*IHyperCubeOperations* hyperCubeOperations, */
+		ILoggerMh* logger = nullptr;
+
+		Complex<T> cplx
+			(scores, m, q, alpha, beta,
+			evaluator, rng,
+			fitnessAssignment, logger = nullptr);
+	}
 }
 
 SCENARIO("SCE basic port", "[optimizer]") {
@@ -108,9 +141,9 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		goal.Define("b", 3, 4, 3);
 		TopologicalDistance<HyperCube < double > >  * evaluator = new TopologicalDistance<HyperCube < double > >(goal);
 		ICandidateFactory<HyperCube < double > >* populationInitializer = new UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
-		//ITerminationCondition<HyperCube < double > >* terminationCondition,
+		ITerminationCondition<HyperCube < double > > terminationCondition;
 
-		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, nullptr, sceParams);
+		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, &terminationCondition, sceParams);
 
 		WHEN("") {
 			auto results = opt.Evolve();
