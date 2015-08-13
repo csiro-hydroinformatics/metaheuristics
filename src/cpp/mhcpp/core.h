@@ -322,10 +322,23 @@ namespace mhcpp
 		/// </summary>
 		/// <param name="other">Object to compare with this object</param>
 		/// <returns>an integer as necessary to implement IComparable</returns>
-		int CompareTo(FitnessAssignedScores<T, TSys> other)
+		int CompareTo(const FitnessAssignedScores<T, TSys>& other)
 		{
 			return this->FitnessValue.CompareTo(other.FitnessValue);
 		}
+
+		int CompareTo(FitnessAssignedScores<T, TSys>* other)
+		{
+			return CompareTo(*other);
+		}
+
+		static bool BetterThan(const FitnessAssignedScores<T, TSys>& elem1, const FitnessAssignedScores<T, TSys>& elem2)
+		{
+			if (elem1.CompareTo(elem2) < 0)
+				return true;
+			return false;
+		}
+
 
 		string ToString()
 		{
@@ -469,6 +482,11 @@ namespace mhcpp
 		string GetConfigurationDescription() { return ""; }
 		void ApplyConfiguration(void* system) {}
 
+		static HyperCube GetCentroid(std::vector<HyperCube> points)
+		{
+			return HyperCube();
+		}
+
 	private:
 		class MMV
 		{
@@ -528,8 +546,6 @@ namespace mhcpp
 		//}
 		virtual IHyperCubeOperations* CreateNew(IRandomNumberGeneratorFactory rng) = 0;
 	};
-
-
 
 
 	template<typename TSysConfig>

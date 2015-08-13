@@ -120,6 +120,12 @@ SCENARIO("Complex for SCE", "[optimizer]") {
 			(scores, m, q, alpha, beta,
 			evaluator, rng,
 			fitnessAssignment, logger = nullptr);
+
+		// Create a subcomplex. 
+		// The wirst point found is the expected one.
+		// Calling Evolve works without exceptions.
+
+		cplx.Evolve();
 	}
 }
 
