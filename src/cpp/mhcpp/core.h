@@ -214,12 +214,12 @@ namespace mhcpp
 		/// <summary>
 		/// Gets the system configuration that led to these scores.
 		/// </summary>
-		virtual const TSysConf SystemConfiguration() { return sys; }
+		virtual TSysConf SystemConfiguration() const { return sys; }
 
 		/// <summary>
 		/// Gets the number of objective scores in this instance.
 		/// </summary>
-		virtual const size_t ObjectiveCount() { return this->objectives.size(); }
+		virtual size_t ObjectiveCount() const { return this->objectives.size(); }
 		//virtual size_t ObjectiveCount() = 0;
 
 		// /// <summary>
@@ -229,7 +229,7 @@ namespace mhcpp
 		// /// <returns></returns>
 		// virtual IObjectiveScore * GetObjective(int i) = 0;
 
-		const virtual double Value(int i) { return objectives[i].Value; } //= 0;
+		virtual double Value(int i) const { return objectives[i].Value; } //= 0;
 
 	private:
 		class ObjectiveValue
@@ -304,30 +304,42 @@ namespace mhcpp
 		/// <param name="fitnessValue">Fitness value, derived from the scores and context information such as a candidate population.</param>
 		FitnessAssignedScores(const IObjectiveScores<TSys>& scores, T fitnessValue)
 		{
-			this->Scores = scores;
-			this->FitnessValue = fitnessValue;
+			this->scores = scores;
+			this->fitnessValue = fitnessValue;
 		}
+
 		/// <summary>
 		/// Gets the objective scores
 		/// </summary>
-		IObjectiveScores<TSys> Scores;
+		IObjectiveScores<TSys> Scores() const { return scores; }
+
 
 		/// <summary>
 		/// Gets the fitness value that has been assigned to the candidate system configuration and its objective scores
 		/// </summary>
-		T FitnessValue;
+		T FitnessValue() const { return fitnessValue; }
+
+		IObjectiveScores<TSys> scores;
+		T fitnessValue;
 
 		/// <summary>
 		/// Compares two FitnessAssignedScores<T>.
 		/// </summary>
 		/// <param name="other">Object to compare with this object</param>
 		/// <returns>an integer as necessary to implement IComparable</returns>
-		int CompareTo(const FitnessAssignedScores<T, TSys>& other)
+		int CompareTo(const FitnessAssignedScores<T, TSys>& other) const
 		{
-			return this->FitnessValue.CompareTo(other.FitnessValue);
+			int result;
+			if (FitnessValue() < other.FitnessValue())
+				result = -1;
+			else if (FitnessValue() == other.FitnessValue())
+				result = 0;
+			else
+				result = 1;
+			return result;
 		}
 
-		int CompareTo(FitnessAssignedScores<T, TSys>* other)
+		int CompareTo(const FitnessAssignedScores<T, TSys>* other)
 		{
 			return CompareTo(*other);
 		}
@@ -339,10 +351,15 @@ namespace mhcpp
 			return false;
 		}
 
+		static bool BetterThanPtr(const FitnessAssignedScores<T, TSys>* elem1, const FitnessAssignedScores<T, TSys>* elem2)
+		{
+			return BetterThan(*elem1, *elem2);
+		}
+
 
 		string ToString()
 		{
-			return FitnessValue.ToString() + ", " + Scores.ToString();
+			return FitnessValue().ToString() + ", " + Scores.ToString();
 		}
 	};
 
