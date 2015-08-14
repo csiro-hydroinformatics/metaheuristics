@@ -3,12 +3,93 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <random>
+#include <boost/random.hpp>
 #include "utils.h"
 
 using namespace std;
 
 namespace mhcpp
 {
+
+	class IRandomNumberGeneratorFactory
+	{
+
+	private:
+		/** \brief	A random number generator factory. */
+
+		template<class RNG = std::mt19937>
+		class RandomNumberGeneratorFactory
+		{
+		private:
+			RNG seedEngine;
+		public:
+			typedef RNG engine_type; // No typename needed here. See http://stackoverflow.com/questions/6489351/nested-name-specifier
+
+									 //	http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
+
+			RandomNumberGeneratorFactory(int seed) : seedEngine(seed)
+			{
+			}
+
+			virtual ~RandomNumberGeneratorFactory()
+			{
+			}
+
+			RNG * CreateNewEngine()
+			{
+				return new RNG(seedEngine());
+			}
+
+			RandomNumberGeneratorFactory<RNG> * CreateNewFactory()
+			{
+				return new RandomNumberGeneratorFactory<RNG>(seedEngine());
+			}
+
+			unsigned int operator()() {
+				return seedEngine();
+			}
+
+			template<class DistributionType = std::uniform_real_distribution<double>>
+			static boost::variate_generator<RNG*, DistributionType> * CreateVariateGenerator(RandomNumberGeneratorFactory<RNG>& rngf, DistributionType& dist)
+			{
+				return new boost::variate_generator<RNG*, DistributionType>(rngf.CreateNewEngine(), dist);
+			}
+
+		};
+
+		RandomNumberGeneratorFactory<> rng;
+
+	public:
+		IRandomNumberGeneratorFactory() : rng(0)
+		{
+		}
+		IRandomNumberGeneratorFactory(unsigned int seed) : rng(seed)
+		{
+		}
+		unsigned int Next()
+		{ 
+			return rng(); 
+		}
+
+		IRandomNumberGeneratorFactory CreateNew()
+		{
+			return IRandomNumberGeneratorFactory(Next());
+		}
+
+		std::mt19937 CreateNewStd()
+		{
+			return std::mt19937(Next());
+		}
+
+		// http://stackoverflow.com/questions/7166799/specialize-template-function-for-template-class
+		template<class DistributionType = std::uniform_real_distribution<double>>
+		boost::variate_generator<std::mt19937, DistributionType> * CreateVariateGenerator(DistributionType& dist)
+		{
+			return new boost::variate_generator<std::mt19937, DistributionType>(CreateNewStd(), dist);
+		}
+	};
+
 	class ISystemConfiguration
 	{
 	public:
@@ -274,6 +355,63 @@ namespace mhcpp
 		virtual T CreateRandomCandidate() = 0;
 	};
 
+	template<typename TSysConfig>
+	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
+	{
+	public:
+		UniformRandomSamplingFactory(IRandomNumberGeneratorFactory rng, const TSysConfig& t)
+		{
+			this->rng = rng;
+			std::srand(0);
+			//if (!t.SupportsThreadSafloning)
+			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
+			this->t = new TSysConfig(t);
+			//this->hcOps = CreateIHyperCubeOperations();
+			std::uniform_real_distribution<double> dist(0, 1);
+			sampler = rng.CreateVariateGenerator<std::uniform_real_distribution<double>>(dist);
+		}
+		~UniformRandomSamplingFactory()
+		{
+			if (t != nullptr) {
+				delete t; t = nullptr;
+			}
+			if (sampler != nullptr) {
+				delete sampler; sampler = nullptr;
+			}
+		}
+
+		//IHyperCubeOperations CreateNew(const IRandomNumberGeneratorFactory& rng)
+		//{
+		//	return new HyperCubeOperations(rng.CreateFactory());
+		//}
+
+		TSysConfig CreateRandomCandidate()
+		{
+			TSysConfig rt(*t);
+			for (auto& vname : rt.GetVariableNames())
+			{
+				double min = rt.GetMinValue(vname);
+				double max = rt.GetMaxValue(vname);
+				rt.SetValue(vname, min + Urand() * (max - min));
+			}
+			return rt;
+			//return (TSysConfig)hcOps.GenerateRandom(template);
+		}
+	private:
+		boost::variate_generator<std::mt19937, std::uniform_real_distribution<double>> * sampler = nullptr;
+		double Urand()
+		{
+			return (*sampler)();
+		}
+		//IHyperCubeOperations CreateIHyperCubeOperations()
+		//{
+		//	return new HyperCubeOperations(rng.CreateFactory());
+		//}
+
+		IRandomNumberGeneratorFactory rng;
+		TSysConfig* t = nullptr;
+	};
+
 	template<typename T>
 	class IEvolutionEngine
 	{
@@ -374,12 +512,6 @@ namespace mhcpp
 				result.push_back(FitnessAssignedScores<TVal, TSys>(s, s.Value(0)));
 			return result;
 		}
-	};
-
-	class IRandomNumberGeneratorFactory
-	{
-	public:
-		size_t Next() { return 1; }
 	};
 
 	template<typename TSysConf>
@@ -563,58 +695,5 @@ namespace mhcpp
 		//}
 		virtual IHyperCubeOperations* CreateNew(IRandomNumberGeneratorFactory rng) = 0;
 	};
-
-
-	template<typename TSysConfig>
-	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
-	{
-	public:
-		UniformRandomSamplingFactory(IRandomNumberGeneratorFactory rng, const TSysConfig& t)
-		{
-			this->rng = rng;
-			//if (!t.SupportsThreadSafloning)
-			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
-			this->t = new TSysConfig(t);
-			//this->hcOps = CreateIHyperCubeOperations();
-		}
-		~UniformRandomSamplingFactory() 
-		{
-			if (t != nullptr) {
-				delete t; t = nullptr;
-			}
-		}
-
-		//IHyperCubeOperations CreateNew(const IRandomNumberGeneratorFactory& rng)
-		//{
-		//	return new HyperCubeOperations(rng.CreateFactory());
-		//}
-
-		TSysConfig CreateRandomCandidate()
-		{
-			TSysConfig rt(*t);
-			for (auto& vname : rt.GetVariableNames())
-			{
-				double min = rt.GetMinValue(vname);
-				double max = rt.GetMaxValue(vname);
-				rt.SetValue(vname, min + Urand() * (max - min));
-			}
-			return rt;
-			//return (TSysConfig)hcOps.GenerateRandom(template);
-		}
-	private:
-		double Urand()
-		{
-			// TODO
-			return 0.3333;
-		}
-		//IHyperCubeOperations CreateIHyperCubeOperations()
-		//{
-		//	return new HyperCubeOperations(rng.CreateFactory());
-		//}
-
-		IRandomNumberGeneratorFactory rng;
-		TSysConfig* t = nullptr;
-	};
-
 
 }

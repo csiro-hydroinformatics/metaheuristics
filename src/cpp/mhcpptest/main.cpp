@@ -103,10 +103,46 @@ SCENARIO("RNG basics", "[rng]") {
 	REQUIRE(p.GetValue("b") <= 4.0);
 }
 
+SCENARIO("Sub-Complex for SCE", "[optimizer]") {
+	GIVEN("A 2D Hypercube")
+	{
+		using T = HyperCube < double >;
+		std::vector < IObjectiveScores<T> > scores;
+		int m = 20;
+		int q = 10, alpha = 1, beta = 1;
+
+		HyperCube<double> goal;
+		goal.Define("a", 1, 2, 1);
+		goal.Define("b", 3, 4, 3);
+
+		IRandomNumberGeneratorFactory rng;
+		UniformRandomSamplingFactory<T> prand(rng, goal);
+		TopologicalDistance<T> evaluator(goal);
+
+		for (size_t i = 0; i < m; i++)
+			scores.push_back(evaluator.EvaluateScore(prand.CreateRandomCandidate()));
+
+		IFitnessAssignment<double, T> fitnessAssignment;
+		//IHyperCubeOperations* hyperCubeOperations
+		//ILoggerMh* logger = nullptr;
+
+		SubComplex<T> scplx
+			(scores, &evaluator, q, alpha, rng,
+				fitnessAssignment);
+
+		// Create a subcomplex. 
+		// The wirst point found is the expected one.
+		// Calling Evolve works without exceptions.
+
+		scplx.Evolve();
+	}
+}
+
+
 SCENARIO("Complex for SCE", "[optimizer]") {
 	GIVEN("A 2D Hypercube")
 	{
-		using T = HyperCube < double > ;
+		using T = HyperCube < double >;
 		std::vector < IObjectiveScores<T> > scores;
 		int m = 1;
 		int q = 1, alpha = 1, beta = 1;
@@ -118,8 +154,8 @@ SCENARIO("Complex for SCE", "[optimizer]") {
 
 		Complex<T> cplx
 			(scores, m, q, alpha, beta,
-			evaluator, rng,
-			fitnessAssignment, logger = nullptr);
+				evaluator, rng,
+				fitnessAssignment, logger = nullptr);
 
 		// Create a subcomplex. 
 		// The wirst point found is the expected one.
