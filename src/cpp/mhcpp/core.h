@@ -97,7 +97,7 @@ namespace mhcpp
 		/// <summary>
 		/// Gets an alphanumeric description for this system configuration
 		/// </summary>
-		virtual string GetConfigurationDescription() = 0;
+		virtual string GetConfigurationDescription() const = 0;
 
 		/// <summary>
 		/// Apply this system configuration to a compatible system, usually a 'model' in the broad sense of the term.
@@ -129,33 +129,33 @@ namespace mhcpp
 		/// Gets the names of the variables defined for this hypercube.
 		/// </summary>
 		/// <returns></returns>
-		virtual vector<string> GetVariableNames() = 0;
+		virtual vector<string> GetVariableNames() const = 0;
 
 		/// <summary>
 		/// Gets the number of dimensions in this hypercube
 		/// </summary>
-		virtual size_t Dimensions() = 0;
+		virtual size_t Dimensions() const = 0;
 
 		/// <summary>
 		/// Gets the value for a variable
 		/// </summary>
 		/// <param name="variableName"></param>
 		/// <returns></returns>
-		virtual T GetValue(string variableName) = 0;
+		virtual T GetValue(string variableName) const = 0;
 
 		/// <summary>
 		/// Gets the maximum feasible value for a variable
 		/// </summary>
 		/// <param name="variableName"></param>
 		/// <returns></returns>
-		virtual T GetMaxValue(string variableName) = 0;
+		virtual T GetMaxValue(string variableName) const = 0;
 
 		/// <summary>
 		/// Gets the minimum feasible value for a variable
 		/// </summary>
 		/// <param name="variableName"></param>
 		/// <returns></returns>
-		virtual T GetMinValue(string variableName) = 0;
+		virtual T GetMinValue(string variableName) const = 0;
 
 		/// <summary>
 		/// Sets the value of one of the variables in the hypercube
@@ -353,6 +353,7 @@ namespace mhcpp
 	public:
 		virtual ~ICandidateFactory() {}
 		virtual T CreateRandomCandidate() = 0;
+		virtual T CreateRandomCandidate(std::vector<T> points) = 0;
 	};
 
 	template<typename TSysConfig>
@@ -362,19 +363,43 @@ namespace mhcpp
 		UniformRandomSamplingFactory(IRandomNumberGeneratorFactory rng, const TSysConfig& t)
 		{
 			this->rng = rng;
-			std::srand(0);
 			//if (!t.SupportsThreadSafloning)
 			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
-			this->t = new TSysConfig(t);
+			this->t = t;
 			//this->hcOps = CreateIHyperCubeOperations();
-			std::uniform_real_distribution<double> dist(0, 1);
-			sampler = rng.CreateVariateGenerator<std::uniform_real_distribution<double>>(dist);
+			SetSampler();
 		}
+
+		UniformRandomSamplingFactory(const UniformRandomSamplingFactory& src)
+		{
+			this->rng = src.rng;
+			this->t = src.t;
+			//this->hcOps = CreateIHyperCubeOperations();
+			SetSampler();
+		}
+
+		UniformRandomSamplingFactory& operator=(const UniformRandomSamplingFactory &src)
+		{
+			if (&src == this) {
+				return *this;
+			}
+			this->rng = src.rng;
+			this->t = src.t;
+			return *this;
+		}
+
+		UniformRandomSamplingFactory& operator=(const UniformRandomSamplingFactory&& src)
+		{
+			if (&src == this) {
+				return *this;
+			}
+			std::swap(this->rng, src.rng);
+			std::swap(this->t , src.t);
+			return *this;
+		}
+
 		~UniformRandomSamplingFactory()
 		{
-			if (t != nullptr) {
-				delete t; t = nullptr;
-			}
 			if (sampler != nullptr) {
 				delete sampler; sampler = nullptr;
 			}
@@ -387,18 +412,48 @@ namespace mhcpp
 
 		TSysConfig CreateRandomCandidate()
 		{
-			TSysConfig rt(*t);
+			return CreateRandomCandidate(t);
+		}
+
+		TSysConfig CreateRandomCandidate(TSysConfig bounds)
+		{
+			TSysConfig rt(t);
 			for (auto& vname : rt.GetVariableNames())
 			{
-				double min = rt.GetMinValue(vname);
-				double max = rt.GetMaxValue(vname);
+				double min = bounds.GetMinValue(vname);
+				double max = bounds.GetMaxValue(vname);
 				rt.SetValue(vname, min + Urand() * (max - min));
 			}
 			return rt;
-			//return (TSysConfig)hcOps.GenerateRandom(template);
 		}
+
+		TSysConfig CreateRandomCandidate(vector<TSysConfig> population)
+		{
+			TSysConfig bounds(t);
+			for (auto& vname : bounds.GetVariableNames())
+			{
+				double min = std::numeric_limits<double>::max();
+				double max = std::numeric_limits<double>::min();
+				for (size_t i = 0; i < population.size(); i++)
+				{
+					double x = population[i].GetValue(vname);
+					min = std::max(min, x);
+					max = std::min(max, x);
+				}
+				bounds.SetMaxValue(vname, max);
+				bounds.SetMinValue(vname, min);
+			}
+			return CreateRandomCandidate(bounds);
+		}
+
 	private:
-		boost::variate_generator<std::mt19937, std::uniform_real_distribution<double>> * sampler = nullptr;
+
+		void SetSampler()
+		{
+			std::uniform_real_distribution<double> dist(0, 1);
+			sampler = rng.CreateVariateGenerator<std::uniform_real_distribution<double>>(dist);
+		}
+
 		double Urand()
 		{
 			return (*sampler)();
@@ -408,8 +463,10 @@ namespace mhcpp
 		//	return new HyperCubeOperations(rng.CreateFactory());
 		//}
 
+		boost::variate_generator<std::mt19937, std::uniform_real_distribution<double>> * sampler = nullptr;
 		IRandomNumberGeneratorFactory rng;
-		TSysConfig* t = nullptr;
+		//TSysConfig* t = nullptr;
+		TSysConfig t;
 	};
 
 	template<typename T>
@@ -421,9 +478,21 @@ namespace mhcpp
 	class ITerminationCondition
 	{
 	public:
-		void SetEvolutionEngine(IEvolutionEngine<T>* engine){};
-		virtual bool IsFinished() { return false; }
+		ITerminationCondition()
+		{
+			this->Check = [&](IEvolutionEngine<T>*) {return true; };
+		}
+		ITerminationCondition(std::function<bool(IEvolutionEngine<T>*)>& isFinishedFunc)
+		{
+			this->Check = isFinishedFunc;
+		}
+		void SetEvolutionEngine(IEvolutionEngine<T>* engine) { this->engine = engine; };
+		bool IsFinished() 
+		{ 
+			return Check(engine);
+		}
 	private:
+		std::function<bool(IEvolutionEngine<T>*)> Check;
 		IEvolutionEngine<T>* engine = nullptr;
 	};
 
@@ -614,26 +683,41 @@ namespace mhcpp
 		{
 			this->def = src.def;
 		}
-		vector<string> GetVariableNames() {
+		vector<string> GetVariableNames() const {
 			return mhcpp::utils::GetKeys(def);
 		}
 		void Define(string name, double min, double max, double value) {
 			def[name] = MMV(name, min, max, value);
 		}
-		size_t Dimensions() { return def.size(); }
-		T GetValue(string variableName) { return def[variableName].Value; }
-		T GetMaxValue(string variableName) { return def[variableName].Max; }
-		T GetMinValue(string variableName) { return def[variableName].Min; }
+		size_t Dimensions() const { return def.size(); }
+		T GetValue(string variableName) const { return def.at(variableName).Value; }
+		T GetMaxValue(string variableName) const { return def.at(variableName).Max; }
+		T GetMinValue(string variableName) const { return def.at(variableName).Min; }
 		void SetValue(string variableName, T value)    { def[variableName].Value = value; }
 		void SetMinValue(string variableName, T value) { def[variableName].Min = value; }
 		void SetMaxValue(string variableName, T value) { def[variableName].Max = value; }
 		//IHyperCube<T> HomotheticTransform(IHyperCube<T> point, double factor) {}
-		string GetConfigurationDescription() { return ""; }
+		string GetConfigurationDescription() const { return ""; }
 		void ApplyConfiguration(void* system) {}
 
-		static HyperCube GetCentroid(std::vector<HyperCube> points)
+		static HyperCube GetCentroid(const std::vector<HyperCube>& points)
 		{
-			return HyperCube();
+			// TODO: surely some vector libraries to reuse (Boost?)
+			if (points.size() == 0) throw std::logic_error("Cannot take centroid of empty set of points");
+			vector<string> names = points[0].GetVariableNames();
+			vector<double> coords(names.size());
+			coords.assign(coords.size(), 0);
+			for(auto& p : points)
+				for (size_t i = 0; i < coords.size(); i++)
+					coords[i] += p.GetValue(names[i]);
+			for (size_t i = 0; i < coords.size(); i++)
+				coords[i] /= points.size();
+			HyperCube centroid = points[0];
+			for (size_t i = 0; i < coords.size(); i++)
+			{
+				centroid.SetValue(names[i], coords[i]);
+			}
+			return centroid;
 		}
 
 	private:

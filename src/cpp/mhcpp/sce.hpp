@@ -128,34 +128,19 @@ namespace mhcpp
 		{
 		public:
 
-			SubComplex(const std::vector<IObjectiveScores<T>>& complexPopulation, IObjectiveEvaluator<T>* evaluator, int q, int alpha, 
-				IRandomNumberGeneratorFactory rng, 
-				IFitnessAssignment<double, T> fitnessAssignment, SceOptions options = SceOptions::RndInSubComplex, double contractionRatio=0.5, double reflectionRatio=-1.0)
+			SubComplex(const std::vector<IObjectiveScores<T>>& complexPopulation, IObjectiveEvaluator<T>* evaluator, int q, int alpha,
+				IRandomNumberGeneratorFactory rng, ICandidateFactory<T> * candidateFactory,
+				IFitnessAssignment<double, T> fitnessAssignment, SceOptions options = SceOptions::RndInSubComplex, double contractionRatio = 0.5, double reflectionRatio = -1.0)
 			{
-				std::vector<IObjectiveScores<T>> tmp;
-				for (size_t i = 0; i < q; i++)
-				{
-					tmp.push_back(complexPopulation[i]);
-				}
-				evolved = fitnessAssignment.AssignFitness(tmp);
-				for (size_t i = q; i < complexPopulation.size(); i++)
-				{
-					leftOutFromSubcomplex;
-				}
-
-				this->options= options;
-				this->evaluator= evaluator;
-				this->fitnessAssignment= fitnessAssignment;
-				this->ContractionRatio = contractionRatio;
-				this->ReflectionRatio = reflectionRatio;
-				this->alpha = alpha;
-				this->q = q;
+				Init(complexPopulation, evaluator, q, alpha, rng, candidateFactory, fitnessAssignment, options, contractionRatio, reflectionRatio);
 			}
 
 			SubComplex(Complex<T>& complex)
 			{
-				alpha = complex.alpha;
 				this->complex = &complex;
+				Init(complex.scores, complex.evaluator, complex.q, complex.alpha, 
+					complex.rng, complex.candidateFactory, complex.fitnessAssignment, 
+					complex.options, complex.ContractionRatio, complex.ReflectionRatio);
 			}
 
 			bool IsCancelledOrFinished()
@@ -242,6 +227,32 @@ namespace mhcpp
 			Complex<T>* complex = nullptr;
 			int alpha, q;
 			IRandomNumberGeneratorFactory rng;
+			ICandidateFactory<T> * cf = nullptr;
+
+			void Init(const std::vector<IObjectiveScores<T>>& complexPopulation, IObjectiveEvaluator<T>* evaluator, int q, int alpha,
+				IRandomNumberGeneratorFactory rng, ICandidateFactory<T> * candidateFactory,
+				IFitnessAssignment<double, T> fitnessAssignment, SceOptions options, double contractionRatio, double reflectionRatio)
+			{
+				std::vector<IObjectiveScores<T>> tmp;
+				for (size_t i = 0; i < q; i++)
+				{
+					tmp.push_back(complexPopulation[i]);
+				}
+				evolved = fitnessAssignment.AssignFitness(tmp);
+				for (size_t i = q; i < complexPopulation.size(); i++)
+				{
+					leftOutFromSubcomplex;
+				}
+
+				this->options = options;
+				this->evaluator = evaluator;
+				this->fitnessAssignment = fitnessAssignment;
+				this->ContractionRatio = contractionRatio;
+				this->ReflectionRatio = reflectionRatio;
+				this->alpha = alpha;
+				this->q = q;
+				this->cf = candidateFactory;
+			}
 
 			void clear(std::vector<FitnessAssignedScores<double, T>>& vec)
 			{
@@ -274,7 +285,7 @@ namespace mhcpp
 				return result;
 			}
 
-			static FitnessAssignedScores<double, T> findWorstPoint(const std::vector<FitnessAssignedScores<double, T>>& subComplex, std::vector<FitnessAssignedScores<double, T>>& pointRemoved)
+			static FitnessAssignedScores<double, T> findWorstPoint(std::vector<FitnessAssignedScores<double, T>>& subComplex, std::vector<FitnessAssignedScores<double, T>>& pointRemoved)
 			{
 				std::vector<FitnessAssignedScores<double, T>*> tmp = asPointers<FitnessAssignedScores<double, T>>(subComplex);
 				std::stable_sort(tmp.begin(), tmp.end(), FitnessAssignedScores<double, T>::BetterThanPtr);
@@ -289,12 +300,12 @@ namespace mhcpp
 			}
 
 			template<typename X>
-			static std::vector<X*> asPointers(const std::vector<X>& vec)
+			static std::vector<X*> asPointers(std::vector<X>& vec)
 			{
 				std::vector<X*> result;
 				for (size_t i = 0; i < vec.size(); i++)
 				{
-					auto e = vec[i];
+					X& e = vec[i];
 					result.push_back(&e);
 				}
 				return result;
@@ -515,7 +526,7 @@ namespace mhcpp
 			std::vector<FitnessAssignedScores<double, T>> addRandomInHypercube(const std::vector<FitnessAssignedScores<double, T>>& withoutWorstPoint, const std::vector<IObjectiveScores<T>>& popForHypercubeDefn)
 			{
 				auto tmp = convertAllToHyperCube(popForHypercubeDefn);
-				T newPoint; // = hyperCubeOps.GenerateRandomWithinHypercube(tmp);
+				T newPoint = this->cf->CreateRandomCandidate(tmp);
 							//if (newPoint == nullptr)
 							//{
 							//	auto msg = "Random point within hypercube bounds is unfeasible";
@@ -645,14 +656,18 @@ namespace mhcpp
 			int alpha;
 			int beta;
 			DiscreteRandomNumberGenerator* discreteGenerator;
+			IRandomNumberGeneratorFactory rng;
+			ICandidateFactory<T> * candidateFactory;
 			IFitnessAssignment<double, T> fitnessAssignment;
 			IObjectiveEvaluator<T>* evaluator;
 			// IHyperCubeOperations* hyperCubeOps;
 			ILoggerMh* logger = nullptr; // new Log4netAdapter();
 			string ComplexId;
+			double ContractionRatio;
+			double ReflectionRatio;
 
 			Complex(const std::vector<IObjectiveScores<T>>& scores, int m, int q, int alpha, int beta,
-				IObjectiveEvaluator<T>* evaluator, IRandomNumberGeneratorFactory rng,
+				IObjectiveEvaluator<T>* evaluator, IRandomNumberGeneratorFactory rng, ICandidateFactory<T>* candidateFactory,
 				IFitnessAssignment<double, T> fitnessAssignment, /*IHyperCubeOperations* hyperCubeOperations, */
 				ILoggerMh* logger = nullptr, std::map<string, string> tags = std::map<string, string>(), double factorTrapezoidalPDF = 1.8,
 				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
@@ -665,6 +680,7 @@ namespace mhcpp
 				this->alpha = alpha;
 				this->beta = beta;
 				this->fitnessAssignment = fitnessAssignment;
+				this->candidateFactory = candidateFactory;
 				//this->hyperCubeOps = hyperCubeOperations;
 				this->evaluator = evaluator;
 				this->logger = logger;
@@ -672,6 +688,7 @@ namespace mhcpp
 				this->factorTrapezoidalPDF = factorTrapezoidalPDF;
 				initialiseDiscreteGenerator(rng.Next());
 				this->options = options;
+				this->rng = rng;
 				this->ReflectionRatio = reflectionRatio;
 				this->ContractionRatio = contractionRatio;
 			}
@@ -719,8 +736,6 @@ namespace mhcpp
 					discreteGenerator = new DiscreteRandomNumberGenerator(seed);
 				discreteGenerator->initialiseTrapezoidal(factorTrapezoidalPDF, m);
 			}
-			double ContractionRatio;
-			double ReflectionRatio;
 
 		public:
 			const std::vector<IObjectiveScores<T>> GetObjectiveScores()
@@ -742,11 +757,13 @@ namespace mhcpp
 				ICandidateFactory<T>* populationInitializer,
 				ITerminationCondition<T>* terminationCondition,
 				const SceParameters& sceParameters,
-				IRandomNumberGeneratorFactory* rng = nullptr,
-				IFitnessAssignment<double, T>* fitnessAssignment = nullptr,
-				std::map<string, string>* logTags = nullptr)
+				IRandomNumberGeneratorFactory rng = IRandomNumberGeneratorFactory(),
+				IFitnessAssignment<double, T> fitnessAssignment = IFitnessAssignment<double, T>(),
+				const std::map<string, string>& logTags = std::map<string, string>())
 			{
 				Init(evaluator, populationInitializer, terminationCondition,
+					rng,
+					fitnessAssignment,
 					sceParameters.P,
 					sceParameters.Pmin,
 					sceParameters.M,
@@ -754,10 +771,8 @@ namespace mhcpp
 					sceParameters.Alpha,
 					sceParameters.Beta,
 					sceParameters.NumShuffle,
-					rng,
-					fitnessAssignment,
-					logTags,
 					sceParameters.TrapezoidalDensityParameter,
+					logTags,
 					SceOptions::None,
 					sceParameters.ReflectionRatio,
 					sceParameters.ContractionRatio);
@@ -766,6 +781,8 @@ namespace mhcpp
 			void Init(IObjectiveEvaluator<T>* evaluator,
 				ICandidateFactory<T>* populationInitializer,
 				ITerminationCondition<T>* terminationCondition,
+				IRandomNumberGeneratorFactory rng,
+				IFitnessAssignment<double, T> fitnessAssignment,
 				int p = 5,
 				int pmin = 5,
 				int m = 13,
@@ -773,10 +790,8 @@ namespace mhcpp
 				int alpha = 3,
 				int beta = 13,
 				int numShuffle = 15,
-				IRandomNumberGeneratorFactory* rng = nullptr,
-				IFitnessAssignment<double, T>* fitnessAssignment = nullptr,
-				std::map<string, string>* logTags = nullptr,
 				double trapezoidalPdfParam = 1.8,
+				const std::map<string, string>& logTags = std::map<string, string>(),
 				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
 			{
 				if (m < 2)
@@ -804,8 +819,7 @@ namespace mhcpp
 				this->fitnessAssignment = fitnessAssignment;
 				//if (this->fitnessAssignment == nullptr)
 				//	this->fitnessAssignment = new DefaultFitnessAssignment();
-				if (logTags != nullptr)
-					this->logTags = *logTags;
+				this->logTags = logTags;
 				this->trapezoidalPdfParam = trapezoidalPdfParam;
 				this->options = options;
 				this->ReflectionRatio = reflectionRatio;
@@ -866,8 +880,8 @@ namespace mhcpp
 			IObjectiveEvaluator<T>* evaluator;
 			ICandidateFactory<T>* populationInitializer;
 			ITerminationCondition<T>* terminationCondition;
-			IRandomNumberGeneratorFactory* rng;
-			IFitnessAssignment<double, T>* fitnessAssignment;
+			IRandomNumberGeneratorFactory rng;
+			IFitnessAssignment<double, T> fitnessAssignment;
 			double trapezoidalPdfParam;
 
 			ILoggerMh* Logger;
@@ -1243,21 +1257,25 @@ namespace mhcpp
 			Complex<T>* createComplex(std::vector<IObjectiveScores<T>> scores)
 			{
 				IHyperCubeOperationsFactory* hyperCubeOperationsFactory = dynamic_cast<IHyperCubeOperationsFactory*>(populationInitializer);
-				if (hyperCubeOperationsFactory == nullptr)
-					throw std::logic_error("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
+				//if (hyperCubeOperationsFactory == nullptr)
+				//	throw std::logic_error("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
 
 				//auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", std::to_string(this->CurrentShuffle))));
 
-				//auto complex = new DefaultComplex(scores, m, q, alpha, beta,
+				return new Complex<T>(scores, m, q, alpha, beta,
+					evaluator, rng, populationInitializer,
+					fitnessAssignment, /*IHyperCubeOperations* hyperCubeOperations, */
+					nullptr, std::map<string, string>(), trapezoidalPdfParam,
+					options, this->ReflectionRatio, this->ContractionRatio);
+
+				//auto complex = new Complex<T>(scores, m, q, alpha, beta,
 				//	(evaluator->SupportsThreadSafeCloning ? evaluator->Clone() : evaluator),
 				//	rng.CreateFactory(),
 				//	getFitnessAssignment(), hyperCubeOperationsFactory.CreateNew(this->rng), logger: this->logger,
-				//tags : loggerTags, factorTrapezoidalPDF : this->trapezoidalPdfParam,
+				//	tags : loggerTags, factorTrapezoidalPDF : this->trapezoidalPdfParam,
 				//   options : this->options, reflectionRatio : this->ReflectionRatio, contractionRatio : this->ContractionRatio);
 
 				//complex.TerminationCondition = createMaxWalltimeCondition(this->terminationCondition);
-				Complex<T>* complex = nullptr;
-				return complex;
 			}
 
 			// https://github.com/jmp75/metaheuristics/issues/3
@@ -1288,7 +1306,7 @@ namespace mhcpp
 
 			IFitnessAssignment<double, T> getFitnessAssignment()
 			{
-				return IFitnessAssignment<double, T>(*fitnessAssignment);
+				return IFitnessAssignment<double, T>(fitnessAssignment);
 			}
 
 			static std::vector<IObjectiveScores<T>> getScores(const std::vector<FitnessAssignedScores<double, T>>& fitnessedScores)
