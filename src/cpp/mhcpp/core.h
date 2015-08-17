@@ -4,91 +4,13 @@
 #include <vector>
 #include <map>
 #include <random>
-#include <boost/random.hpp>
+#include "random.hpp"
 #include "utils.h"
 
 using namespace std;
 
 namespace mhcpp
 {
-
-	class IRandomNumberGeneratorFactory
-	{
-
-	private:
-		/** \brief	A random number generator factory. */
-
-		template<class RNG = std::mt19937>
-		class RandomNumberGeneratorFactory
-		{
-		private:
-			RNG seedEngine;
-		public:
-			typedef RNG engine_type; // No typename needed here. See http://stackoverflow.com/questions/6489351/nested-name-specifier
-
-									 //	http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
-
-			RandomNumberGeneratorFactory(int seed) : seedEngine(seed)
-			{
-			}
-
-			virtual ~RandomNumberGeneratorFactory()
-			{
-			}
-
-			RNG * CreateNewEngine()
-			{
-				return new RNG(seedEngine());
-			}
-
-			RandomNumberGeneratorFactory<RNG> * CreateNewFactory()
-			{
-				return new RandomNumberGeneratorFactory<RNG>(seedEngine());
-			}
-
-			unsigned int operator()() {
-				return seedEngine();
-			}
-
-			template<class DistributionType = std::uniform_real_distribution<double>>
-			static boost::variate_generator<RNG*, DistributionType> * CreateVariateGenerator(RandomNumberGeneratorFactory<RNG>& rngf, DistributionType& dist)
-			{
-				return new boost::variate_generator<RNG*, DistributionType>(rngf.CreateNewEngine(), dist);
-			}
-
-		};
-
-		RandomNumberGeneratorFactory<> rng;
-
-	public:
-		IRandomNumberGeneratorFactory() : rng(0)
-		{
-		}
-		IRandomNumberGeneratorFactory(unsigned int seed) : rng(seed)
-		{
-		}
-		unsigned int Next()
-		{ 
-			return rng(); 
-		}
-
-		IRandomNumberGeneratorFactory CreateNew()
-		{
-			return IRandomNumberGeneratorFactory(Next());
-		}
-
-		std::mt19937 CreateNewStd()
-		{
-			return std::mt19937(Next());
-		}
-
-		// http://stackoverflow.com/questions/7166799/specialize-template-function-for-template-class
-		template<class DistributionType = std::uniform_real_distribution<double>>
-		boost::variate_generator<std::mt19937, DistributionType> * CreateVariateGenerator(DistributionType& dist)
-		{
-			return new boost::variate_generator<std::mt19937, DistributionType>(CreateNewStd(), dist);
-		}
-	};
 
 	class ISystemConfiguration
 	{
@@ -108,20 +30,11 @@ namespace mhcpp
 	};
 
 	/// <summary>
-	/// Interface for system configurations that support cloning. Helps to support parallelism in solvers.
-	/// </summary>
-	class ICloneableSystemConfiguration : public ISystemConfiguration //, ICloningSupport<ICloneableSystemConfiguration>
-	{
-	public:
-		virtual ~ICloneableSystemConfiguration() {}
-	};
-
-	/// <summary>
 	/// Interface for system configurations that are a set of numeric parameters, each with min and max feasible values.
 	/// </summary>
 	/// <typeparam name="T">A comparable type; typically a float or double, but possibly integer or more esoteric type</typeparam>
-	template<typename T>
-	class IHyperCube : public ICloneableSystemConfiguration //where T : IComparable
+	template<typename T=double>
+	class IHyperCube : public ISystemConfiguration //where T : IComparable
 	{
 	public:
 		virtual ~IHyperCube() {}
@@ -163,17 +76,9 @@ namespace mhcpp
 		/// <param name="variableName"></param>
 		/// <param name="value"></param>
 		virtual void SetValue(string variableName, T value) = 0;
-
-		/// <summary>
-		/// Perform a homotetic transformation centered around this hypercube, of a second hypercube.
-		/// </summary>
-		/// <param name="point">The hypercube from which to derive. This object must not be modified by the method.</param>
-		/// <param name="factor">The factor in the homotecie. a value 1 leaves the effectively point unchanged</param>
-		/// <returns>A new instance of an hypercube, result of the transformation</returns>
-		//virtual IHyperCube<T> HomotheticTransform(IHyperCube<T> point, double factor) = 0;
 	};
 
-	template<typename T>
+	template<typename T=double>
 	class IHyperCubeSetBounds : public IHyperCube < T > //where T : IComparable
 	{
 	public:
@@ -183,69 +88,14 @@ namespace mhcpp
 		virtual void SetMinMaxValue(string variableName, T min, T max, T value) = 0;
 	};
 
-	//class IObjectiveScore
-	//{
-	//public:
-	//	virtual ~IObjectiveScore() {}
-	//	/// <summary>
-	//	/// Gets whether this objective is a maximizable one (higher is better).
-	//	/// </summary>
-	//	virtual bool Maximise() = 0;
-
-	//	/// <summary>
-	//	/// Get a text represtattion of this score
-	//	/// </summary>
-	//	/// <returns></returns>
-	//	virtual string GetText() = 0;
-
-	//	/// <summary>
-	//	/// Get name of the objective measure, typically a bivariate statistic.
-	//	/// </summary>
-	//	virtual string Name() = 0;
-
-	//	// /// <summary>
-	//	// /// Gets the value of the objective. Inheritors should return the real value, and not worry about negating or not. This is taken care elsewhere.
-	//	// /// </summary>
-	//	// T Value() = 0;
-	//};
-
-	//bool operator==(const IObjectiveScore &a, const double &b)
-	//{
-	//	return false; // a.GetObjective(0)->Value();
-	//}
-
-	//template<typename T = double>
-	//class ObjectiveScore : public IObjectiveScore
-	//{
-	//public:
-	//	ObjectiveScore(T value)
-	//	{
-	//		this->value = value;
-	//	}
-	//	bool Maximise() { return this->maximise; }
-	//	string GetText() { return string(""); } // +value;	}
-	//	string Name() { return string(""); }
-	//	T Value() { return value; }
-	//private:
-	//	bool maximise;
-	//	T value;
-	//};
-
-
-	/// <summary>
-	/// An interface for one or more objective scores derived from the evaluation of a candidate system configuration.
-	/// </summary>
-	/// <remarks>This interface is defined without generics on purpose, to reduce complexity. Limits the unnecessary proliferation of generic classes</remarks>
-	class IBaseObjectiveScores
+	template<typename TSysConfig>
+	class ICandidateFactory
 	{
 	public:
-		virtual ~IBaseObjectiveScores() {}
-
-		///// <summary>
-		///// Gets the system configuration that led to these scores.
-		///// </summary>
-		///// <returns></returns>
-		//virtual ISystemConfiguration * GetSystemConfiguration() = 0;
+		virtual ~ICandidateFactory() {}
+		virtual TSysConfig CreateRandomCandidate() = 0;
+		virtual TSysConfig CreateRandomCandidate(const TSysConfig& point) = 0;
+		virtual TSysConfig CreateRandomCandidate(const std::vector<TSysConfig>& points) = 0;
 	};
 
 	/// <summary>
@@ -268,6 +118,10 @@ namespace mhcpp
 			this->objectives = src.objectives;
 		}
 
+		IObjectiveScores() {}
+
+		virtual ~IObjectiveScores() {}
+
 		IObjectiveScores<TSysConf>& operator=(const IObjectiveScores<TSysConf> &src)
 		{
 			if (&src == this){
@@ -288,10 +142,6 @@ namespace mhcpp
 			return *this;
 		}
 
-		IObjectiveScores() {}
-
-		virtual ~IObjectiveScores() {}
-
 		/// <summary>
 		/// Gets the system configuration that led to these scores.
 		/// </summary>
@@ -301,14 +151,6 @@ namespace mhcpp
 		/// Gets the number of objective scores in this instance.
 		/// </summary>
 		virtual size_t ObjectiveCount() const { return this->objectives.size(); }
-		//virtual size_t ObjectiveCount() = 0;
-
-		// /// <summary>
-		// /// Gets one of the objective 
-		// /// </summary>
-		// /// <param name="i">zero-based inex of the objective</param>
-		// /// <returns></returns>
-		// virtual IObjectiveScore * GetObjective(int i) = 0;
 
 		virtual double Value(int i) const { return objectives[i].Value; } //= 0;
 
@@ -317,6 +159,7 @@ namespace mhcpp
 		{
 		public:
 			ObjectiveValue(){}
+
 			ObjectiveValue(string name, double value, bool maximizable) :
 				Name(name), Value(value), Maximizable(maximizable)
 			{
@@ -336,31 +179,11 @@ namespace mhcpp
 
 	};
 
-	//template<typename TSysConf>
-	//bool operator==(const IObjectiveScores<TSysConf> &a, const double &b) 
-	//{ 
-	//	return a.GetObjective(0)->Value(); 
-	//}
-	//template<typename TSysConf>
-	//bool operator==(const double &a, const IObjectiveScores<TSysConf> &b) 
-	//{ 
-	//	return false;
-	//}
-
-	template<typename T>
-	class ICandidateFactory
-	{
-	public:
-		virtual ~ICandidateFactory() {}
-		virtual T CreateRandomCandidate() = 0;
-		virtual T CreateRandomCandidate(std::vector<T> points) = 0;
-	};
-
 	template<typename TSysConfig>
 	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
 	{
 	public:
-		UniformRandomSamplingFactory(IRandomNumberGeneratorFactory rng, const TSysConfig& t)
+		UniformRandomSamplingFactory(const IRandomNumberGeneratorFactory& rng, const TSysConfig& t)
 		{
 			this->rng = rng;
 			//if (!t.SupportsThreadSafloning)
@@ -374,9 +197,15 @@ namespace mhcpp
 		{
 			this->rng = src.rng;
 			this->t = src.t;
-			//this->hcOps = CreateIHyperCubeOperations();
 			SetSampler();
 		}
+
+		//UniformRandomSamplingFactory(const UniformRandomSamplingFactory&& src)
+		//{
+		//	std::swap(this->rng, src.rng);
+		//	std::swap(this->t, src.t);
+		//	SetSampler();
+		//}
 
 		UniformRandomSamplingFactory& operator=(const UniformRandomSamplingFactory &src)
 		{
@@ -415,7 +244,7 @@ namespace mhcpp
 			return CreateRandomCandidate(t);
 		}
 
-		TSysConfig CreateRandomCandidate(TSysConfig bounds)
+		TSysConfig CreateRandomCandidate(const TSysConfig& bounds)
 		{
 			TSysConfig rt(t);
 			for (auto& vname : rt.GetVariableNames())
@@ -427,7 +256,7 @@ namespace mhcpp
 			return rt;
 		}
 
-		TSysConfig CreateRandomCandidate(vector<TSysConfig> population)
+		TSysConfig CreateRandomCandidate(const vector<TSysConfig>& population)
 		{
 			TSysConfig bounds(t);
 			for (auto& vname : bounds.GetVariableNames())
@@ -526,9 +355,6 @@ namespace mhcpp
 		/// </summary>
 		T FitnessValue() const { return fitnessValue; }
 
-		IObjectiveScores<TSys> scores;
-		T fitnessValue;
-
 		/// <summary>
 		/// Compares two FitnessAssignedScores<T>.
 		/// </summary>
@@ -568,6 +394,12 @@ namespace mhcpp
 		{
 			return FitnessValue().ToString() + ", " + Scores.ToString();
 		}
+
+	private:
+		
+		IObjectiveScores<TSys> scores;
+		T fitnessValue;
+
 	};
 
 	template<typename TVal, typename TSys>
@@ -596,82 +428,6 @@ namespace mhcpp
 		virtual IObjectiveScores<TSysConf> EvaluateScore(TSysConf systemConfiguration) = 0;
 		virtual bool IsCloneable() { return false; }
 	};
-
-	/// <summary>
-	/// A superset of the <see cref="IObjectiveEvaluator"/> interface that is clonable, most notably to spawn evaluators that are thread safe.
-	/// </summary>
-	/// <typeparam name="T"></typeparam>
-	/// <remarks>
-	/// This interface is used for instance by the parallel version of the shuffled complex evolution algorithm, 
-	/// when spawning complexes that will be run in parallel and for which we want thread safe structures, 
-	/// e.g. not sharing the same model runner.
-	/// </remarks>
-	//template<typename TSysConf>
-	//class IClonableObjectiveEvaluator<TSysConf> :
-	//	IObjectiveEvaluator<TSysConf> //, ICloningSupport<IClonableObjectiveEvaluator<TSysConf>>
-	//	//		where TSysConf : ISystemConfiguration
-	//{
-	//};
-
-	///// <summary>
-	///// Interface for scores used to quantify the performance of a system, defining the type of the score.
-	///// </summary>
-	///// <typeparam name="T">The type of the objective (score) value, e.g. double, int, float</typeparam>
-	//template<typename T>
-	//class IObjectiveScore //<out T> where T : IComparable
-	//{
-	//public:
-	//	virtual ~Class() {}
-	//	/// <summary>
-	//	/// Gets the value of the objective.
-	//	/// </summary>
-	//	virtual T Value() = 0;
-	//};
-
-
-	/// <summary>
-	/// An interface for population based search algorithms
-	/// </summary>
-	/// <typeparam name="V">The type of the fitness score used to evolve the algorithm</typeparam>
-	//template<typename V>
-	//class IPopulation
-	//	//		where V : IComparable
-	//{
-	//public:
-	//	virtual ~IPopulation() {}
-	//	FitnessAssignedScores<V>[] Population() = 0;
-	//};
-
-
-	/// <summary>
-	/// An interface for constructs where the optimization problem is given to a solver, and ready to execute.
-	/// </summary>
-	//template<typename TSysConf>
-	//class IEvolutionEngine
-	//{
-	//public:
-	//	virtual ~IEvolutionEngine() {}
-	//	/// TODO: think of ways to monitor the execution.
-
-	//	/// <summary>
-	//	/// Solve the metaheuristic this object defines.
-	//	/// </summary>
-	//	/// <returns>The results of the optimization process</returns>
-	//	virtual IOptimizationResults<TSysConf> Evolve() = 0;
-
-	//	/// <summary>
-	//	/// Gets a description of this solver
-	//	/// </summary>
-	//	/// <returns></returns>
-	//	virtual string GetDescription() = 0;
-
-	//	/// <summary>
-	//	/// Request a cancellation of the process.
-	//	/// </summary>
-	//	virtual void Cancel() = 0;
-
-	//};
-
 
 	template<typename T>
 	class HyperCube : public IHyperCube<T> //where T : IComparable
@@ -764,20 +520,20 @@ namespace mhcpp
 	};
 
 
-	class IHyperCubeOperations
-	{
-		//virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
-		//virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
-		//virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
-	};
+	//class IHyperCubeOperations
+	//{
+	//	//virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
+	//	//virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
+	//	//virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
+	//};
 
-	class IHyperCubeOperationsFactory
-	{
-	public:
-		//IHyperCubeOperations CreateNew(IRandomNumberGeneratorFactory rng) {
-		//	return IHyperCubeOperations();
-		//}
-		virtual IHyperCubeOperations* CreateNew(IRandomNumberGeneratorFactory rng) = 0;
-	};
+	//class IHyperCubeOperationsFactory
+	//{
+	//public:
+	//	//IHyperCubeOperations CreateNew(IRandomNumberGeneratorFactory rng) {
+	//	//	return IHyperCubeOperations();
+	//	//}
+	//	virtual IHyperCubeOperations* CreateNew(IRandomNumberGeneratorFactory rng) = 0;
+	//};
 
 }

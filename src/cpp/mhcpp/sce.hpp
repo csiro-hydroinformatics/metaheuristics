@@ -14,7 +14,7 @@ namespace mhcpp
 		/// </summary>
 		class ILoggerMh
 		{
-			virtual void Write(std::vector<IBaseObjectiveScores> scores, std::map<string, string> tags) = 0;
+			//virtual void Write(std::vector<IBaseObjectiveScores> scores, std::map<string, string> tags) = 0;
 			//virtual void Write(FitnessAssignedScores<double> worstPoint, std::map<string, string> tags) = 0;
 			virtual void Write(IHyperCube<double>* newPoint, std::map<string, string> tags) = 0;
 			virtual void Write(string message, std::map<string, string> tags) = 0;
@@ -1256,7 +1256,7 @@ namespace mhcpp
 
 			Complex<T>* createComplex(std::vector<IObjectiveScores<T>> scores)
 			{
-				IHyperCubeOperationsFactory* hyperCubeOperationsFactory = dynamic_cast<IHyperCubeOperationsFactory*>(populationInitializer);
+				//IHyperCubeOperationsFactory* hyperCubeOperationsFactory = dynamic_cast<IHyperCubeOperationsFactory*>(populationInitializer);
 				//if (hyperCubeOperationsFactory == nullptr)
 				//	throw std::logic_error("Currently SCE uses an implementation of a 'complex' that needs a population initializer that implements IHyperCubeOperationsFactory");
 
