@@ -5,7 +5,7 @@
 #include <map>
 #include <random>
 #include "random.hpp"
-#include "utils.h"
+#include "utils.hpp"
 
 using namespace std;
 
@@ -96,6 +96,7 @@ namespace mhcpp
 		virtual TSysConfig CreateRandomCandidate() = 0;
 		virtual TSysConfig CreateRandomCandidate(const TSysConfig& point) = 0;
 		virtual TSysConfig CreateRandomCandidate(const std::vector<TSysConfig>& points) = 0;
+		virtual ICandidateFactory<TSysConfig>* CreateNew() = 0;
 	};
 
 	/// <summary>
@@ -182,30 +183,41 @@ namespace mhcpp
 	template<typename TSysConfig>
 	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
 	{
-	public:
+
+		static unsigned int CreateSamplerSeed(const IRandomNumberGeneratorFactory& rng)
+		{
+			auto tmp_rng = rng;
+			unsigned int s = tmp_rng.Next();
+			unsigned int samplerSeed = s ^ 0xFFFFFFFF;
+			return samplerSeed;
+		}
+		public:
 		UniformRandomSamplingFactory(const IRandomNumberGeneratorFactory& rng, const TSysConfig& t)
 		{
 			this->rng = rng;
+			unsigned int samplerSeed = CreateSamplerSeed(rng);
 			//if (!t.SupportsThreadSafloning)
 			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
 			this->t = t;
 			//this->hcOps = CreateIHyperCubeOperations();
-			SetSampler();
+			SetSampler(samplerSeed);
 		}
 
 		UniformRandomSamplingFactory(const UniformRandomSamplingFactory& src)
 		{
 			this->rng = src.rng;
 			this->t = src.t;
-			SetSampler();
+			unsigned int samplerSeed = CreateSamplerSeed(rng);
+			SetSampler(samplerSeed);
 		}
 
-		//UniformRandomSamplingFactory(const UniformRandomSamplingFactory&& src)
-		//{
-		//	std::swap(this->rng, src.rng);
-		//	std::swap(this->t, src.t);
-		//	SetSampler();
-		//}
+		UniformRandomSamplingFactory(const UniformRandomSamplingFactory&& src)
+		{
+			this->rng = std::move(src.rng);
+			this->t = std::move(src.t);
+			unsigned int samplerSeed = CreateSamplerSeed(rng);
+			SetSampler(samplerSeed);
+		}
 
 		UniformRandomSamplingFactory& operator=(const UniformRandomSamplingFactory &src)
 		{
@@ -222,8 +234,8 @@ namespace mhcpp
 			if (&src == this) {
 				return *this;
 			}
-			std::swap(this->rng, src.rng);
-			std::swap(this->t , src.t);
+			this->rng = std::move(src.rng);
+			this->t = std::move(src.t);
 			return *this;
 		}
 
@@ -232,6 +244,13 @@ namespace mhcpp
 			if (sampler != nullptr) {
 				delete sampler; sampler = nullptr;
 			}
+		}
+
+		bool Equals(const UniformRandomSamplingFactory& other) const
+		{
+			bool samplerRngEquals = sampler->engine()._Equals(sampler->engine());
+			bool rngEquals = this->rng.Equals(other.rng);
+			return rngEquals && samplerRngEquals;
 		}
 
 		//IHyperCubeOperations CreateNew(const IRandomNumberGeneratorFactory& rng)
@@ -275,12 +294,17 @@ namespace mhcpp
 			return CreateRandomCandidate(bounds);
 		}
 
+		ICandidateFactory<TSysConfig>* CreateNew()
+		{
+			return new UniformRandomSamplingFactory<TSysConfig>(this->rng.CreateNew(), this->t);
+		}
+
 	private:
 
-		void SetSampler()
+		void SetSampler(unsigned int seed)
 		{
 			std::uniform_real_distribution<double> dist(0, 1);
-			sampler = rng.CreateVariateGenerator<std::uniform_real_distribution<double>>(dist);
+			sampler = rng.CreateVariateGenerator<std::uniform_real_distribution<double>>(dist, seed);
 		}
 
 		double Urand()
@@ -294,7 +318,6 @@ namespace mhcpp
 
 		boost::variate_generator<std::mt19937, std::uniform_real_distribution<double>> * sampler = nullptr;
 		IRandomNumberGeneratorFactory rng;
-		//TSysConfig* t = nullptr;
 		TSysConfig t;
 	};
 

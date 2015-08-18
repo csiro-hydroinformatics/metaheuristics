@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iterator>
 #include "catch.hpp"
-#include "../mhcpp/core.h"
+#include "../mhcpp/core.hpp"
 #include "../mhcpp/sce.hpp"
 
 using namespace mhcpp;
@@ -21,9 +21,9 @@ HyperCube<double> createTestHc(double a, double b, double aMin = 1, double bMin 
 	return hc;
 }
 
-SCENARIO("basic hypercubes", "[sysconfig]") {
+SCENARIO("Basic hypercubes", "[sysconfig]") {
 
-	GIVEN("A 2 dimensional hypercube (Yeah, square...)")
+	GIVEN("A 2 dimensional hypercube")
 	{
 		HyperCube<double> hc = createTestHc(1.5, 3.3);
 		vector<string> keys;
@@ -50,7 +50,6 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 			hc.SetMinValue("b", 0);
 			hc.SetMaxValue("b", 10);
 
-
 			REQUIRE(hc.GetValue("a") == 1.1);
 			REQUIRE(hc.GetValue("b") == 5);
 			REQUIRE(hc.GetMinValue("a") == 0.5);
@@ -63,9 +62,75 @@ SCENARIO("basic hypercubes", "[sysconfig]") {
 
 bool assertHyperCube(const HyperCube<double>& hc, double a, double b, double tolerance = 1.0e-9)
 {
-	return 
-		(std::abs(hc.GetValue("a") - a) < tolerance) && 
+	return
+		(hc.Dimensions() == 2) &&
+		(std::abs(hc.GetValue("a") - a) < tolerance) &&
 		(std::abs(hc.GetValue("b") - b) < tolerance);
+}
+
+bool isIn(const std::string& s, const std::vector<std::string>& b)
+{
+	return (std::find(b.begin(), b.end(), s) != b.end());
+}
+
+bool allIn(const std::vector<std::string>& a, const std::vector<std::string>& b)
+{
+	for (auto s : a)
+	{
+		if (!isIn(s, b))
+			return false;
+	}
+	return true;
+}
+
+bool sameSets(const std::vector<std::string>& a, const std::vector<std::string>& b)
+{
+	if (a.size() != b.size()) return false;
+	if (!allIn(a, b)) return false;
+	if (!allIn(b, a)) return false;
+	return true;
+}
+
+bool sameValues(const std::vector<std::string>& keys, const HyperCube<double>& a, const HyperCube<double>& b)
+{
+	for (auto& s : keys)
+		if (a.GetValue(s) != b.GetValue(s)) 
+			return false;
+	return true;
+}
+
+bool sameMinValues(const std::vector<std::string>& keys, const HyperCube<double>& a, const HyperCube<double>& b)
+{
+	for (auto& s : keys)
+		if (a.GetMinValue(s) != b.GetMinValue(s))
+			return false;
+	return true;
+}
+
+bool sameMaxValues(const std::vector<std::string>& keys, const HyperCube<double>& a, const HyperCube<double>& b)
+{
+	for (auto& s : keys)
+		if (a.GetMaxValue(s) != b.GetMaxValue(s))
+			return false;
+	return true;
+}
+
+bool assertEqual(const HyperCube<double>& a, const HyperCube<double>& b)
+{
+	return
+		(a.Dimensions() == b.Dimensions()) &&
+		(sameSets(a.GetVariableNames(), b.GetVariableNames())) &&
+		(sameValues(a.GetVariableNames(), a, b)) &&
+		(sameMinValues(a.GetVariableNames(), a, b)) &&
+		(sameMaxValues(a.GetVariableNames(), a, b));
+}
+
+bool assertValuesNotEqual(const HyperCube<double>& a, const HyperCube<double>& b)
+{
+	return
+		(a.Dimensions() == b.Dimensions()) &&
+		(sameSets(a.GetVariableNames(), b.GetVariableNames())) &&
+		(!sameValues(a.GetVariableNames(), a, b));
 }
 
 SCENARIO("Calculation of a centroid", "[sysconfig]") {
@@ -76,55 +141,132 @@ SCENARIO("Calculation of a centroid", "[sysconfig]") {
 		points.push_back(createTestHc(1.1, 2.1));
 		points.push_back(createTestHc(1.2, 2.2));
 		auto c = HyperCube<double>::GetCentroid(points);
-		REQUIRE(assertHyperCube(c, 1.15, 2.15));
+		WHEN("Population of two points") {
+			THEN("Expected barycentre"){
+				REQUIRE(assertHyperCube(c, 1.15, 2.15));
+			}
+		}
 		points.push_back(createTestHc(1.9, 2.6));
 		c = HyperCube<double>::GetCentroid(points);
-		REQUIRE(assertHyperCube(c, 1.4, 2.3));
-
+		WHEN("Population of three points") {
+			THEN("Expected barycentre"){
+				REQUIRE(assertHyperCube(c, 1.4, 2.3));
+			}
+		}
 	}
 }
 
 SCENARIO("Basic objective evaluator", "[objectives]") {
 
-	GIVEN("Single-value score")
+	GIVEN("Single-objective calculator, L2 distance")
 	{
-		HyperCube<double> hc = createTestHc(1.5, 3.3 );
+		HyperCube<double> hc = createTestHc(1.5, 3.3);
 		HyperCube<double> goal = createTestHc(1, 3);
 
 		//IObjectiveEvaluator<HyperCube < double > >* evaluator = new TopologicalDistance<HyperCube < double > >(goal);
 		TopologicalDistance<HyperCube < double > > evaluator(goal);
 
-		IObjectiveScores<HyperCube<double>> scores = evaluator.EvaluateScore(hc);
-		WHEN("") {
-			REQUIRE(scores.ObjectiveCount() == 1);
-			REQUIRE(scores.Value(0) == std::sqrt(0.25 + 0.09));
+		WHEN("Evaluating distance") {
+			IObjectiveScores<HyperCube<double>> scores = evaluator.EvaluateScore(hc);
+			THEN("Gets one objective value with expected value"){
+				REQUIRE(scores.ObjectiveCount() == 1);
+				REQUIRE(scores.Value(0) == std::sqrt(0.25 + 0.09));
+			}
 		}
 	}
 }
 
 SCENARIO("RNG basics", "[rng]") {
+	IRandomNumberGeneratorFactory factory(123);
+	GIVEN("A random integer generator IRandomNumberGeneratorFactory")
+	{
+		WHEN("Another is created with a different seed") {
+			IRandomNumberGeneratorFactory f2(456);
+			THEN("The sequence of random numbers is different")
+			{
+				REQUIRE_FALSE(factory.Equals(f2));
+				auto x1 = factory.Next(10);
+				auto x2 = f2.Next(10);
+				REQUIRE(x1[0] != x1[1]);
+				for (size_t i = 0; i < 10; i++)
+					REQUIRE(x1[i] != x2[i]);
+			}
+		}
+		WHEN("A copy is created by assignment") {
+			IRandomNumberGeneratorFactory f2 = factory;
+			THEN("The sequence of random numbers is the same")
+			{
+				REQUIRE(factory.Equals(f2));
+				auto x1 = factory.Next(10);
+				auto x2 = f2.Next(10);
+				REQUIRE(x1[0] != x1[1]);
+				for (size_t i = 0; i < 10; i++)
+					REQUIRE(x1[i] == x2[i]);
+			}
+		}
+	}
+}
+
+SCENARIO("URS RNG basics", "[rng]") {
 	HyperCube<double> hc;
 	hc.Define("a", 1, 2, 1.5);
 	hc.Define("b", 3, 4, 3.3);
-	auto rng = UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
-	HyperCube<double> p = rng.CreateRandomCandidate();
+	GIVEN("An uniform random sampler")
+	{
+		auto rng = UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
 
-	REQUIRE(p.GetMinValue("a") == 1.0);
-	REQUIRE(p.GetMaxValue("a") == 2.0);
-	REQUIRE(p.GetMinValue("b") == 3.0);
-	REQUIRE(p.GetMaxValue("b") == 4.0);
-	REQUIRE(p.GetValue("a") != 1.5);
-	REQUIRE(p.GetValue("b") != 3.3);
+		WHEN("Creating a random point with default template") {
+			HyperCube<double> p = rng.CreateRandomCandidate();
+			THEN("Feasible parameter space is the same as the template, but values are different from template")
+			{
+				REQUIRE(p.GetMinValue("a") == 1.0);
+				REQUIRE(p.GetMaxValue("a") == 2.0);
+				REQUIRE(p.GetMinValue("b") == 3.0);
+				REQUIRE(p.GetMaxValue("b") == 4.0);
 
-	REQUIRE(p.GetValue("a") >= 1.0);
-	REQUIRE(p.GetValue("b") >= 3.0);
+				REQUIRE(assertValuesNotEqual(p, hc));
 
-	REQUIRE(p.GetValue("a") <= 2.0);
-	REQUIRE(p.GetValue("b") <= 4.0);
+				REQUIRE(p.GetValue("a") >= 1.0);
+				REQUIRE(p.GetValue("b") >= 3.0);
+
+				REQUIRE(p.GetValue("a") <= 2.0);
+				REQUIRE(p.GetValue("b") <= 4.0);
+			}
+		}
+
+		WHEN("A copy of the URS factory is made, and samples taken from each") {
+			auto rngCopy = rng;
+			THEN("The sampled values are the same as returned by the original one") {
+				REQUIRE(rng.Equals(rngCopy));
+			}
+			auto p1 = rng.CreateRandomCandidate();
+			auto p2 = rngCopy.CreateRandomCandidate();
+			THEN("The sampled values are the same as returned by the original one") {
+				REQUIRE(rng.Equals(rngCopy));
+				REQUIRE(assertEqual(p1, p2));
+				REQUIRE(assertValuesNotEqual(p2, hc));
+			}
+			AND_WHEN("A new factory is created from these existing ones") {
+				auto urs1 = rng.CreateNew();
+				auto urs2 = rngCopy.CreateNew();
+				auto p1_2 = urs1->CreateRandomCandidate();
+				auto p2_2 = urs2->CreateRandomCandidate();
+				THEN("The sampled values from these two new factories are identical") {
+					REQUIRE(assertEqual(p1_2, p2_2));
+				}
+				AND_THEN("But differ from ones from the original factories") {
+					REQUIRE(assertValuesNotEqual(p1_2, p1));
+					REQUIRE(assertValuesNotEqual(p2_2, p2));
+				}
+				delete urs1;
+				delete urs2;
+			}
+		}
+	}
 }
 
 template<typename T>
-UniformRandomSamplingFactory<T> createTestUnifrand(int seed=0)
+UniformRandomSamplingFactory<T> createTestUnifrand(int seed = 0)
 {
 	IRandomNumberGeneratorFactory rng(seed);
 	HyperCube<double> goal = createTestHc(1.5, 3.4);
@@ -149,7 +291,7 @@ std::vector < IObjectiveScores<T> >createTestScores(int m, int seed = 0)
 SCENARIO("Sub-Complex for SCE", "[optimizer]") {
 	GIVEN("A 2D Hypercube")
 	{
-		using T = HyperCube < double >;
+		using T = HyperCube < double > ;
 		int m = 20;
 		int q = 10, alpha = 1, beta = 1;
 		IRandomNumberGeneratorFactory rng(2);
@@ -164,7 +306,7 @@ SCENARIO("Sub-Complex for SCE", "[optimizer]") {
 
 		SubComplex<T> scplx
 			(scores, &evaluator, q, alpha, rng, &unif,
-				fitnessAssignment);
+			fitnessAssignment);
 
 		// Create a subcomplex. 
 		// The wirst point found is the expected one.
@@ -178,7 +320,7 @@ SCENARIO("Sub-Complex for SCE", "[optimizer]") {
 SCENARIO("Complex for SCE", "[optimizer]") {
 	GIVEN("A 2D Hypercube")
 	{
-		using T = HyperCube < double >;
+		using T = HyperCube < double > ;
 
 		int m = 20;
 		int q = 10, alpha = 1, beta = 1;
@@ -195,8 +337,8 @@ SCENARIO("Complex for SCE", "[optimizer]") {
 
 		Complex<T> cplx
 			(scores, m, q, alpha, beta,
-				&evaluator, rng, &unif,
-				fitnessAssignment, logger = nullptr);
+			&evaluator, rng, &unif,
+			fitnessAssignment, logger = nullptr);
 
 		// Create a subcomplex. 
 		// The wirst point found is the expected one.
@@ -217,7 +359,7 @@ public:
 	{
 		this->maxChecks = maxChecks;
 	}
-	bool IsFinished( IEvolutionEngine<T>* engine)
+	bool IsFinished(IEvolutionEngine<T>* engine)
 	{
 		counter++;
 		return (counter >= maxChecks);

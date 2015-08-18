@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include "core.h"
+#include "core.hpp"
 
 
 namespace mhcpp

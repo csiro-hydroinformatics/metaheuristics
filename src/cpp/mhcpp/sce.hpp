@@ -1,7 +1,7 @@
 #pragma once
 
 #include <algorithm>
-#include "core.h"
+#include "core.hpp"
 #include "evaluations.hpp"
 
 
