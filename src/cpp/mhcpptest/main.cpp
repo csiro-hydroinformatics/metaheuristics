@@ -236,12 +236,12 @@ SCENARIO("URS RNG basics", "[rng]") {
 
 		WHEN("A copy of the URS factory is made, and samples taken from each") {
 			auto rngCopy = rng;
-			THEN("The sampled values are the same as returned by the original one") {
+			THEN("The two URS objects are equal") {
 				REQUIRE(rng.Equals(rngCopy));
 			}
 			auto p1 = rng.CreateRandomCandidate();
 			auto p2 = rngCopy.CreateRandomCandidate();
-			THEN("The sampled values are the same as returned by the original one") {
+			AND_THEN("The sampled values are the same as returned by the original one") {
 				REQUIRE(rng.Equals(rngCopy));
 				REQUIRE(assertEqual(p1, p2));
 				REQUIRE(assertValuesNotEqual(p2, hc));

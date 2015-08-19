@@ -21,7 +21,6 @@ namespace mhcpp
 			RNG seedEngine;
 		public:
 			typedef RNG engine_type; // No typename needed here. See http://stackoverflow.com/questions/6489351/nested-name-specifier
-
 									 //	http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
 
 			RandomNumberGeneratorFactory(int seed) : seedEngine(seed)
@@ -170,7 +169,7 @@ namespace mhcpp
 		template<class DistributionType = std::uniform_real_distribution<double>>
 		boost::variate_generator<std::mt19937, DistributionType> * CreateVariateGenerator(DistributionType& dist, unsigned int seed)
 		{
-			return new boost::variate_generator<std::mt19937, DistributionType>(CreateNewStd(), dist);
+			return new boost::variate_generator<std::mt19937, DistributionType>(CreateNewStd(seed), dist);
 		}
 	};
 
