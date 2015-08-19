@@ -156,7 +156,7 @@ namespace mhcpp
 				while (a < alpha && !IsCancelledOrFinished())
 				{
 					std::vector<FitnessAssignedScores<double, T>> withoutWorstPoint;
-					FitnessAssignedScores<double, T> worstPoint = findWorstPoint(evolved, withoutWorstPoint);
+					FitnessAssignedScores<double, T> worstPoint = FindWorstPoint(evolved, withoutWorstPoint);
 					//loggerWrite(worstPoint, createTagConcat(
 					//	LoggerMhHelper.MkTuple("Message", "Worst point in subcomplex"),
 					//	createTagCatComplexNo()));
@@ -214,6 +214,20 @@ namespace mhcpp
 			std::vector<IObjectiveScores<T>> WholePopulation()
 			{
 				return aggregatePoints(evolved, leftOutFromSubcomplex);
+			}
+
+			static FitnessAssignedScores<double, T> FindWorstPoint(std::vector<FitnessAssignedScores<double, T>>& subComplex, std::vector<FitnessAssignedScores<double, T>>& pointRemoved)
+			{
+				std::vector<FitnessAssignedScores<double, T>*> tmp = asPointers<FitnessAssignedScores<double, T>>(subComplex);
+				std::stable_sort(tmp.begin(), tmp.end(), FitnessAssignedScores<double, T>::BetterThanPtr);
+				auto worst = tmp[tmp.size() - 1];
+				pointRemoved.clear();
+				for (auto& point : subComplex)
+				{
+					if (&point != worst)
+						pointRemoved.push_back(point);
+				}
+				return *worst;
 			}
 
 		private:
@@ -283,20 +297,6 @@ namespace mhcpp
 					result = addRandomInHypercube(withoutWorstPoint, this->evolved);
 				}
 				return result;
-			}
-
-			static FitnessAssignedScores<double, T> findWorstPoint(std::vector<FitnessAssignedScores<double, T>>& subComplex, std::vector<FitnessAssignedScores<double, T>>& pointRemoved)
-			{
-				std::vector<FitnessAssignedScores<double, T>*> tmp = asPointers<FitnessAssignedScores<double, T>>(subComplex);
-				std::stable_sort(tmp.begin(), tmp.end(), FitnessAssignedScores<double, T>::BetterThanPtr);
-				auto worst = tmp[tmp.size() - 1];
-				pointRemoved.clear();
-				for (auto& point : subComplex)
-				{
-					if (&point != worst)
-						pointRemoved.push_back(point);
-				}
-				return *worst;
 			}
 
 			template<typename X>
@@ -874,6 +874,7 @@ namespace mhcpp
 				}
 				return packageResults(complexes);
 			}
+
 
 		private:
 			std::map<string, string> logTags;

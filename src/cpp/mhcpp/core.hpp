@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <random>
+#include <functional>
 #include "random.hpp"
 #include "utils.hpp"
 
@@ -239,16 +240,14 @@ namespace mhcpp
 			return *this;
 		}
 
-		~UniformRandomSamplingFactory()
-		{
-			if (sampler != nullptr) {
-				delete sampler; sampler = nullptr;
-			}
-		}
+		~UniformRandomSamplingFactory() { }
 
 		bool Equals(const UniformRandomSamplingFactory& other) const
 		{
-			bool samplerRngEquals = sampler->engine()._Equals(sampler->engine());
+			if (&other == this) {
+				return true;
+			}
+			bool samplerRngEquals = sampler.RngEngineEquals(other.sampler);
 			bool rngEquals = this->rng.Equals(other.rng);
 			return rngEquals && samplerRngEquals;
 		}
@@ -309,14 +308,14 @@ namespace mhcpp
 
 		double Urand()
 		{
-			return (*sampler)();
+			return sampler();
 		}
 		//IHyperCubeOperations CreateIHyperCubeOperations()
 		//{
 		//	return new HyperCubeOperations(rng.CreateFactory());
 		//}
 
-		boost::variate_generator<std::mt19937, std::uniform_real_distribution<double>> * sampler = nullptr;
+		VariateGenerator<std::default_random_engine, std::uniform_real_distribution<double>> sampler;
 		IRandomNumberGeneratorFactory rng;
 		TSysConfig t;
 	};

@@ -207,6 +207,27 @@ SCENARIO("RNG basics", "[rng]") {
 	}
 }
 
+SCENARIO("discrete RNG to sample from a population of points", "[rng]")
+{
+	std::default_random_engine generator(234);
+	VariateGenerator<std::default_random_engine, std::discrete_distribution<int>> rng = CreateTrapezoidalRng(10, generator);
+
+	const int nrolls = 10000; // number of experiments
+	const int nstars = 100;   // maximum number of stars to distribute
+
+	int p[10] = {};
+
+	for (int i = 0; i<nrolls; ++i) {
+		int number = rng();
+		++p[number];
+	}
+
+	std::cout << "a discrete_distribution:" << std::endl;
+	for (int i = 0; i<10; ++i)
+		std::cout << i << ": " << std::string(p[i] * nstars / nrolls, '*') << std::endl;
+}
+
+
 SCENARIO("URS RNG basics", "[rng]") {
 	HyperCube<double> hc;
 	hc.Define("a", 1, 2, 1.5);
@@ -288,66 +309,68 @@ std::vector < IObjectiveScores<T> >createTestScores(int m, int seed = 0)
 	return scores;
 }
 
-SCENARIO("Sub-Complex for SCE", "[optimizer]") {
-	GIVEN("A 2D Hypercube")
+SCENARIO("Complex for SCE, single objective", "[optimizer]") {
+	using T = HyperCube < double >;
+	int m = 20;
+	int q = 10, alpha = 2, beta = 3;
+	IRandomNumberGeneratorFactory rng(2);
+	auto unif = createTestUnifrand<T>(421);
+
+	std::vector < IObjectiveScores<T> > scores = createTestScores<T>(m, 123);
+	IFitnessAssignment<double, T> fitnessAssignment;
+	//IHyperCubeOperations* hyperCubeOperations
+	//ILoggerMh* logger = nullptr;
+	HyperCube<double> goal = createTestHc(1.5, 3.4);
+	TopologicalDistance<T> evaluator(goal);
+
+	WHEN("looking for the point with the worst fitness value")
 	{
-		using T = HyperCube < double > ;
-		int m = 20;
-		int q = 10, alpha = 1, beta = 1;
-		IRandomNumberGeneratorFactory rng(2);
-		auto unif = createTestUnifrand<T>(421);
-
-		std::vector < IObjectiveScores<T> > scores = createTestScores<T>(m, 123);
-		IFitnessAssignment<double, T> fitnessAssignment;
-		//IHyperCubeOperations* hyperCubeOperations
-		//ILoggerMh* logger = nullptr;
-		HyperCube<double> goal = createTestHc(1.5, 3.4);
-		TopologicalDistance<T> evaluator(goal);
-
+		std::vector<FitnessAssignedScores<double, T>> fvec, subpopulation;
+		for (size_t i = 0; i < scores.size(); i++)
+		{
+			fvec.push_back(FitnessAssignedScores<double, T>(scores[i], i));
+		}
+		auto worst = SubComplex<T>::FindWorstPoint(fvec, subpopulation);
+		THEN("The score of the worst point found is indeed the worst fitness we assigned in the population")
+		{
+			REQUIRE(worst.FitnessValue() == (double)(scores.size() - 1));
+			REQUIRE(subpopulation.size() == (scores.size() - 1));
+			for (size_t i = 0; i < subpopulation.size(); i++)
+				REQUIRE(subpopulation[i].FitnessValue() != worst.FitnessValue());
+		}
+	}
+	WHEN("Building and running a subcomplex") {
 		SubComplex<T> scplx
 			(scores, &evaluator, q, alpha, rng, &unif,
-			fitnessAssignment);
-
-		// Create a subcomplex. 
-		// The wirst point found is the expected one.
-		// Calling Evolve works without exceptions.
-
-		scplx.Evolve();
+				fitnessAssignment);
+		THEN("The subcomplex evolution completes without exception")
+		{
+			// Calling Evolve works without exceptions.
+			scplx.Evolve();
+			AND_THEN("Retrieving the final population does return a vector of expected size = q")
+			{
+				std::vector<IObjectiveScores<T>> finalPop;
+				REQUIRE_NOTHROW(finalPop = scplx.WholePopulation());
+				REQUIRE(finalPop.size() == q);
+				// TODO: further tests.
+			}
+		}
 	}
-}
-
-
-SCENARIO("Complex for SCE", "[optimizer]") {
-	GIVEN("A 2D Hypercube")
+	WHEN("Building and running a complex") 
 	{
-		using T = HyperCube < double > ;
-
-		int m = 20;
-		int q = 10, alpha = 1, beta = 1;
-		IRandomNumberGeneratorFactory rng(2);
 		auto unif = createTestUnifrand<T>(421);
-
-		std::vector < IObjectiveScores<T> > scores = createTestScores<T>(m, 123);
-		IFitnessAssignment<double, T> fitnessAssignment;
-		/*IHyperCubeOperations* hyperCubeOperations, */
-		ILoggerMh* logger = nullptr;
-
-		HyperCube<double> goal = createTestHc(1.5, 3.4);
-		TopologicalDistance<T> evaluator(goal);
 
 		Complex<T> cplx
 			(scores, m, q, alpha, beta,
-			&evaluator, rng, &unif,
-			fitnessAssignment, logger = nullptr);
-
-		// Create a subcomplex. 
-		// The wirst point found is the expected one.
-		// Calling Evolve works without exceptions.
-
-		cplx.Evolve();
+				&evaluator, rng, &unif,
+				fitnessAssignment);
+		THEN("The complex evolution completes without exception")
+		{
+			REQUIRE_NOTHROW(cplx.Evolve());
+			// TODO: further tests.
+		}
 	}
 }
-
 
 template<typename T>
 class CounterTestFinished
