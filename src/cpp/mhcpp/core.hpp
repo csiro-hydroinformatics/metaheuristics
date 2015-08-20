@@ -34,7 +34,7 @@ namespace mhcpp
 	/// Interface for system configurations that are a set of numeric parameters, each with min and max feasible values.
 	/// </summary>
 	/// <typeparam name="T">A comparable type; typically a float or double, but possibly integer or more esoteric type</typeparam>
-	template<typename T=double>
+	template<typename T = double>
 	class IHyperCube : public ISystemConfiguration //where T : IComparable
 	{
 	public:
@@ -77,6 +77,15 @@ namespace mhcpp
 		/// <param name="variableName"></param>
 		/// <param name="value"></param>
 		virtual void SetValue(string variableName, T value) = 0;
+
+		virtual string ToString()
+		{
+			string s;
+			auto vnames = GetVariableNames();
+			for (auto& v : vnames)
+				s += v + ":" + std::to_string(GetValue(v)) + ", ";
+			return s;
+		}
 	};
 
 	template<typename T=double>
@@ -139,8 +148,8 @@ namespace mhcpp
 			if (&src == this){
 				return *this;
 			}
-			std::swap(sys, src.sys);
-			std::swap(objectives, src.objectives);
+			sys = std::move(src.sys);
+			objectives = std::move(src.objectives);
 			return *this;
 		}
 
@@ -155,6 +164,18 @@ namespace mhcpp
 		virtual size_t ObjectiveCount() const { return this->objectives.size(); }
 
 		virtual double Value(int i) const { return objectives[i].Value; } //= 0;
+
+		string ToString()
+		{
+			string s;
+			for (size_t i = 0; i < this->ObjectiveCount(); i++)
+			{
+				s += this->objectives[i].ToString();
+				s += ", ";
+			}
+			s += SystemConfiguration().ToString();
+			return s;
+		}
 
 	private:
 		class ObjectiveValue
@@ -174,6 +195,10 @@ namespace mhcpp
 			string Name;
 			double Value;
 			bool Maximizable;
+			string ToString()
+			{
+				return Name + ":" + std::to_string(Value);
+			}
 		};
 
 		TSysConf sys;
@@ -331,7 +356,7 @@ namespace mhcpp
 	public:
 		ITerminationCondition()
 		{
-			this->Check = [&](IEvolutionEngine<T>*) {return true; };
+			this->Check = [&](IEvolutionEngine<T>*) {return false; };
 		}
 		ITerminationCondition(std::function<bool(IEvolutionEngine<T>*)>& isFinishedFunc)
 		{
@@ -364,6 +389,11 @@ namespace mhcpp
 		{
 			this->scores = scores;
 			this->fitnessValue = fitnessValue;
+		}
+
+		FitnessAssignedScores()
+		{
+			this->fitnessValue = T();
 		}
 
 		/// <summary>
@@ -411,6 +441,20 @@ namespace mhcpp
 			return BetterThan(*elem1, *elem2);
 		}
 
+		static void Sort(std::vector<FitnessAssignedScores<T, TSys>*>& points)
+		{
+			std::stable_sort(points.begin(), points.end(), FitnessAssignedScores<T, TSys>::BetterThanPtr);
+		}
+
+		static void Sort(std::vector<const FitnessAssignedScores<T, TSys>*>& points)
+		{
+			std::stable_sort(points.begin(), points.end(), FitnessAssignedScores<T, TSys>::BetterThanPtr);
+		}
+
+		static void Sort(std::vector<FitnessAssignedScores<T, TSys>>& points)
+		{
+			std::stable_sort(points.begin(), points.end(), FitnessAssignedScores<T, TSys>::BetterThan);
+		}
 
 		string ToString()
 		{
@@ -498,6 +542,42 @@ namespace mhcpp
 			return centroid;
 		}
 
+		HyperCube HomotheticTransform(const HyperCube& from, double factor)
+		{
+			HyperCube result(from);
+			auto varnames = GetVariableNames();
+			for(auto& v : varnames)
+			{
+				//double min = this->GetMinValue(v);
+				//double max = this->GetMaxValue(v);
+				//result.SetMinValue(v, min);
+				//result.SetMaxValue(v, max);
+				double newVal = Reflect(from.GetValue(v), this->GetValue(v), factor);
+				//var isInBounds = MetaheuristicsHelper.CheckInBounds(newVal, min, max, throwIfFalse: this->ThrowOnOutOfBounds);
+				//if (!isInBounds)
+				//{
+				//	result = null;
+				//	break;
+				//}
+				result.SetValue(v, newVal);
+			}
+			return result;
+		}
+
+		double Reflect(double point, double reference, double factor)
+		{
+			return reference + ((point - reference) * factor);
+		}
+
+		virtual bool IsFeasible()
+		{
+			auto varnames = GetVariableNames();
+			for (auto& v : varnames)
+				if (!this->def[v].IsFeasible()) return false;
+			return true;
+		}
+
+
 	private:
 		class MMV
 		{
@@ -509,6 +589,7 @@ namespace mhcpp
 			}
 			string Name;
 			double Min, Max, Value;
+			bool IsFeasible() { return (Value >= Min) && (Value <= Max); }
 		};
 		std::map<string, MMV> def;
 	};
@@ -540,22 +621,4 @@ namespace mhcpp
 	private:
 		TSysConf goal;
 	};
-
-
-	//class IHyperCubeOperations
-	//{
-	//	//virtual IHyperCube<double> GetCentroid(std::vector<IHyperCube<double>> points) = 0;
-	//	//virtual IHyperCube<double> GenerateRandomWithinHypercube(std::vector<IHyperCube<double>> points) = 0;
-	//	//virtual IHyperCube<double> GenerateRandom(IHyperCube<double> point) = 0;
-	//};
-
-	//class IHyperCubeOperationsFactory
-	//{
-	//public:
-	//	//IHyperCubeOperations CreateNew(IRandomNumberGeneratorFactory rng) {
-	//	//	return IHyperCubeOperations();
-	//	//}
-	//	virtual IHyperCubeOperations* CreateNew(IRandomNumberGeneratorFactory rng) = 0;
-	//};
-
 }

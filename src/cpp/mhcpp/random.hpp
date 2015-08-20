@@ -2,6 +2,7 @@
 
 #include <random>
 #include <numeric>
+#include <set>
 //#include <boost/random.hpp>
 
 using namespace std;
@@ -16,6 +17,8 @@ namespace mhcpp
 		typedef typename Distribution::result_type result_type;
 
 		VariateGenerator() { }
+
+		VariateGenerator(const Distribution& d) : _dist(d) { }
 
 		/**
 		* Constructs a @c VariateGenerator object with the associated
@@ -78,6 +81,8 @@ namespace mhcpp
 		Distribution _dist;
 	};
 
+	using RngInt = VariateGenerator < std::default_random_engine, std::discrete_distribution<int> > ;
+
 	class IRandomNumberGeneratorFactory
 	{
 
@@ -91,7 +96,7 @@ namespace mhcpp
 			RNG seedEngine;
 		public:
 			typedef RNG engine_type; // No typename needed here. See http://stackoverflow.com/questions/6489351/nested-name-specifier
-									 //	http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
+			//	http://stackoverflow.com/questions/495021/why-can-templates-only-be-implemented-in-the-header-file
 
 			RandomNumberGeneratorFactory(int seed) : seedEngine(seed)
 			{
@@ -249,8 +254,7 @@ namespace mhcpp
 		}
 	};
 
-
-	VariateGenerator<std::default_random_engine, std::discrete_distribution<int>> CreateTrapezoidalRng(size_t n, const std::default_random_engine& generator, double trapezoidalFactor = -1)
+	RngInt CreateTrapezoidalRng(size_t n, const std::default_random_engine& generator, double trapezoidalFactor = -1)
 	{
 		std::vector<double> weights(n);
 		double m = n;
@@ -262,7 +266,7 @@ namespace mhcpp
 			// default as per the original SCE paper. Note that we do not need 
 			// to normalize: std::discrete_distribution takes care of it
 			for (size_t i = 1; i <= n; i++)
-				weights[i-1] = (n + 1 - i);
+				weights[i - 1] = (n + 1 - i);
 		}
 		else
 		{
@@ -289,12 +293,70 @@ namespace mhcpp
 		return VariateGenerator<std::default_random_engine, std::discrete_distribution<int>>(generator, distribution);
 	}
 
-	vector<int> SampleFrom(VariateGenerator<std::default_random_engine, std::discrete_distribution<int>>& drng, size_t nsampling)
+	template<typename X>
+	static std::vector<const X*> AsPointers(const std::vector<X>& vec)
 	{
-		int size = drng.distribution().max() - drng.distribution().min() + 1;
+		std::vector<const X*> result;
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+			const X& e = vec[i];
+			result.push_back(&e);
+		}
+		return result;
+	}
+
+	template<typename ElemType>
+	vector<ElemType> SampleFrom(RngInt& drng, const std::vector<ElemType>& population, size_t n,
+		bool replace = false, vector<ElemType> *leftOut = nullptr)
+	{
+		if (!replace && population.size() <= n)
+			throw std::logic_error("If elements are sampled once, the output size must be less than the population sampled from");
+		std::set<int> selected;
+		std::set<int> notSelected;
+		for (size_t i = 0; i < population.size(); i++)
+			notSelected.emplace(i);
+		std::vector<ElemType> result(n);
+		if (replace)
+		{
+			for (size_t i = 0; i < n; i++)
+			{
+				result[i] = population[drng()];
+				selected.emplace(i);
+				notSelected.erase(i);
+			}
+		}
+		else
+		{
+			auto src = AsPointers(population);
+			int counter = 0;
+			while (counter < n)
+			{
+				int i = drng();
+				if (!(src[i] == nullptr))
+				{
+					result[counter] = *(src[i]);
+					src[i] = nullptr;
+					selected.emplace(i);
+					notSelected.erase(i);
+					counter++;
+				}
+			}
+			if (leftOut != nullptr)
+			{
+				leftOut->clear();
+				for (auto index : notSelected)
+					leftOut->push_back(population[index]);
+			}
+		}
+		return result;
+	}
+
+	vector<int> SampleFrom(RngInt& drng, size_t nsampling)
+	{
+		size_t size = drng.distribution().max() - drng.distribution().min() + 1;
 		std::vector<int>p(size);
 
-		for (size_t i = 0; i<nsampling; ++i) {
+		for (size_t i = 0; i < nsampling; ++i) {
 			int number = drng();
 			++p[number];
 		}
@@ -308,7 +370,7 @@ namespace mhcpp
 		size_t n = hist.size();
 		std::vector<string> s(n);
 		for (size_t i = 0; i < n; ++i)
-			 s[i] = std::string(hist[i] * nstars / total, c);
+			s[i] = std::string(hist[i] * nstars / total, c);
 		PrintVec(s);
 	}
 
@@ -339,8 +401,8 @@ namespace mhcpp
 	void PrintVec(const std::vector<ElemType>& hist, std::ostream& stream)
 	{
 		int n = hist.size();
-			for (size_t i = 0; i < n; ++i)
-				stream << i << ": " << std::to_string(hist[i]) << std::endl;
+		for (size_t i = 0; i < n; ++i)
+			stream << i << ": " << std::to_string(hist[i]) << std::endl;
 	}
 
 	template<typename ElemType>

@@ -234,7 +234,7 @@ SCENARIO("discrete RNG to sample from a population of points", "[rng]")
 {
 	std::default_random_engine generator(234);
 	const int ncandidates = 10;
-	VariateGenerator<std::default_random_engine, std::discrete_distribution<int>> rng = CreateTrapezoidalRng(ncandidates, generator);
+	RngInt rng = CreateTrapezoidalRng(ncandidates, generator);
 
 	const int nrolls = 100000; // number of experiments
 	auto p = SampleFrom(rng, nrolls);
@@ -365,7 +365,8 @@ SCENARIO("Complex for SCE, single objective", "[optimizer]") {
 
 	WHEN("looking for the point with the worst fitness value")
 	{
-		std::vector<FitnessAssignedScores<double, T>> fvec, subpopulation;
+		std::vector<FitnessAssignedScores<double, T>> fvec;
+		std::vector<FitnessAssignedScores<double, T>> subpopulation;
 		for (size_t i = 0; i < scores.size(); i++)
 		{
 			fvec.push_back(FitnessAssignedScores<double, T>(scores[i], i));
@@ -380,8 +381,9 @@ SCENARIO("Complex for SCE, single objective", "[optimizer]") {
 		}
 	}
 	WHEN("Building and running a subcomplex") {
+		auto discreteRng = CreateTrapezoidalRng(scores.size(), rng.CreateNewStd());
 		SubComplex<T> scplx
-			(scores, &evaluator, q, alpha, rng, &unif,
+			(scores, &evaluator, q, alpha, rng, &unif, discreteRng,
 				fitnessAssignment);
 		THEN("The subcomplex evolution completes without exception")
 		{
@@ -391,7 +393,7 @@ SCENARIO("Complex for SCE, single objective", "[optimizer]") {
 			{
 				std::vector<IObjectiveScores<T>> finalPop;
 				REQUIRE_NOTHROW(finalPop = scplx.WholePopulation());
-				REQUIRE(finalPop.size() == q);
+				REQUIRE(finalPop.size() == m);
 				// TODO: further tests.
 			}
 		}
@@ -399,11 +401,12 @@ SCENARIO("Complex for SCE, single objective", "[optimizer]") {
 	WHEN("Building and running a complex") 
 	{
 		auto unif = createTestUnifrand<T>(421);
+		ITerminationCondition<HyperCube < double > > terminationCondition;
 
 		Complex<T> cplx
 			(scores, m, q, alpha, beta,
 				&evaluator, rng, &unif,
-				fitnessAssignment);
+				fitnessAssignment, &terminationCondition);
 		THEN("The complex evolution completes without exception")
 		{
 			REQUIRE_NOTHROW(cplx.Evolve());
@@ -456,17 +459,17 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		TopologicalDistance<HyperCube < double > >  * evaluator = new TopologicalDistance<HyperCube < double > >(goal);
 		ICandidateFactory<HyperCube < double > >* populationInitializer = new UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
 
-		CounterTestFinished<HyperCube<double>> c(200);
+		CounterTestFinished<HyperCube<double>> c(100);
 		ITerminationCondition<HyperCube < double > > terminationCondition(c.CreateNew(c));
 
 		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, &terminationCondition, sceParams);
 
 		WHEN("") {
-			//auto results = opt.Evolve();
-			//auto first = results[0];
-			//REQUIRE(first.ObjectiveCount() == 1);			
+			auto results = opt.Evolve();
+			REQUIRE(results.size() > 0);
+			results.PrintTo(std::cout);
+			auto first = results[0];
+			REQUIRE(first.ObjectiveCount() == 1);			
 		}
-
-		//delete evaluator;
 	}
 }
