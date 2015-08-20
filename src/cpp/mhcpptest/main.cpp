@@ -133,6 +133,29 @@ bool assertValuesNotEqual(const HyperCube<double>& a, const HyperCube<double>& b
 		(!sameValues(a.GetVariableNames(), a, b));
 }
 
+template<typename T>
+bool requireEqual(const vector<T>& a, const vector<T>& b)
+{
+	if (a.size() != b.size()) return false;
+	for (size_t i = 0; i < a.size(); i++)
+	{
+		if (a[i] != b[i]) return false;
+	}
+	return true;
+}
+
+template<typename T>
+bool requireRelativeEqual(const vector<T>& expected, const vector<T>& b, T tolerance)
+{
+	if (expected.size() != b.size()) return false;
+	for (size_t i = 0; i < expected.size(); i++)
+	{
+		if ((std::abs(expected[i] - b[i]) / expected[i]) > tolerance) return false;
+	}
+	return true;
+}
+
+
 SCENARIO("Calculation of a centroid", "[sysconfig]") {
 
 	GIVEN("A population of hypercubes")
@@ -210,23 +233,40 @@ SCENARIO("RNG basics", "[rng]") {
 SCENARIO("discrete RNG to sample from a population of points", "[rng]")
 {
 	std::default_random_engine generator(234);
-	VariateGenerator<std::default_random_engine, std::discrete_distribution<int>> rng = CreateTrapezoidalRng(10, generator);
+	const int ncandidates = 10;
+	VariateGenerator<std::default_random_engine, std::discrete_distribution<int>> rng = CreateTrapezoidalRng(ncandidates, generator);
 
-	const int nrolls = 10000; // number of experiments
-	const int nstars = 100;   // maximum number of stars to distribute
-
-	int p[10] = {};
-
-	for (int i = 0; i<nrolls; ++i) {
-		int number = rng();
-		++p[number];
-	}
-
+	const int nrolls = 100000; // number of experiments
+	auto p = SampleFrom(rng, nrolls);
 	std::cout << "a discrete_distribution:" << std::endl;
-	for (int i = 0; i<10; ++i)
-		std::cout << i << ": " << std::string(p[i] * nstars / nrolls, '*') << std::endl;
-}
 
+	//PrintHistogram(p, std::cout);
+	//PrintValues(p, std::cout, true);
+	//PrintValues(p, std::cout, false);
+
+	int n = ncandidates;
+	std::vector<double> expectedProportions(n);
+	double total = n*(n + 1) / 2; // sum ints from 1 to n;
+	for (size_t i = 1; i <= n; i++)
+		expectedProportions[i - 1] = (n + 1 - i) / total;
+
+	//PrintVec(RelativeDiff(weights, Normalize(p)), std::cout);
+
+	REQUIRE(requireRelativeEqual(expectedProportions, Normalize(p), 3 * 1e-2));
+
+//	vector<int> expected = { 
+//18144
+//, 16446
+//, 14460
+//, 12723
+//, 10954
+//, 9079
+//, 7302
+//, 5312
+//, 3744
+//, 1836
+//	REQUIRE(requireEqual(expected, p));
+}
 
 SCENARIO("URS RNG basics", "[rng]") {
 	HyperCube<double> hc;
@@ -422,7 +462,7 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, &terminationCondition, sceParams);
 
 		WHEN("") {
-			auto results = opt.Evolve();
+			//auto results = opt.Evolve();
 			//auto first = results[0];
 			//REQUIRE(first.ObjectiveCount() == 1);			
 		}
