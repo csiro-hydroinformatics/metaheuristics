@@ -39,8 +39,8 @@ namespace mhcpp
 
 			VariateGenerator(const VariateGenerator&& vg)
 			{
-				this->_eng = std::move(src._eng);
-				this->_dist = std::move(src._dist);
+				this->_eng = std::move(vg._eng);
+				this->_dist = std::move(vg._dist);
 			}
 
 			VariateGenerator& operator=(const VariateGenerator& vg)
@@ -68,7 +68,7 @@ namespace mhcpp
 				if (&other == this) {
 					return true;
 				}
-				return _eng._Equals(other._eng);
+				return _eng == (other._eng);
 			}
 
 			result_type operator()() { return _dist(_eng); }
@@ -142,7 +142,7 @@ namespace mhcpp
 
 				bool Equals(const RandomNumberGeneratorFactory& other) const
 				{
-					return seedEngine._Equals(other.seedEngine);
+					return seedEngine == (other.seedEngine);
 				}
 
 				RNG * CreateNewEngine()

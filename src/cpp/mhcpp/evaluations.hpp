@@ -8,7 +8,7 @@ namespace mhcpp
 {
 	namespace objectives
 	{
-		static class Evaluations
+		class Evaluations
 		{
 		private:
 			Evaluations() {}
@@ -26,8 +26,6 @@ namespace mhcpp
 				return result;
 				
 			}
-
-		private:
 
 		};
 	}

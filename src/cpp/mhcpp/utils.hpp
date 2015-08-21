@@ -35,14 +35,22 @@ namespace mhcpp
 		}
 
 		template<typename ElemType>
+		void PrintVec(const std::vector<ElemType>& hist, std::ostream& stream)
+		{
+			int n = hist.size();
+			for (size_t i = 0; i < n; ++i)
+				stream << i << ": " << std::to_string(hist[i]) << std::endl;
+		}
+
+		template<typename ElemType>
 		void PrintHistogram(const std::vector<ElemType>& hist, std::ostream& stream, int nstars = 100, char c = '*')
 		{
 			ElemType total = std::accumulate(hist.begin(), hist.end(), 0);
 			size_t n = hist.size();
-			std::vector<string> s(n);
+			std::vector<std::string> s(n);
 			for (size_t i = 0; i < n; ++i)
 				s[i] = std::string(hist[i] * nstars / total, c);
-			PrintVec(s);
+			PrintVec<ElemType>(s);
 		}
 
 		template<typename ElemType>
@@ -65,14 +73,6 @@ namespace mhcpp
 				result[i] = (std::abs(expected[i] - b[i]) / expected[i]);
 			}
 			return result;
-		}
-
-		template<typename ElemType>
-		void PrintVec(const std::vector<ElemType>& hist, std::ostream& stream)
-		{
-			int n = hist.size();
-			for (size_t i = 0; i < n; ++i)
-				stream << i << ": " << std::to_string(hist[i]) << std::endl;
 		}
 
 		template<typename ElemType>

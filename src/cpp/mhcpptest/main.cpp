@@ -462,7 +462,8 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		ICandidateFactory<HyperCube < double > >* populationInitializer = new UniformRandomSamplingFactory<HyperCube<double>>(IRandomNumberGeneratorFactory(), hc);
 
 		CounterTestFinished<HyperCube<double>> c(100);
-		ITerminationCondition<HyperCube < double > > terminationCondition(c.CreateNew(c));
+		auto fFunc = c.CreateNew(c);
+		ITerminationCondition<HyperCube < double > > terminationCondition(fFunc);
 
 		ShuffledComplexEvolution<HyperCube<double>> opt(evaluator, populationInitializer, &terminationCondition, sceParams);
 

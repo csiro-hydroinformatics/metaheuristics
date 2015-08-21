@@ -54,18 +54,18 @@ namespace mhcpp
 				this->scores = std::move(src.scores);
 			}
 
-			IOptimizationResults& operator=(const IOptimizationResults& vg)
+			IOptimizationResults& operator=(const IOptimizationResults& src)
 			{
-				if (&vg == this) {
+				if (&src == this) {
 					return *this;
 				}
 				this->scores = src.scores;
 				return *this;
 			}
 
-			IOptimizationResults& operator=(const IOptimizationResults&& vg)
+			IOptimizationResults& operator=(const IOptimizationResults&& src)
 			{
-				if (&vg == this) {
+				if (&src == this) {
 					return *this;
 				}
 				this->scores = std::move(src.scores);
@@ -394,7 +394,8 @@ namespace mhcpp
 
 			std::tuple<string, string> createTagCatComplexNo()
 			{
-				return LoggerMhHelper.MkTuple("Category", "Complex No " + complexId);
+				//return LoggerMhHelper.MkTuple("Category", "Complex No " + complexId);
+				return std::tuple<string, string>();
 			}
 
 			//void loggerWrite(T point, std::map<string, string> tags)
@@ -542,6 +543,7 @@ namespace mhcpp
 				return result;
 			}
 
+/*
 			std::vector<FitnessAssignedScores<double, T>> generateRandomWithinShuffleBounds(const FitnessAssignedScores<double, T>& worstPoint, const std::vector<FitnessAssignedScores<double, T>>  withoutWorstPoint)
 			{
 				auto sbcplx = convertAllToHyperCube(merge(withoutWorstPoint, worstPoint));
@@ -565,7 +567,7 @@ namespace mhcpp
 					));
 				return fitnessAssignment.AssignFitness(aggregate(newScore, withoutWorstPoint));
 			}
-
+*/
 			std::vector<FitnessAssignedScores<double, T>> generateRandomWithinSubcomplex(const std::vector<FitnessAssignedScores<double, T>>& withoutWorstPoint, const FitnessAssignedScores<double, T>& worstPoint)
 			{
 				// 2012-02-14: The Duan et al 1993 paper specifies to use the complex to generate random points. However, comparison to a Matlab
@@ -1209,7 +1211,7 @@ namespace mhcpp
 
 			string GetDescription()
 			{
-				throw new NotImplementedException();
+				throw std::logic_error("Not implemented");
 			}
 
 
@@ -1296,14 +1298,14 @@ namespace mhcpp
 			}
 
 			// https://github.com/jmp75/metaheuristics/issues/3
-			ITerminationCondition<T> createMaxWalltimeCondition(ITerminationCondition<T> terminationCondition)
-			{
-				auto t = terminationCondition as CoefficientOfVariationTerminationCondition;
-				if (t == nullptr)
-					return new FalseTerminationCondition();
-				else
-					return new MaxWalltimeTerminationCondition(t.RemainingHours);
-			}
+			// ITerminationCondition<T> createMaxWalltimeCondition(ITerminationCondition<T> terminationCondition)
+			// {
+			// 	auto t = terminationCondition as CoefficientOfVariationTerminationCondition;
+			// 	if (t == nullptr)
+			// 		return new FalseTerminationCondition();
+			// 	else
+			// 		return new MaxWalltimeTerminationCondition(t.RemainingHours);
+			// }
 
 			std::vector<Complex<T>*> partition(const std::vector<IObjectiveScores<T>>& scores)
 			{
@@ -1361,8 +1363,9 @@ namespace mhcpp
 
 			std::vector<FitnessAssignedScores<double, T>> GetPopulation()
 			{
-				if (complexes == nullptr) return null;
-				return sortByFitness(aggregate(complexes));
+				throw std::logic_error("Not implemented");
+				// if (complexes == nullptr) return null;
+				// return sortByFitness(aggregate(complexes));
 			}
 
 		};
