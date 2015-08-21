@@ -12,6 +12,7 @@ using namespace std;
 
 namespace mhcpp
 {
+	using namespace mhcpp::random;
 
 	class ISystemConfiguration
 	{
@@ -88,7 +89,7 @@ namespace mhcpp
 		}
 	};
 
-	template<typename T=double>
+	template<typename T = double>
 	class IHyperCubeSetBounds : public IHyperCube < T > //where T : IComparable
 	{
 	public:
@@ -207,21 +208,14 @@ namespace mhcpp
 	};
 
 	template<typename TSysConfig>
-	class UniformRandomSamplingFactory : public ICandidateFactory<TSysConfig> //, IHyperCubeOperationsFactory
+	class UniformRandomSamplingFactory : 
+		public ICandidateFactory < TSysConfig >
 	{
-
-		static unsigned int CreateSamplerSeed(const IRandomNumberGeneratorFactory& rng)
-		{
-			auto tmp_rng = rng;
-			unsigned int s = tmp_rng.Next();
-			unsigned int samplerSeed = s ^ 0xFFFFFFFF;
-			return samplerSeed;
-		}
-		public:
+	public:
 		UniformRandomSamplingFactory(const IRandomNumberGeneratorFactory& rng, const TSysConfig& t)
 		{
 			this->rng = rng;
-			unsigned int samplerSeed = CreateSamplerSeed(rng);
+			unsigned int samplerSeed = UniformRandomSamplingFactory::CreateSamplerSeed(rng);
 			//if (!t.SupportsThreadSafloning)
 			//	throw new ArgumentException("This URS factory requires cloneable and thread-safe system configurations");
 			this->t = t;
@@ -295,8 +289,8 @@ namespace mhcpp
 				double min = bounds.GetMinValue(vname);
 				double max = bounds.GetMaxValue(vname);
 				double d = Urand();
-				if (d > 1 || d < 0)
-					throw std::logic_error("[0-1] uniform distribution, but got a sample out of this interval");
+				//if (d > 1 || d < 0)
+				//	throw std::logic_error("[0-1] uniform distribution, but got a sample out of this interval");
 				rt.SetValue(vname, min + d * (max - min));
 			}
 			return rt;
@@ -333,6 +327,14 @@ namespace mhcpp
 		}
 
 	private:
+
+		static unsigned int CreateSamplerSeed(const IRandomNumberGeneratorFactory& rng)
+		{
+			auto tmp_rng = rng;
+			unsigned int s = tmp_rng.Next();
+			unsigned int samplerSeed = s ^ 0xFFFFFFFF;
+			return samplerSeed;
+		}
 
 		void SetSampler(unsigned int seed)
 		{
@@ -372,8 +374,8 @@ namespace mhcpp
 			this->Check = isFinishedFunc;
 		}
 		void SetEvolutionEngine(IEvolutionEngine<T>* engine) { this->engine = engine; };
-		bool IsFinished() 
-		{ 
+		bool IsFinished()
+		{
 			return Check(engine);
 		}
 	private:
@@ -471,7 +473,7 @@ namespace mhcpp
 		}
 
 	private:
-		
+
 		IObjectiveScores<TSys> scores;
 		T fitnessValue;
 
@@ -505,7 +507,7 @@ namespace mhcpp
 	};
 
 	template<typename T>
-	class HyperCube : public IHyperCube<T> //where T : IComparable
+	class HyperCube : public IHyperCube < T > //where T : IComparable
 	{
 	public:
 		HyperCube() {}
@@ -538,7 +540,7 @@ namespace mhcpp
 			vector<string> names = points[0].GetVariableNames();
 			vector<double> coords(names.size());
 			coords.assign(coords.size(), 0);
-			for(auto& p : points)
+			for (auto& p : points)
 				for (size_t i = 0; i < coords.size(); i++)
 					coords[i] += p.GetValue(names[i]);
 			for (size_t i = 0; i < coords.size(); i++)
@@ -555,7 +557,7 @@ namespace mhcpp
 		{
 			HyperCube result(from);
 			auto varnames = GetVariableNames();
-			for(auto& v : varnames)
+			for (auto& v : varnames)
 			{
 				//double min = this->GetMinValue(v);
 				//double max = this->GetMaxValue(v);
@@ -592,7 +594,7 @@ namespace mhcpp
 		{
 		public:
 			MMV(){}
-			MMV(string name, double min, double max, double value) : 
+			MMV(string name, double min, double max, double value) :
 				Name(name), Max(max), Min(min), Value(value)
 			{
 			}
@@ -604,7 +606,7 @@ namespace mhcpp
 	};
 
 	template<typename TSysConf>
-	class TopologicalDistance : public IObjectiveEvaluator<TSysConf>
+	class TopologicalDistance : public IObjectiveEvaluator < TSysConf >
 	{
 	public:
 		TopologicalDistance(const TSysConf& goal) { this->goal = goal; }
@@ -617,7 +619,7 @@ namespace mhcpp
 		/// <returns>An object with one or more objective scores</returns>
 		IObjectiveScores<TSysConf> EvaluateScore(TSysConf systemConfiguration)
 		{
-			double sumsqr=0;
+			double sumsqr = 0;
 			vector<string> varNames = goal.GetVariableNames();
 			for (auto& v : varNames)
 			{
@@ -631,106 +633,53 @@ namespace mhcpp
 		TSysConf goal;
 	};
 
-	bool CheckParameterFeasible(const IObjectiveScores<HyperCube<double>>& s)
-	{
-		if (!s.SystemConfiguration().IsFeasible())
+	namespace utils{
+
+		bool CheckParameterFeasible(const IObjectiveScores<HyperCube<double>>& s)
 		{
-			string ps = s.ToString();
-			std::cout << ps;
-			return false;
-		}
-		return true;
-	}
-
-	bool CheckParameterFeasible(const HyperCube<double>& p)
-	{
-		if (!p.IsFeasible())
-		{
-			string ps = p.ToString();
-			std::cout << ps;
-			return false;
-		}
-		return true;
-	}
-
-	bool CheckParameterFeasible(const std::vector<IObjectiveScores<HyperCube<double>>>& vec)
-	{
-		for (size_t i = 0; i < vec.size(); i++)
-		{
-			if (!CheckParameterFeasible(vec[i])) return false;
-		}
-		return true;
-	}
-
-	bool CheckParameterFeasible(const FitnessAssignedScores<double, HyperCube<double>>& p)
-	{
-		return CheckParameterFeasible(p.Scores());
-	}
-
-	bool CheckParameterFeasible(const std::vector<FitnessAssignedScores<double, HyperCube<double>>>& vec)
-	{
-		for (size_t i = 0; i < vec.size(); i++)
-		{
-			if (!CheckParameterFeasible(vec[i])) return false;
-		}
-		return true;
-	}
-
-	template<typename ElemType>
-	vector<ElemType> SampleFrom(RngInt& drng, const std::vector<ElemType>& population, size_t n,
-		vector<ElemType>& leftOut, bool replace = false)
-	{
-		if (!replace && population.size() <= n)
-			throw std::logic_error("If elements are sampled once, the output size must be less than the population sampled from");
-
-#ifdef _DEBUG
-		//CheckParameterFeasible(population);
-#endif
-
-		std::set<int> selected;
-		std::set<int> notSelected;
-		for (size_t i = 0; i < population.size(); i++)
-			notSelected.emplace(i);
-		std::vector<ElemType> result(n);
-		if (replace)
-		{
-			for (size_t i = 0; i < n; i++)
+			if (!s.SystemConfiguration().IsFeasible())
 			{
-				result[i] = population[drng()];
-				selected.emplace(i);
-				notSelected.erase(i);
+				string ps = s.ToString();
+				std::cout << ps;
+				return false;
 			}
+			return true;
 		}
-		else
-		{
-			auto src = AsPointers(population);
-			int counter = 0;
-			while (counter < n)
-			{
-				int i = drng();
-				if (!(src[i] == nullptr))
-				{
-					result[counter] = *(src[i]);
-					src[i] = nullptr;
-					selected.emplace(i);
-					notSelected.erase(i);
-					counter++;
-				}
-#ifdef _DEBUG
-				//CheckParameterFeasible(population);
-#endif
-			}
-			leftOut.clear();
-			for (auto index : notSelected)
-				leftOut.push_back(population[index]);
-#ifdef _DEBUG
-			//CheckParameterFeasible(population);
-			//CheckParameterFeasible(leftOut);
-#endif
-		}
-		return result;
-	}
 
+		bool CheckParameterFeasible(const HyperCube<double>& p)
+		{
+			if (!p.IsFeasible())
+			{
+				string ps = p.ToString();
+				std::cout << ps;
+				return false;
+			}
+			return true;
+		}
+
+		bool CheckParameterFeasible(const std::vector<IObjectiveScores<HyperCube<double>>>& vec)
+		{
+			for (size_t i = 0; i < vec.size(); i++)
+			{
+				if (!CheckParameterFeasible(vec[i])) return false;
+			}
+			return true;
+		}
+
+		bool CheckParameterFeasible(const FitnessAssignedScores<double, HyperCube<double>>& p)
+		{
+			return CheckParameterFeasible(p.Scores());
+		}
+
+		bool CheckParameterFeasible(const std::vector<FitnessAssignedScores<double, HyperCube<double>>>& vec)
+		{
+			for (size_t i = 0; i < vec.size(); i++)
+			{
+				if (!CheckParameterFeasible(vec[i])) return false;
+			}
+			return true;
+		}
+	}
 
 }
 

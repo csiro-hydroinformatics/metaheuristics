@@ -9,9 +9,11 @@
 #include "../mhcpp/core.hpp"
 #include "../mhcpp/sce.hpp"
 
-using namespace mhcpp;
 using namespace std;
+using namespace mhcpp;
+using namespace mhcpp::random;
 using namespace mhcpp::optimization;
+using namespace mhcpp::utils;
 
 
 HyperCube<double> createTestHc(double a, double b, double aMin = 1, double bMin = 3, double aMax = 2, double bMax = 4) {

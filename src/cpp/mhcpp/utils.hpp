@@ -33,5 +33,61 @@ namespace mhcpp
 			transform(aMap.begin(), aMap.end(), keys.begin(), GetKey<K, V>);
 			return keys;
 		}
+
+		template<typename ElemType>
+		void PrintHistogram(const std::vector<ElemType>& hist, std::ostream& stream, int nstars = 100, char c = '*')
+		{
+			ElemType total = std::accumulate(hist.begin(), hist.end(), 0);
+			size_t n = hist.size();
+			std::vector<string> s(n);
+			for (size_t i = 0; i < n; ++i)
+				s[i] = std::string(hist[i] * nstars / total, c);
+			PrintVec(s);
+		}
+
+		template<typename ElemType>
+		std::vector<double> Normalize(const std::vector<ElemType>& hist)
+		{
+			size_t n = hist.size();
+			std::vector<double> p(n);
+			ElemType total = std::accumulate(hist.begin(), hist.end(), 0);
+			for (size_t i = 0; i < n; ++i)
+				p[i] = (double)hist[i] / total;
+			return p;
+		}
+
+		template<typename ElemType>
+		std::vector<ElemType> RelativeDiff(const std::vector<ElemType>& expected, const std::vector<ElemType>& b)
+		{
+			std::vector<ElemType> result(expected.size());
+			for (size_t i = 0; i < expected.size(); i++)
+			{
+				result[i] = (std::abs(expected[i] - b[i]) / expected[i]);
+			}
+			return result;
+		}
+
+		template<typename ElemType>
+		void PrintVec(const std::vector<ElemType>& hist, std::ostream& stream)
+		{
+			int n = hist.size();
+			for (size_t i = 0; i < n; ++i)
+				stream << i << ": " << std::to_string(hist[i]) << std::endl;
+		}
+
+		template<typename ElemType>
+		void PrintValues(const std::vector<ElemType>& hist, std::ostream& stream, bool proportions = false)
+		{
+			int n = hist.size();
+			if (!proportions)
+			{
+				PrintVec(hist, stream);
+			}
+			else
+			{
+				auto p = Normalize(hist);
+				PrintVec(p, stream);
+			}
+		}
 	}
 }
