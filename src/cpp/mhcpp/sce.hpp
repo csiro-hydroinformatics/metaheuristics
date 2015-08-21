@@ -268,6 +268,10 @@ namespace mhcpp
 						//evolved = contractionOrRandom(withoutWorstPoint, worstPoint, centroid, bufferComplex);
 
 						replaceEvolved(replaceWithRandom(withoutWorstPoint, worstPoint));
+#ifdef _DEBUG
+						//CheckParameterFeasible(evolved);
+#endif
+
 					}
 					a++;
 				}
@@ -275,7 +279,11 @@ namespace mhcpp
 
 			std::vector<IObjectiveScores<T>> WholePopulation()
 			{
-				return aggregatePoints(evolved, leftOutFromSubcomplex);
+				auto scores = aggregatePoints(evolved, leftOutFromSubcomplex);
+#ifdef _DEBUG
+				//CheckParameterFeasible(scores);
+#endif
+				return scores;
 			}
 
 			static FitnessAssignedScores<double, T> FindWorstPoint(std::vector<FitnessAssignedScores<double, T>>& subComplex, std::vector<FitnessAssignedScores<double, T>>& pointRemoved)
@@ -320,7 +328,13 @@ namespace mhcpp
 				this->q = q;
 				this->cf = candidateFactory;
 				this->discreteRng = &discreteRng;
+#ifdef _DEBUG
+				//CheckParameterFeasible(complexPopulation);
+#endif
 				evolved = getSubComplex(complexPopulation, leftOutFromSubcomplex);
+#ifdef _DEBUG
+				//CheckParameterFeasible(leftOutFromSubcomplex);
+#endif
 
 			}
 
@@ -559,6 +573,9 @@ namespace mhcpp
 				std::vector<FitnessAssignedScores<double, T>> result;
 				auto subCplx = merge(withoutWorstPoint, worstPoint);
 				result = addRandomInHypercube(withoutWorstPoint, subCplx);
+#ifdef _DEBUG
+				//CheckParameterFeasible(result);
+#endif
 				return result;
 			}
 
@@ -583,20 +600,35 @@ namespace mhcpp
 				//	createTagCatComplexNo()
 				//	));
 				std::vector<IObjectiveScores<T>> newSubComplex = aggregate(newScore, withoutWorstPoint);
+#ifdef _DEBUG
+				//CheckParameterFeasible(newSubComplex);
+#endif
 				return fitnessAssignment.AssignFitness(newSubComplex);
 			}
 
 			std::vector<FitnessAssignedScores<double, T>> getSubComplex(const std::vector<IObjectiveScores<T>>& bufferComplex, std::vector<IObjectiveScores<T>>& leftOutFromSubcomplex)
 			{
 				auto fitnessPoints = fitnessAssignment.AssignFitness(bufferComplex);
+#ifdef _DEBUG
+				//CheckParameterFeasible(fitnessPoints);
+#endif
 				FitnessAssignedScores<double, T>::Sort(fitnessPoints);
+#ifdef _DEBUG
+				//CheckParameterFeasible(fitnessPoints);
+#endif
 				std::vector<FitnessAssignedScores<double, T>> leftOut;
-				std::vector<FitnessAssignedScores<double, T>> subset = SampleFrom(*discreteRng, fitnessPoints, q, false, &leftOut);
+				std::vector<FitnessAssignedScores<double, T>> subset = SampleFrom(*discreteRng, fitnessPoints, q, leftOut, false);
+#ifdef _DEBUG
+				//CheckParameterFeasible(leftOut);
+#endif
 				leftOutFromSubcomplex.clear();
 				for (size_t i = 0; i < leftOut.size(); i++)
 				{
 					leftOutFromSubcomplex.push_back(leftOut[i].Scores());
 				}
+#ifdef _DEBUG
+				//CheckParameterFeasible(leftOutFromSubcomplex);
+#endif
 				return subset;
 			}
 
@@ -707,6 +739,9 @@ namespace mhcpp
 					SubComplex<T> subComplex(*this);
 					subComplex.Evolve();
 					this->scores = subComplex.WholePopulation();
+#ifdef _DEBUG
+					//CheckParameterFeasible(scores);
+#endif
 					b++;
 				}
 
@@ -1191,8 +1226,13 @@ namespace mhcpp
 				for (auto c : complexes)
 				{
 					auto scores = c->GetObjectiveScores();
+#ifdef _DEBUG
+					//CheckParameterFeasible(scores);
+#endif
 					for (auto& s : scores)
+					{
 						result.push_back(s);
+					}
 				}
 				return result;
 			}

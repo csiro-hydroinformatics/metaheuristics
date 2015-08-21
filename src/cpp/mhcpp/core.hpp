@@ -78,7 +78,7 @@ namespace mhcpp
 		/// <param name="value"></param>
 		virtual void SetValue(string variableName, T value) = 0;
 
-		virtual string ToString()
+		virtual string ToString() const
 		{
 			string s;
 			auto vnames = GetVariableNames();
@@ -165,7 +165,7 @@ namespace mhcpp
 
 		virtual double Value(int i) const { return objectives[i].Value; } //= 0;
 
-		string ToString()
+		string ToString() const
 		{
 			string s;
 			for (size_t i = 0; i < this->ObjectiveCount(); i++)
@@ -195,7 +195,7 @@ namespace mhcpp
 			string Name;
 			double Value;
 			bool Maximizable;
-			string ToString()
+			string ToString() const
 			{
 				return Name + ":" + std::to_string(Value);
 			}
@@ -294,18 +294,23 @@ namespace mhcpp
 			{
 				double min = bounds.GetMinValue(vname);
 				double max = bounds.GetMaxValue(vname);
-				rt.SetValue(vname, min + Urand() * (max - min));
+				double d = Urand();
+				if (d > 1 || d < 0)
+					throw std::logic_error("[0-1] uniform distribution, but got a sample out of this interval");
+				rt.SetValue(vname, min + d * (max - min));
 			}
 			return rt;
 		}
 
 		TSysConfig CreateRandomCandidate(const vector<TSysConfig>& population)
 		{
+			if (population.size() == 0)
+				throw std::logic_error("There must be at least one point in the population to define a feasible space for the random point");
 			TSysConfig bounds(t);
 			for (auto& vname : bounds.GetVariableNames())
 			{
-				double min = std::numeric_limits<double>::max();
-				double max = std::numeric_limits<double>::min();
+				double min = std::numeric_limits<double>::min();
+				double max = std::numeric_limits<double>::max();
 				for (size_t i = 0; i < population.size(); i++)
 				{
 					double x = population[i].GetValue(vname);
@@ -315,7 +320,11 @@ namespace mhcpp
 				bounds.SetMaxValue(vname, max);
 				bounds.SetMinValue(vname, min);
 			}
-			return CreateRandomCandidate(bounds);
+			auto result = CreateRandomCandidate(bounds);
+#ifdef _DEBUG
+			//CheckParameterFeasible(result);
+#endif
+			return result;
 		}
 
 		ICandidateFactory<TSysConfig>* CreateNew()
@@ -456,7 +465,7 @@ namespace mhcpp
 			std::stable_sort(points.begin(), points.end(), FitnessAssignedScores<T, TSys>::BetterThan);
 		}
 
-		string ToString()
+		string ToString() const
 		{
 			return FitnessValue().ToString() + ", " + Scores.ToString();
 		}
@@ -569,11 +578,11 @@ namespace mhcpp
 			return reference + ((point - reference) * factor);
 		}
 
-		virtual bool IsFeasible()
+		virtual bool IsFeasible() const
 		{
 			auto varnames = GetVariableNames();
 			for (auto& v : varnames)
-				if (!this->def[v].IsFeasible()) return false;
+				if (!this->def.at(v).IsFeasible()) return false;
 			return true;
 		}
 
@@ -589,7 +598,7 @@ namespace mhcpp
 			}
 			string Name;
 			double Min, Max, Value;
-			bool IsFeasible() { return (Value >= Min) && (Value <= Max); }
+			bool IsFeasible() const { return (Value >= Min) && (Value <= Max); }
 		};
 		std::map<string, MMV> def;
 	};
@@ -621,4 +630,107 @@ namespace mhcpp
 	private:
 		TSysConf goal;
 	};
+
+	bool CheckParameterFeasible(const IObjectiveScores<HyperCube<double>>& s)
+	{
+		if (!s.SystemConfiguration().IsFeasible())
+		{
+			string ps = s.ToString();
+			std::cout << ps;
+			return false;
+		}
+		return true;
+	}
+
+	bool CheckParameterFeasible(const HyperCube<double>& p)
+	{
+		if (!p.IsFeasible())
+		{
+			string ps = p.ToString();
+			std::cout << ps;
+			return false;
+		}
+		return true;
+	}
+
+	bool CheckParameterFeasible(const std::vector<IObjectiveScores<HyperCube<double>>>& vec)
+	{
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+			if (!CheckParameterFeasible(vec[i])) return false;
+		}
+		return true;
+	}
+
+	bool CheckParameterFeasible(const FitnessAssignedScores<double, HyperCube<double>>& p)
+	{
+		return CheckParameterFeasible(p.Scores());
+	}
+
+	bool CheckParameterFeasible(const std::vector<FitnessAssignedScores<double, HyperCube<double>>>& vec)
+	{
+		for (size_t i = 0; i < vec.size(); i++)
+		{
+			if (!CheckParameterFeasible(vec[i])) return false;
+		}
+		return true;
+	}
+
+	template<typename ElemType>
+	vector<ElemType> SampleFrom(RngInt& drng, const std::vector<ElemType>& population, size_t n,
+		vector<ElemType>& leftOut, bool replace = false)
+	{
+		if (!replace && population.size() <= n)
+			throw std::logic_error("If elements are sampled once, the output size must be less than the population sampled from");
+
+#ifdef _DEBUG
+		//CheckParameterFeasible(population);
+#endif
+
+		std::set<int> selected;
+		std::set<int> notSelected;
+		for (size_t i = 0; i < population.size(); i++)
+			notSelected.emplace(i);
+		std::vector<ElemType> result(n);
+		if (replace)
+		{
+			for (size_t i = 0; i < n; i++)
+			{
+				result[i] = population[drng()];
+				selected.emplace(i);
+				notSelected.erase(i);
+			}
+		}
+		else
+		{
+			auto src = AsPointers(population);
+			int counter = 0;
+			while (counter < n)
+			{
+				int i = drng();
+				if (!(src[i] == nullptr))
+				{
+					result[counter] = *(src[i]);
+					src[i] = nullptr;
+					selected.emplace(i);
+					notSelected.erase(i);
+					counter++;
+				}
+#ifdef _DEBUG
+				//CheckParameterFeasible(population);
+#endif
+			}
+			leftOut.clear();
+			for (auto index : notSelected)
+				leftOut.push_back(population[index]);
+#ifdef _DEBUG
+			//CheckParameterFeasible(population);
+			//CheckParameterFeasible(leftOut);
+#endif
+		}
+		return result;
+	}
+
+
 }
+

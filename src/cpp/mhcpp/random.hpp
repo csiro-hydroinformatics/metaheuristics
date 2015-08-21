@@ -305,51 +305,6 @@ namespace mhcpp
 		return result;
 	}
 
-	template<typename ElemType>
-	vector<ElemType> SampleFrom(RngInt& drng, const std::vector<ElemType>& population, size_t n,
-		bool replace = false, vector<ElemType> *leftOut = nullptr)
-	{
-		if (!replace && population.size() <= n)
-			throw std::logic_error("If elements are sampled once, the output size must be less than the population sampled from");
-		std::set<int> selected;
-		std::set<int> notSelected;
-		for (size_t i = 0; i < population.size(); i++)
-			notSelected.emplace(i);
-		std::vector<ElemType> result(n);
-		if (replace)
-		{
-			for (size_t i = 0; i < n; i++)
-			{
-				result[i] = population[drng()];
-				selected.emplace(i);
-				notSelected.erase(i);
-			}
-		}
-		else
-		{
-			auto src = AsPointers(population);
-			int counter = 0;
-			while (counter < n)
-			{
-				int i = drng();
-				if (!(src[i] == nullptr))
-				{
-					result[counter] = *(src[i]);
-					src[i] = nullptr;
-					selected.emplace(i);
-					notSelected.erase(i);
-					counter++;
-				}
-			}
-			if (leftOut != nullptr)
-			{
-				leftOut->clear();
-				for (auto index : notSelected)
-					leftOut->push_back(population[index]);
-			}
-		}
-		return result;
-	}
 
 	vector<int> SampleFrom(RngInt& drng, size_t nsampling)
 	{

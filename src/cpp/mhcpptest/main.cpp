@@ -238,7 +238,7 @@ SCENARIO("discrete RNG to sample from a population of points", "[rng]")
 
 	const int nrolls = 100000; // number of experiments
 	auto p = SampleFrom(rng, nrolls);
-	std::cout << "a discrete_distribution:" << std::endl;
+	//std::cout << "a discrete_distribution:" << std::endl;
 
 	//PrintHistogram(p, std::cout);
 	//PrintValues(p, std::cout, true);
@@ -467,7 +467,7 @@ SCENARIO("SCE basic port", "[optimizer]") {
 		WHEN("") {
 			auto results = opt.Evolve();
 			REQUIRE(results.size() > 0);
-			results.PrintTo(std::cout);
+			//results.PrintTo(std::cout);
 			auto first = results[0];
 			REQUIRE(first.ObjectiveCount() == 1);			
 		}
