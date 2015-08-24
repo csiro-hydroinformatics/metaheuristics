@@ -1,0 +1,32 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Getting started with the 'mhpp' package}
+-->
+
+=================
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(out.extra='style="display:block; margin: auto"', fig.align="center", fig.width=10, fig.height=8, dev='png')
+```
+
+# About this document
+
+This document was generated from an R markdown file on `r as.character(Sys.time())`. It illustrates how to set up a calibration on a time stepping model simulation.
+
+```{r, eval=FALSE, include=FALSE}
+library(swiftdev)
+setwd(file.path('F:/src/github_jm/metaheuristics/R/pkgs/mh', 'vignettes'))
+purlVignettes('.', '..')
+```
+
+# Getting started
+
+```{r}
+library(mhcpp)
+```
+
+```{r}
+createComplex
+```
+
