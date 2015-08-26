@@ -46,18 +46,20 @@ std::string hello() {
 //    Rprintf("hello (x = %d, y = %5.2f)\\n", x, y);
 //}
 
-class Cplx {
+using namespace mhcpp::optimization;
+using namespace mhcpp;
+
+class Cplx : public Complex<HyperCube<double>> {
 public:
-	Cplx(Rcpp::Function f) : msg("hello") , complex(scores, m, q, alpha, beta,
-		&evaluator, rng, &unif,
-		fitnessAssignment, &terminationCondition)
+	Cplx(Rcpp::Function f) 
+		//complex(scores, m, q, alpha, beta,
+		//&evaluator, rng, &unif,
+		//fitnessAssignment, &terminationCondition)
 	{}
-	void set(std::string msg) { this->msg = msg; }
-    std::string greet() { return msg; }
+	void evolve() {  }
+	void get_population() { ; }
 
 private:
-    std::string msg;
-	mhcpp::optimization::Complex<double> complex;
 };
 
 
@@ -75,8 +77,8 @@ RCPP_MODULE(mh){
     // expose the default constructor
     .constructor<Rcpp::Function>()
 
-    .method("evolve", &Cplx::greet , "Launch the evolution of the complex")
-    .method("get_population", &Cplx::set     , "Gets the population of the complex")
+	.method("evolve", &Cplx::evolve, "Launch the evolution of the complex")
+	.method("get_population", &Cplx::get_population, "Gets the population of the complex")
     ;
 }
 

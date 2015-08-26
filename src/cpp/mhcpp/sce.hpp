@@ -687,6 +687,12 @@ namespace mhcpp
 
 			ITerminationCondition<T> * TerminationCondition;
 
+		protected:
+			Complex() //:
+				//discreteGenerator(CreateTrapezoidalRng(m, rng.CreateNewStd(), factorTrapezoidalPDF))
+			{
+			}
+
 		public:
 			string ComplexId;
 

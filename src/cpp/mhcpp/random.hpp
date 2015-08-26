@@ -83,7 +83,16 @@ namespace mhcpp
 			Distribution _dist;
 		};
 
-		using RngInt = VariateGenerator < std::default_random_engine, std::discrete_distribution<int> > ;
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION < 40800
+		typedef VariateGenerator < std::default_random_engine, std::discrete_distribution<int> > RngInt;
+#else
+		using RngInt = VariateGenerator < std::default_random_engine, std::discrete_distribution<int> >;
+#endif
+#else
+		using RngInt = VariateGenerator < std::default_random_engine, std::discrete_distribution<int> >;
+#endif
 
 		class IRandomNumberGeneratorFactory
 		{
