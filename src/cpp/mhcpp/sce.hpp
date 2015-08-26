@@ -665,19 +665,18 @@ namespace mhcpp
 			friend SubComplex<T>::SubComplex(Complex&);
 
 			std::vector<IObjectiveScores<T>> scores;
-			int m;
-			int q;
-			int alpha;
-			int beta;
+			int q = 10;
+			int alpha = 2;
+			int beta = 3;
 			RngInt discreteGenerator;
 			IRandomNumberGeneratorFactory rng;
-			ICandidateFactory<T> * candidateFactory;
+			ICandidateFactory<T> * candidateFactory = nullptr;
 			IFitnessAssignment<double, T> fitnessAssignment;
-			IObjectiveEvaluator<T>* evaluator;
+			IObjectiveEvaluator<T>* evaluator = nullptr;
 			// IHyperCubeOperations* hyperCubeOps;
 			ILoggerMh* logger = nullptr; // new Log4netAdapter();
-			double ContractionRatio;
-			double ReflectionRatio;
+			double ContractionRatio = 0.5;
+			double ReflectionRatio = -1;
 
 			std::map<string, string> tags;
 			double factorTrapezoidalPDF;
@@ -687,39 +686,54 @@ namespace mhcpp
 
 			ITerminationCondition<T> * TerminationCondition;
 
-		protected:
-			Complex() //:
-				//discreteGenerator(CreateTrapezoidalRng(m, rng.CreateNewStd(), factorTrapezoidalPDF))
+			void Init(const std::vector<IObjectiveScores<T>>& scores, int q, int alpha, int beta, double factorTrapezoidalPDF,
+				SceOptions options, double reflectionRatio, double contractionRatio)
 			{
+				// TODO checks on consistencies.
+				this->scores = scores;
+				this->q = q;
+				this->alpha = alpha;
+				this->beta = beta;
+				this->factorTrapezoidalPDF = factorTrapezoidalPDF;
+				this->options = options;
+				this->ReflectionRatio = reflectionRatio;
+				this->ContractionRatio = contractionRatio;
+			}
+
+		protected:
+			// temporary only:
+			Complex(int m=20, int seed = 0, int q=10) :
+				rng(seed),
+				discreteGenerator(CreateTrapezoidalRng(m, rng.CreateNewStd(), factorTrapezoidalPDF))
+			{
+			}
+
+			Complex(const std::vector<IObjectiveScores<T>>& scores, int seed = 0, int q=10, int alpha=2, int beta=3, double factorTrapezoidalPDF = -1,
+				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5) :
+				rng(seed),
+				discreteGenerator(CreateTrapezoidalRng(scores.size(), rng.CreateNewStd(), factorTrapezoidalPDF))
+			{
+				Init(scores, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
 			}
 
 		public:
 			string ComplexId;
 
-			Complex(const std::vector<IObjectiveScores<T>>& scores, int m, int q, int alpha, int beta,
+			Complex(const std::vector<IObjectiveScores<T>>& scores, 
 				IObjectiveEvaluator<T>* evaluator, IRandomNumberGeneratorFactory rng, ICandidateFactory<T>* candidateFactory,
 				IFitnessAssignment<double, T> fitnessAssignment, ITerminationCondition<T> * terminationCondition,
-				ILoggerMh* logger = nullptr, std::map<string, string> tags = std::map<string, string>(), double factorTrapezoidalPDF = -1,
+				ILoggerMh* logger = nullptr, std::map<string, string> tags = std::map<string, string>(), int q=10, int alpha=2, int beta=3, double factorTrapezoidalPDF = -1,
 				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5) 
 				:
-				discreteGenerator(CreateTrapezoidalRng(m, rng.CreateNewStd(), factorTrapezoidalPDF))
+				discreteGenerator(CreateTrapezoidalRng(scores.size(), rng.CreateNewStd(), factorTrapezoidalPDF))
 			{
-				this->scores = scores;
-				this->m = m;
-				this->q = q;
-				this->alpha = alpha;
-				this->beta = beta;
+				Init(scores, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
 				this->fitnessAssignment = fitnessAssignment;
 				this->candidateFactory = candidateFactory;
-				//this->hyperCubeOps = hyperCubeOperations;
 				this->evaluator = evaluator;
 				this->logger = logger;
 				this->tags = tags;
-				this->factorTrapezoidalPDF = factorTrapezoidalPDF;
-				this->options = options;
 				this->rng = rng;
-				this->ReflectionRatio = reflectionRatio;
-				this->ContractionRatio = contractionRatio;
 				this->TerminationCondition = terminationCondition;
 			}
 
@@ -1287,10 +1301,9 @@ namespace mhcpp
 
 				//auto loggerTags = LoggerMhHelper.MergeDictionaries(logTags, LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("CurrentShuffle", std::to_string(this->CurrentShuffle))));
 
-				return new Complex<T>(scores, m, q, alpha, beta,
-					evaluator, rng, populationInitializer,
+				return new Complex<T>(scores, evaluator, rng, populationInitializer,
 					fitnessAssignment, this->terminationCondition,
-					nullptr, std::map<string, string>(), trapezoidalPdfParam,
+					nullptr, std::map<string, string>(), q, alpha, beta, trapezoidalPdfParam,
 					options, this->ReflectionRatio, this->ContractionRatio);
 
 				//auto complex = new Complex<T>(scores, m, q, alpha, beta,

@@ -49,9 +49,21 @@ std::string hello() {
 using namespace mhcpp::optimization;
 using namespace mhcpp;
 
-class Cplx : public Complex<HyperCube<double>> {
+class VecHyperCube : public HyperCube < double > 
+{
+	public:
+	VecHyperCube() {}	
+	VecHyperCube(const VecHyperCube& src) : HyperCube<double>(src)
+	{
+	}
+};
+
+class Cplx : public Complex<VecHyperCube> {
 public:
-	Cplx(Rcpp::Function f) 
+	Cplx(Rcpp::List, Rcpp::Function f, int q) 
+	{
+	}
+	Cplx(Rcpp::DataFrame, Rcpp::Function f, int q) 
 		//complex(scores, m, q, alpha, beta,
 		//&evaluator, rng, &unif,
 		//fitnessAssignment, &terminationCondition)
@@ -75,7 +87,7 @@ RCPP_MODULE(mh){
 
     class_<Cplx>("Complex")
     // expose the default constructor
-    .constructor<Rcpp::Function>()
+    .constructor<Rcpp::List, Rcpp::Function, int>()
 
 	.method("evolve", &Cplx::evolve, "Launch the evolution of the complex")
 	.method("get_population", &Cplx::get_population, "Gets the population of the complex")

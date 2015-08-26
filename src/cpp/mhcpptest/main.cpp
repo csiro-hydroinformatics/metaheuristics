@@ -405,10 +405,11 @@ SCENARIO("Complex for SCE, single objective", "[optimizer]") {
 		auto unif = createTestUnifrand<T>(421);
 		ITerminationCondition<HyperCube < double > > terminationCondition;
 
+		//Complex<T> cplx_noargs;
+
 		Complex<T> cplx
-			(scores, m, q, alpha, beta,
-				&evaluator, rng, &unif,
-				fitnessAssignment, &terminationCondition);
+			(scores, &evaluator, rng, &unif,
+				fitnessAssignment, &terminationCondition, nullptr, std::map<string, string>(), q, alpha, beta);
 		THEN("The complex evolution completes without exception")
 		{
 			REQUIRE_NOTHROW(cplx.Evolve());

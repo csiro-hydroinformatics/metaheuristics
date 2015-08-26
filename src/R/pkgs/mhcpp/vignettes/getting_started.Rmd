@@ -22,11 +22,11 @@ purlVignettes('.', '..')
 
 # Getting started
 
-```{r}
+```{r, eval=FALSE}
 library(mhcpp)
 ```
 
-```{r}
+```{r, eval=FALSE}
 createComplex
 ```
 

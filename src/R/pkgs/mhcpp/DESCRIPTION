@@ -9,3 +9,7 @@ Description: Access a metaheuristics framework via Rcpp
 License: LGPL (>= 3)
 Imports: methods, Rcpp (>= 0.12.0)
 LinkingTo: Rcpp
+Suggests:
+    knitr
+VignetteBuilder: knitr
+
