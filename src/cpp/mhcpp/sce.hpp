@@ -737,6 +737,10 @@ namespace mhcpp
 				this->TerminationCondition = terminationCondition;
 			}
 
+			virtual ~Complex()
+			{
+			}
+
 
 			bool IsFinished()
 			{

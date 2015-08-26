@@ -16,3 +16,5 @@ List rcpp_hello_world() {
 Rcpp::NumericVector create_complex(Function rFunc) {
 	return NumericVector::create(0.0, 1.0);
 }
+
+

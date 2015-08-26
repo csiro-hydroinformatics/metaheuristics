@@ -27,6 +27,45 @@ library(mhcpp)
 ```
 
 ```{r, eval=FALSE}
-createComplex
+
+library(dplyr)
+
+create_hypercubes <- function(n, minima, maxima, pnames, seed) {
+  if(!missing(seed)) set.seed(seed)
+  values <- as.data.frame(sapply(1:length(minima), function(i) runif(n, minima[i], maxima[i])))
+  names(values) <- pnames
+  values
+}
+
+minima <- 1:3
+pnames <- letters[minima]
+names(minima) <- pnames
+maxima <- 2:4
+names(maxima) <- pnames
+n <- 7
+
+L2_distance <- function(observed, modelled) {
+  d <- observed - modelled
+  return(sqrt(sum(d*d)))
+}
+
+goal <- (maxima+minima)/2
+objective_fct <- function(x){
+  return(L2_distance(goal, x))
+}
+
+OF <- mhcpp::mh$Objective
+obj <- new( OF, objective_fct)
+
+psets <- create_hypercubes(n, minima, maxima, pnames)
+head(psets)
+psets <- mhcpp::as_cpp(psets)
+
+str(psets)
+
+cx <- Complex$new(population, evaluator, seed)
+
+cx$getPopulation()
+
 ```
 
