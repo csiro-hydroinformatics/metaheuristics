@@ -23,13 +23,13 @@ purlVignettes('.', '..')
 # Getting started
 
 ```{r, eval=FALSE}
-library(mhcpp)
 ```
 
 ```{r, eval=FALSE}
 
-library(dplyr)
+# library(dplyr)
 
+library(mhcpp)
 create_hypercubes <- function(n, minima, maxima, pnames, seed) {
   if(!missing(seed)) set.seed(seed)
   values <- as.data.frame(sapply(1:length(minima), function(i) runif(n, minima[i], maxima[i])))
@@ -54,18 +54,22 @@ objective_fct <- function(x){
   return(L2_distance(goal, x))
 }
 
-OF <- mhcpp::mh$Objective
-obj <- new( OF, objective_fct)
+OF <- mhcpp::Objective
+obj <- new( OF, objective_fct, "the obj", goal)
 
 psets <- create_hypercubes(n, minima, maxima, pnames)
 head(psets)
-psets <- mhcpp::as_cpp(psets)
 
-str(psets)
+pop <- new( Population, psets, minima, maxima)
 
-cx <- Complex$new(population, evaluator, seed)
+str(pop)
 
-cx$getPopulation()
+cx <- new(Complex, pop, obj, 5L, 0L)
+
+cx$evolve()
+
+s = cx$get_population()
+s$as_dataframe()
 
 ```
 

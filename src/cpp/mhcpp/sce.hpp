@@ -326,7 +326,10 @@ namespace mhcpp
 				this->ReflectionRatio = reflectionRatio;
 				this->alpha = alpha;
 				this->q = q;
+				this->rng = rng;
 				this->cf = candidateFactory;
+				if(cf==nullptr)
+					cf = new UniformRandomSamplingFactory<T>(rng, complexPopulation[0].SystemConfiguration());
 				this->discreteRng = &discreteRng;
 #ifdef _DEBUG
 				//CheckParameterFeasible(complexPopulation);
@@ -672,22 +675,25 @@ namespace mhcpp
 			IRandomNumberGeneratorFactory rng;
 			ICandidateFactory<T> * candidateFactory = nullptr;
 			IFitnessAssignment<double, T> fitnessAssignment;
-			IObjectiveEvaluator<T>* evaluator = nullptr;
 			// IHyperCubeOperations* hyperCubeOps;
 			ILoggerMh* logger = nullptr; // new Log4netAdapter();
 			double ContractionRatio = 0.5;
 			double ReflectionRatio = -1;
 
 			std::map<string, string> tags;
-			double factorTrapezoidalPDF;
-			SceOptions options;
+			double factorTrapezoidalPDF = -1;
+			SceOptions options = SceOptions::None;
 
-			bool IsCancelled;
+			bool IsCancelled = false;
 
-			ITerminationCondition<T> * TerminationCondition;
+			ITerminationCondition<T> * TerminationCondition = nullptr;
 
-			void Init(const std::vector<IObjectiveScores<T>>& scores, int q, int alpha, int beta, double factorTrapezoidalPDF,
-				SceOptions options, double reflectionRatio, double contractionRatio)
+		protected:
+
+			IObjectiveEvaluator<T>* evaluator = nullptr;
+
+			void Init(const std::vector<IObjectiveScores<T>>& scores, IObjectiveEvaluator<T>* evaluator, int q, int alpha=2, int beta=3, double factorTrapezoidalPDF = -1,
+				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5)
 			{
 				// TODO checks on consistencies.
 				this->scores = scores;
@@ -698,22 +704,15 @@ namespace mhcpp
 				this->options = options;
 				this->ReflectionRatio = reflectionRatio;
 				this->ContractionRatio = contractionRatio;
+				this->evaluator = evaluator;
 			}
 
-		protected:
-			// temporary only:
-			Complex(int m=20, int seed = 0, int q=10) :
-				rng(seed),
-				discreteGenerator(CreateTrapezoidalRng(m, rng.CreateNewStd(), factorTrapezoidalPDF))
-			{
-			}
-
-			Complex(const std::vector<IObjectiveScores<T>>& scores, int seed = 0, int q=10, int alpha=2, int beta=3, double factorTrapezoidalPDF = -1,
+			Complex(const std::vector<IObjectiveScores<T>>& scores, IObjectiveEvaluator<T>* evaluator, int q, int seed = 0, int alpha=2, int beta=3, double factorTrapezoidalPDF = -1,
 				SceOptions options = SceOptions::None, double reflectionRatio = -1.0, double contractionRatio = 0.5) :
 				rng(seed),
 				discreteGenerator(CreateTrapezoidalRng(scores.size(), rng.CreateNewStd(), factorTrapezoidalPDF))
 			{
-				Init(scores, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
+				Init(scores, evaluator, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
 			}
 
 		public:
@@ -727,10 +726,9 @@ namespace mhcpp
 				:
 				discreteGenerator(CreateTrapezoidalRng(scores.size(), rng.CreateNewStd(), factorTrapezoidalPDF))
 			{
-				Init(scores, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
+				Init(scores, evaluator, q, alpha, beta, factorTrapezoidalPDF, options, reflectionRatio, contractionRatio);
 				this->fitnessAssignment = fitnessAssignment;
 				this->candidateFactory = candidateFactory;
-				this->evaluator = evaluator;
 				this->logger = logger;
 				this->tags = tags;
 				this->rng = rng;
@@ -741,9 +739,9 @@ namespace mhcpp
 			{
 			}
 
-
 			bool IsFinished()
 			{
+				if(TerminationCondition == nullptr) return false;
 				return TerminationCondition->IsFinished();
 			}
 
