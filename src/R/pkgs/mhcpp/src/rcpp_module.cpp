@@ -25,26 +25,6 @@ std::string hello() {
     throw std::range_error( "boom" ) ;
 }
 
-//int bar(int x) {
-//    return x*2;
-//}
-//
-//double foo(int x, double y) {
-//    return x * y;
-//}
-//
-//void bla() {
-//    Rprintf("hello\\n");
-//}
-//
-//void bla1(int x) {
-//    Rprintf("hello (x = %d)\\n", x);
-//}
-//
-//void bla2( int x, double y) {
-//    Rprintf("hello (x = %d, y = %5.2f)\\n", x, y);
-//}
-
 using namespace mhcpp::optimization;
 using namespace mhcpp;
 
@@ -164,33 +144,39 @@ Rcpp::DataFrame Scores::get_as_dataframe()
 	{
 		colNames.push_back(pNames[i]); 
 		parameters.push_back(Rcpp::NumericVector(nrows));
+		// Rprintf( "parameters[%d].size() = %d\n", i, parameters[i].size());
 	}
 	for (int i = 0; i < sDim; ++i)
 	{
 		colNames.push_back("obj");
 		objectives.push_back(Rcpp::NumericVector(nrows));
+		// Rprintf( "objectives[%d].size() = %d\n", i, objectives[i].size());
 	}
 	for (int r = 0; r < nrows; ++r)
 	{
 		auto p = points[r];
 		auto cfg = p.SystemConfiguration();
 		for (int i = 0; i < pDim; ++i)
-			parameters[i](r) = cfg.GetValue(pNames[i]);
+			parameters[i][r] = cfg.GetValue(pNames[i]);
 		for (int i = 0; i < sDim; ++i)
-			objectives[i](r) = p.Value(i);
+			objectives[i][r] = p.Value(i);
 	}
+	// Rprintf( "Done setting vectors of values\n");
 	
-	Rcpp::DataFrame returned_frame(pDim + sDim);
+	//http://stackoverflow.com/questions/8631197/constructing-a-data-frame-in-rcpp
+	Rcpp::List returned_frame(pDim + sDim);
 
 	for (int i = 0; i < pDim; ++i)
-		returned_frame(i) = parameters[i];
+		returned_frame[i] = parameters[i];
+	// Rprintf( "Done assigning data frames parameter vectors.\n");
 	for (int i = 0; i < sDim; ++i)
-		returned_frame(i+pDim) = objectives[i];
+		returned_frame[i+pDim] = objectives[i];
+	// Rprintf( "Done assigning data frames objectives vectors.\n");
 	
 	Rcpp::StringVector col_names = Rcpp::wrap(colNames);
 	returned_frame.attr("names") = col_names;
 
-	return returned_frame;
+	return Rcpp::DataFrame(returned_frame);
 }
 
 
