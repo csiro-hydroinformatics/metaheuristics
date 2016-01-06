@@ -23,7 +23,8 @@ INSTDIR:= ../inst
 RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb $(SAMPLEBINDIR)/*.dll $(SAMPLEBINDIR)/*.pdb 
 MSB:=xbuild
 MODE:=Build
-SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
+# Note: consoleloggerparameters:ErrorsOnly works with msbuild.exe, but xbuild does not support it
+SLNPROPERTIES=/p:Configuration=$(BuildConfiguration) /nologo /consoleloggerparameters:ErrorsOnly /verbosity:minimal
 
 all: instdir Mh2RLib 
 
