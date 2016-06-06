@@ -172,7 +172,12 @@ namespace CSIRO.Metaheuristics.Optimization
                 }
                 endPoint = currentPoint;
                 b = createNewBase( b, startingPoint, endPoint );
-                return Tuple.Create( b, currentPoint, scores.ToArray());
+
+                var paretoRanking = new ParetoRanking<IObjectiveScores<T>>(scores, new ParetoComparer<IObjectiveScores<T>>());
+                IObjectiveScores<T>[] paretoScores = paretoRanking.GetDominatedByParetoRank(1);
+                //Array.Reverse(paretoScores); // so best is first
+
+                return Tuple.Create( b, currentPoint, paretoScores);
             }
 
             private IDictionary<string, string> createTag()
