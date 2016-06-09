@@ -1,3 +1,0 @@
-useDynLib(mhcpp)
-exportPattern("^[[:alpha:]]+")
-import(methods, Rcpp)
