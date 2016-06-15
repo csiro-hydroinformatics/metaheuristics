@@ -49,10 +49,9 @@ namespace CSIRO.Metaheuristics.Optimization
             IObjectiveScores[] scores = evaluateScores(initialisePopulation());
             var tags = LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("Category", "URS"));
             loggerWrite(scores, tags);
-            //IObjectiveScores[] paretoScores = ParetoRanking<IObjectiveScores>.GetParetoFront(scores);
+
             var paretoRanking = new ParetoRanking<IObjectiveScores>(scores, new ParetoComparer<IObjectiveScores>());
             IObjectiveScores[] paretoScores = paretoRanking.GetDominatedByParetoRank(1);
-            //Array.Reverse(paretoScores); // so best is first
             return new BasicOptimizationResults<T>(paretoScores);
         }
 
