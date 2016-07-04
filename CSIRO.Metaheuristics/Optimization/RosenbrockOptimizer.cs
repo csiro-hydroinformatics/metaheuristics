@@ -174,7 +174,7 @@ namespace CSIRO.Metaheuristics.Optimization
                 b = createNewBase( b, startingPoint, endPoint );
 
                 var paretoRanking = new ParetoRanking<IObjectiveScores<T>>(scores, new ParetoComparer<IObjectiveScores<T>>());
-                IObjectiveScores<T>[] paretoScores = paretoRanking.GetDominatedByParetoRank(1);
+                IObjectiveScores<T>[] paretoScores = paretoRanking.GetDominatedByParetoRank(0);
  
                 return Tuple.Create( b, currentPoint, paretoScores);
             }

@@ -51,7 +51,7 @@ namespace CSIRO.Metaheuristics.Optimization
             loggerWrite(scores, tags);
 
             var paretoRanking = new ParetoRanking<IObjectiveScores>(scores, new ParetoComparer<IObjectiveScores>());
-            IObjectiveScores[] paretoScores = paretoRanking.GetDominatedByParetoRank(1);
+            IObjectiveScores[] paretoScores = paretoRanking.GetDominatedByParetoRank(0);
             return new BasicOptimizationResults<T>(paretoScores);
         }
 
