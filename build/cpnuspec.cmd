@@ -7,10 +7,11 @@ echo.
 set THIS_DIR=%~d0%~p0
 set src_nuspec=%THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.nuspec
 if not exist "%src_nuspec%" goto noSrcNuspec
-if "%BuildConfiguration%" == "" set BuildConfiguration=Debug
+if not defined BuildConfiguration set BuildConfiguration=Debug
 set COPYOPTIONS=/Y /R /D
 
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.nuspec %COPYOPTIONS%
+:: xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.nuspec %COPYOPTIONS%
@@ -22,6 +23,7 @@ if not exist "%pkg_dir%" mkdir %pkg_dir%
 set pack_options=-IncludeReferencedProjects -Verbosity normal -Properties Configuration=%BuildConfiguration% -OutputDirectory %pkg_dir%
 
 nuget pack %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.csproj %pack_options%
+nuget pack %THIS_DIR%..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheuristics.DataModel.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.csproj %pack_options%

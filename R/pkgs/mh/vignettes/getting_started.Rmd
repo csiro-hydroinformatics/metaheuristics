@@ -1,0 +1,162 @@
+<!--
+%\VignetteEngine{knitr}
+%\VignetteIndexEntry{Getting started with the 'mh' package}
+-->
+
+=================
+
+```{r setup, include=FALSE}
+library(knitr)
+opts_chunk$set(out.extra='style="display:block; margin: auto"', fig.align="center", fig.width=10, fig.height=8, dev='png')
+```
+
+# About this document
+
+This document was generated from an R markdown file on `r as.character(Sys.time())`. It illustrates how to set up a calibration on a time stepping model simulation.
+
+```{r, eval=FALSE, include=FALSE}
+library(swiftdev)
+setwd(file.path('F:/src/github_jm/metaheuristics/R/pkgs/mh', 'vignettes'))
+purlVignettes('.', '..')
+```
+
+# Getting started
+
+```{r}
+library(mh)
+```
+
+The package includes a simplified but realistic example of a system to optimize, a time stepping simulation model written in C#. We can load the modelling system, and an assembly that provides adapters so that this system can be calibrated.
+
+```{r}
+mhDllDir <- system.file(package='mh', 'libs')
+fnSampleEnv <- file.path(mhDllDir, "EnvModellingSample.dll" )
+fnAdapter <- file.path(mhDllDir, "ModellingSampleAdapter.dll" )
+stopifnot(file.exists(fnSampleEnv))
+stopifnot(file.exists(fnAdapter))
+clrLoadAssembly(fnSampleEnv)
+clrLoadAssembly(fnAdapter)
+
+clrGetTypesInAssembly("ModellingSampleAdapter")
+clrGetStaticMethods("ModellingSampleAdapter.OptimizationAdapter")
+```
+
+We configure the sample modelling system, an implementation of the Australian Water Balance Model and a simulation shell that relies on very simple arrays for input/outputs and 'time' stepping. We will calibrate the model against runoff observations, so we set it up to record the 'Runoff' output.
+
+```{r}
+simul <- clrCallStatic("EnvModellingSample.SimulationFactory", "CreateAwbmSimulation", TRUE)
+simul
+clrCall(simul, 'Record', 'Runoff')
+```
+
+The assembly with the adapters provides a method to get a default feasible parameter space for this AWBM model
+
+```{r}
+p <- clrCallStatic("ModellingSampleAdapter.OptimizationAdapter", "BuildParameterSpace", simul)
+p
+pSetAsDataFrame(p)
+```
+
+The default bounds are large; for this model we usually expect the KSurf parameter to be rather below 0.5 (meaning its reservoir is emptying fast, being a surface store). Let's illustrate how to set other feasible bounds. We can discover the members of the .NET object interactively:
+
+```{r}
+clrReflect(p)
+clrGetMemberSignature(p, 'SetMaxValue')
+clrCall(p, 'SetMaxValue', 'KSurf', 0.5)
+```
+
+Now let's define the objective; the sample only provides for least squares as an objective function ('ss').
+
+```{r}
+observation <- clrCallStatic("EnvModellingSample.DataHandling", "GetSampleRunoff")
+observation[observation < 0] <- NA
+plot(observation, type='l')
+
+from <- clrCall(simul, 'GetStart') + 365L
+to <- clrCall(simul, 'GetEnd')
+
+objective <- clrCallStatic("ModellingSampleAdapter.OptimizationAdapter", "BuildEvaluator", simul, observation, from, to, "ss")
+
+score <- getScore(objective, p)
+score
+```
+
+Now let's move on to the optimizer. We define a few functions to condensate the syntax; you need not look closely to the following function definitions in the first instance to get the 'gist of it'
+
+```{r}
+createSceOptimHelper <- function(objective, parameterizer, sysConfigType = NULL, terminationCriterion = NULL) {
+  if(is.null(sysConfigType))  sysConfigType <- hyperCubeType()
+  if(is.null(terminationCriterion)) terminationCriterion <- maxWallTimeTermination(sysConfigType)
+  createSceOptim(objective, parameterizer, sysConfigType, terminationCriterion)
+}
+
+getMarginalTermination <- function(tolerance = 1e-06, cutoffNoImprovement = 10, maxHours = 0.05, sysConfigType=NULL) {
+  if(is.null(sysConfigType))  sysConfigType <- hyperCubeType()
+  mh::marginalImprovementTermination(sysConfigType, tolerance = tolerance, cutoffNoImprovement = cutoffNoImprovement, maxHours = maxHours) 
+}
+
+setCalibrationLogger <- function (optimizer) 
+{
+    calibLogger <- clrNew("CSIRO.Metaheuristics.Logging.InMemoryLogger")
+    clrSet(optimizer, "Logger", calibLogger)
+}
+```
+
+Now let's move ou to the optimizer. We define a few functions to condensate the syntax; you need not look closely to the following functions in the first instance to get the 'gist of it'
+
+```{r}
+optimizer <- createSceOptimHelper(objective, p, terminationCriterion = getMarginalTermination())
+calibLogger <- setCalibrationLogger(optimizer)
+```
+
+The default optimiser is set such that if the model is thread safe (and the sample we use is indeed), parallel computing is used, and happens to default to 5 parallel threads. If you wish a lower limit, e.g. if you have a 4 core machine, you may limit this to e.g. 3 cores with the command:
+
+```{r}
+# clrSet(optimizer, "MaxDegreeOfParallelism", 3L)
+```
+
+Let's "solve" the optimisation problem now fully defined:
+
+```{r}
+library(lubridate)
+startTime <- now()
+calibResults <- clrCall(optimizer, "Evolve")
+endTime <- now()
+calibWallTime <- endTime-startTime
+print(paste( 'Optimization completed in ', calibWallTime, attr(calibWallTime, 'units')))
+```
+
+We set up a calibration logger so that we have access to more details to assess how the optimizer performed and behaved.
+
+```{r}
+logMh <- mh::processLogger(optimizer, fitness='Sum.Squares')  # TODO: illustrate where this name for the fitness comes from...
+geomOps <- mh::subsetByMessage(logMh)
+str(geomOps@data)
+```
+
+We can then visualize how the calibration evolved. There are many types of visualisations included in the **mh** package, and numerous customizations possible, but starting with the overall population evolution:
+
+```{r}
+pVarIds <- (pSetAsDataFrame(p))$Name
+for (pVarId in pVarIds) {
+	print(plotParamEvolution(geomOps, pVarId))
+}
+```
+
+The results of an SCE calibration is a population of points, albeit one with a best point in this case (single objective calibration). Accessing it is possible in a couple of ways (and TODO: improve access arrangements...).
+
+```{r}
+clrReflect(calibResults)
+scores <- clrGet(calibResults,  "ObjectiveScores" )
+is.list(scores)
+score <- scores[[length(scores)]]
+clrReflect(score)
+clrGet(score, "SystemConfiguration")
+pSetAsDataFrame( clrGet(score, "SystemConfiguration"))
+```
+
+Another way to access calibration results is to look at the log:
+
+```{r}
+tail(logMh@data)
+```

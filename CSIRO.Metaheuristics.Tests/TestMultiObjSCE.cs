@@ -9,6 +9,7 @@ using CSIRO.Metaheuristics.CandidateFactories;
 using CSIRO.Metaheuristics.Fitness;
 using CSIRO.Metaheuristics.Objectives;
 using System.Threading;
+using System.Diagnostics;
 
 namespace CSIRO.Metaheuristics.Tests
 {
@@ -18,8 +19,14 @@ namespace CSIRO.Metaheuristics.Tests
         [Test]
         public void TestSceDualObj()
         {
+            var evaluator = new SCH1ObjectiveEvaluator(false);
+            var engine = createSce(evaluator);
+            var results = engine.Evolve();
+        }
+
+        private static ShuffledComplexEvolution<ICloneableSystemConfiguration> createSce(IClonableObjectiveEvaluator<ICloneableSystemConfiguration> evaluator)
+        {
             var rng = new BasicRngFactory(0);
-            var evaluator = new SCH1ObjectiveEvaluator();
             var engine = new ShuffledComplexEvolution<ICloneableSystemConfiguration>(
                 evaluator,
                 new UniformRandomSamplingFactory<IHyperCube<double>>(rng.CreateFactory(), new UnivariateReal(0)),
@@ -27,8 +34,18 @@ namespace CSIRO.Metaheuristics.Tests
                 5, 20, 10, 3, 20, 7,
                 rng,
                 new ZitlerThieleFitnessAssignment());
-            Results = engine.Evolve();
+            return engine;
+        }
 
+        [Test]
+        public void TestSceMaxParallelOptions()
+        {
+            var evaluator = new SCH1ObjectiveEvaluator(true);
+            var engine = createSce(evaluator);
+            engine.MaxDegreeOfParallelism = -1;
+            var results = engine.Evolve();
+            engine.MaxDegreeOfParallelism = 2;
+            results = engine.Evolve();
         }
 
         [Test]
@@ -49,17 +66,84 @@ namespace CSIRO.Metaheuristics.Tests
 
             termination = new ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition(threshold: threshold, maxHours: 0.1);
             var rng = new BasicRngFactory(0);
-            var evaluator = new ParaboloidObjEvalTest(bestParam: 2);
+            var evaluator = new ObjEvalTestHyperCube(new ParaboloidObjEval<TestHyperCube>(bestParam: 2));
+            var engine = createSce(termination, rng, evaluator);
+            var results = engine.Evolve();
+            //Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            Assert.IsFalse(termination.HasReachedMaxTime());
+        }
+
+        [Test]
+        public void TestMaxWallClockSceInitalPopulation()
+        {
+            double threshold = 2.5e-2;
+            double hours = 1.0;
+            double objCalcPauseSec = 0.2;
+
+            var engine = createSce(threshold, hours, objCalcPauseSec, maxShuffle:1);
+            double deltaT = timeOptimizer(engine);
+            double initPopDeltaT = deltaT;
+
+            hours = (deltaT / 2) / 3600;
+
+            double expectedMaxSeconds = deltaT / 2 * 1.1; // within 10% of the max runtime specified. Large, but given the problem size and calc delay, needed.
+            deltaT = testOptimMaxruntimeTermination(threshold, hours, objCalcPauseSec, expectedMaxSeconds);
+            Assert.IsTrue(deltaT > hours);
+        }
+
+        [Test]
+        public void TestMaxWallClockSceShuffle()
+        {
+            double threshold = 2.5e-3;
+            double hours = 7.0 / 3600;
+            double objCalcPauseSec = 0.03;
+            double expectedMaxSeconds = 7.2;
+
+            var deltaT = testOptimMaxruntimeTermination(threshold, hours, objCalcPauseSec, expectedMaxSeconds, new ParaboloidObjEval<TestHyperCube>(bestParam: 2, addSine: true, sineFreq:10*Math.PI));
+            // Make sure that this is not a fluke on any machine, and that at least the max runtime elapsed.
+            Assert.IsTrue(deltaT > 7.0);
+        }
+
+        private static double testOptimMaxruntimeTermination(double threshold, double hours, double objCalcPauseSec, double expectedMaxSeconds, TestObjEval<TestHyperCube> innerObjCalc = null)
+        {
+            var engine = createSce(threshold, hours, objCalcPauseSec, innerObjCalc);
+            var deltaT = timeOptimizer(engine);
+            //Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
+            Assert.IsTrue(deltaT < expectedMaxSeconds);
+            return deltaT;
+        }
+
+
+        private static double timeOptimizer(ShuffledComplexEvolution<TestHyperCube> engine)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            var results = engine.Evolve();
+            sw.Stop();
+            var deltaT = sw.Elapsed.TotalSeconds;
+            return deltaT;
+        }
+
+        private static ShuffledComplexEvolution<TestHyperCube> createSce(double cvThreshold, double maxHours, double objCalcPauseSec, TestObjEval<TestHyperCube> innerObjCalc=null, int maxShuffle=15)
+        {
+            var termination = new ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition(threshold: cvThreshold, maxHours: maxHours);
+            var rng = new BasicRngFactory(0);
+            if (innerObjCalc == null) innerObjCalc = new ParaboloidObjEval<TestHyperCube>(bestParam: 2);
+            var evaluator = new ObjEvalTestHyperCube(innerObjCalc, pauseSeconds: objCalcPauseSec);
+            var engine = createSce(termination, rng, evaluator, maxShuffle: maxShuffle);
+            return engine;
+        }
+
+        private static ShuffledComplexEvolution<TestHyperCube> createSce(ShuffledComplexEvolution<TestHyperCube>.CoefficientOfVariationTerminationCondition termination, BasicRngFactory rng, ObjEvalTestHyperCube evaluator, int maxShuffle = 15)
+        {
             var engine = new ShuffledComplexEvolution<TestHyperCube>(
                 evaluator,
                 new UniformRandomSamplingFactory<TestHyperCube>(rng.CreateFactory(), new TestHyperCube(2, 0, -10, 10)),
                 termination,
-                5, 20, 10, 3, 20, 1,
+                5, 20, 10, 3, 20, maxShuffle,
                 rng,
                 new DefaultFitnessAssignment());
-            var results = engine.Evolve();
-            Console.WriteLine("Current shuffle: {0}", engine.CurrentShuffle);
-            Assert.IsFalse(termination.HasReachedMaxTime());
+            return engine;
         }
 
         [Test]
@@ -71,6 +155,78 @@ namespace CSIRO.Metaheuristics.Tests
             Assert.IsFalse(termination.HasReachedMaxTime());
             Thread.Sleep(2000);
             Assert.IsTrue(termination.HasReachedMaxTime());
+        }
+
+
+        private class TestPopulationAlgorithm : IPopulation<double>, IEvolutionEngine<ICloneableSystemConfiguration>
+        {
+            double[] fitnessValues;
+            int counter = 0;
+
+            int Counter { get { return counter; } }
+
+            public TestPopulationAlgorithm(IEnumerable<double> values)
+            {
+                this.fitnessValues = values.ToArray();
+            }
+
+            public int Step()
+            {
+                counter++;
+                return counter;
+            }
+
+            public FitnessAssignedScores<double>[] Population
+            {
+                get { return new[]{new FitnessAssignedScores<double>(null, fitnessValues[counter])}; }
+            }
+
+            public IOptimizationResults<ICloneableSystemConfiguration> Evolve()
+            {
+                throw new NotImplementedException();
+            }
+
+            public string GetDescription()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Cancel()
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        [Test]
+        public void TestMargnalImprovementTerminationCriterion()
+        {
+            double hours = 1.0;
+            var termination = new ShuffledComplexEvolution<ICloneableSystemConfiguration>.MarginalImprovementTerminationCondition(maxHours: hours, tolerance: 1e-6, cutoffNoImprovement: 5);
+            var algo = new TestPopulationAlgorithm(new double[] { 1, 2, 3, 4, 5, 6, 6, 6, 7, 8, 9, 9, 9, 9, 9, 9, 9, 9 });
+            termination.SetEvolutionEngine(algo);
+            Assert.IsFalse(termination.IsFinished()); // 1,
+            for (int i = 1; i < 6; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 2, 3, 4, 5, 6,
+            }
+            for (int i = 6; i < 8; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 6, 6,
+            }
+            for (int i = 8; i < 11; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 7, 8, 9,
+            }
+            for (int i = 11; i < 16; i++)
+            {
+                algo.Step();
+                Assert.IsFalse(termination.IsFinished()); // 9, 9, 9, 9, 9,
+            }
+            algo.Step();
+            Assert.IsTrue(termination.IsFinished()); // 9, 
         }
 
         private IObjectiveScores[] createSample(bool converged = false)
@@ -106,7 +262,7 @@ namespace CSIRO.Metaheuristics.Tests
             return Array.ConvertAll(pset, (x => new MultipleScores<TestHyperCube>(new IObjectiveScore[] { d }, x)));
         }
 
-        public IOptimizationResults<ICloneableSystemConfiguration> Results;
+        //public IOptimizationResults<ICloneableSystemConfiguration> Results;
 
         private class UnivariateRealUniformRandomSampler
         {
@@ -219,6 +375,12 @@ namespace CSIRO.Metaheuristics.Tests
 
         private class SCH1ObjectiveEvaluator : IClonableObjectiveEvaluator<ICloneableSystemConfiguration>
         {
+            private bool claimParallelizable;
+            public SCH1ObjectiveEvaluator(bool claimParallelizable)
+            {
+                this.claimParallelizable = claimParallelizable;
+            }
+
             public IObjectiveScores<ICloneableSystemConfiguration> EvaluateScore(ICloneableSystemConfiguration systemConfiguration)
             {
                 double x = ((UnivariateReal)systemConfiguration).Value;
@@ -295,17 +457,17 @@ namespace CSIRO.Metaheuristics.Tests
 
             public bool SupportsDeepCloning
             {
-                get { return false; }
+                get { return claimParallelizable; }
             }
 
             public bool SupportsThreadSafeCloning
             {
-                get { return false; }
+                get { return claimParallelizable; }
             }
 
             public IClonableObjectiveEvaluator<ICloneableSystemConfiguration> Clone()
             {
-                throw new NotImplementedException();
+                return new SCH1ObjectiveEvaluator(claimParallelizable);
             }
 
             #endregion

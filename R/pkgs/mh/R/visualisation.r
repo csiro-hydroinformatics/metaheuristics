@@ -71,10 +71,10 @@ boundValuesDf <- function(x, colname, lim=c(0,1)) {
 #' d
 #' }
 #' @export
-plotParamEvolution <- function(logMh, paramName, objLims=NULL) {
+plotParamEvolution <- function(logMh, paramName, objLims=NULL, title="Evolution of parameter values", xlab="Logged point", ylab=paramName) {
   d <- boundFitness(logMh, objLims)
   ggplot(d, aes_string(x = numColname, y = paramName, colour=logMh@fitness)) + 
-    geom_point() + ggtitle("Evolution of parameter values") + xlab("Logged point") + ylab(paramName) +
+    geom_point() + labs( title=title, x=xlab, y=ylab) +
     scale_colour_continuous(low="blue", high="red")
 }
 
@@ -208,12 +208,13 @@ plotScore <- function(logMh, FUN=rollingMax) {
 #' @param colname column name
 #' @param pattern a pattern suitable for use by \code{\link{str_detect}}, for instance 'Initial.*|Reflec.*|Contrac.*|Add.*'
 #' @return a data frame. Unnecessary levels have been dropped from factor columns.
+#' @import stringr
 #' @export
 subsetByPattern <- function(x, colname, pattern) {
   criterion <- x[[colname]]
   lvls = levels(criterion)
   if(is.null(criterion)) stop('Subsetting vector is not a factor')
-  indices <- criterion %in% lvls[str_detect(lvls, pattern)]
+  indices <- criterion %in% lvls[stringr::str_detect(lvls, pattern)]
   droplevels(subset(x,indices))
 }
 
@@ -241,6 +242,52 @@ subsetByCategory <- function(logMh, pattern='Initial.*|Shuffling.*') {
   copyMhData(logMh, subsetByPattern(logMh@data, logMh@categories, pattern))
 }
 
+#' Extract information from an optimisation logger
+#'
+#' Extract information from an optimisation logger. This retrieves data and transforms it into a format more amenable to visualization.
+#'
+#' @param optimizer the instance of the optimizer
+#' @param fitness the name of the fitness score that was used for the optimization, e.g. 'NSE'
+#' @param messages
+#' @param categories
+#' @return an object for graphing through the 'mh' package functions
+#' @export
+processLogger <- function(optimizer, fitness = "NSE", messages = "Message", categories = "Category") {
+  calibLogger <- clrGet(optimizer, 'Logger')
+  if(is.null(calibLogger)) stop("no logger is associated with the optimizer")
+  d <- mh::getLoggerContent(calibLogger)
+  d$PointNumber = 1:nrow(d)
+  mkOptimLog(d, fitness=fitness, messages=messages, categories=categories)
+}
+
+#' Extract information from an optimisation logger
+#'
+#' Extract information from an optimisation logger. This retrieves data and transforms it into a format more amenable to visualization.
+#'
+#' @param logDataFrame a data frame, extracted from an optimization logger with mh::getLoggerContent 
+#' @param fitness the name of the fitness score that was used for the optimization, e.g. 'NSE'
+#' @param messages
+#' @param categories
+#' @return an object for graphing through the 'mh' package functions
+#' @export
+mkOptimLog <- function(logDataFrame,fitness = "NSE", messages = "Message", categories = "Category")
+{
+  dfNames <- names(logDataFrame)
+  checkValidName <- function(x, name) {
+    if(!(fitness %in% dfNames)) {
+      d <- paste(dfNames, collapse=', ', sep=', ')
+      stop(paste0('specified string "', x, '" for "', name, '" not found in data frame names: ', d))
+    }
+  }
+  checkValidName(fitness, 'fitness')
+  checkValidName(messages, 'messages')
+  checkValidName(categories, 'categories')
+  return(new("mhData",
+    data= logDataFrame,
+    fitness = fitness,
+    messages = messages,
+    categories = categories))
+}
 
 boundFitness <- function(logMh, objLims=NULL) {
   d <- logMh@data

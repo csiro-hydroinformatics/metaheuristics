@@ -7,9 +7,9 @@ namespace CSIRO.Metaheuristics
     /// An interface for objects that are capable to create new random number generators or new 'child factories'
     /// </summary>
     /// <remarks>
-    /// The rational for defining this interface is to have a way to initialise 
+    /// The rationale for defining this interface is to have a way to initialise 
     /// replicate parallel tasks that may run in isolation and concurrently yet always behave predictably. 
-    /// This is the case notably for 
+    /// This is the case notably for multi-threaded or multi-processes optimisation workflows.
     /// </remarks>
     public interface IRandomNumberGeneratorFactory
     {

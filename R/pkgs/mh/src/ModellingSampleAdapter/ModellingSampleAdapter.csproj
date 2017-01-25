@@ -4,15 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{653139CF-8AA9-42DF-B262-F022BC1C9174}</ProjectGuid>
+    <ProjectGuid>{E923EE32-D781-4A68-8A2A-672EF4EDBF81}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EnvModellingSample</RootNamespace>
-    <AssemblyName>EnvModellingSample</AssemblyName>
+    <RootNamespace>ModellingSampleAdapter</RootNamespace>
+    <AssemblyName>ModellingSampleAdapter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,19 +30,38 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.11.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSIRO.Modelling.Core, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.9.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.11.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AWBM.cs" />
-    <Compile Include="IModelSimulation.cs" />
-    <Compile Include="ITimeStepModel.cs" />
-    <Compile Include="ModelSimulation.cs" />
+    <Compile Include="OptimizationAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SimulationFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
+      <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
+      <Name>EnvModellingSample</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -54,7 +71,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-  <ItemGroup>
-    <None Include="README.txt" />
-  </ItemGroup>
 </Project>

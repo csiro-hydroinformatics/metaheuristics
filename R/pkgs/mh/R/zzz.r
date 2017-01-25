@@ -9,12 +9,16 @@
 .onLoad <- function(libname='~/R', pkgname='mh') {
   libLocation<-system.file(package=pkgname)
   libpath <- file.path(libLocation, 'libs')
-  f <- file.path(libpath, 'CSIRO.Metaheuristics.R.Pkgs.dll')
-  if( !file.exists(f) ) {
-    packageStartupMessage('Could not find path to CSIRO.Metaheuristics.R.Pkgs.dll, you will have to load it manually')
-  } else {
-    clrLoadAssembly(f)
+  loadAssembly <- function(fn) {
+    f <- file.path(libpath, fn)
+    if( !file.exists(f) ) {
+      packageStartupMessage(paste0('Could not find path to ',fn,', you will have to load it manually'))
+    } else {
+      rClr::clrLoadAssembly(f)
+    }
   }
+  loadAssembly('CSIRO.Metaheuristics.R.Pkgs.dll')
+  loadAssembly('CSIRO.Metaheuristics.dll') # for unit tests.
 }
 
 

@@ -30,42 +30,53 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.11.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.11.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.11.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSIRO.Sys, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.11.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="CSIRO.Utilities, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.0.10\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Utilities.0.7.9.0\lib\net40\CSIRO.Utilities.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Metaheuristics.Parallel">
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Metaheuristics.R">
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.0.10\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="DynamicInterop, Version=0.7.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.0.10\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\packages\DynamicInterop.0.7.4\lib\net40\DynamicInterop.dll</HintPath>
     </Reference>
-    <Reference Include="CSIRO.Utilities, Version=0.7.0.10, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Utilities.0.7.0.10\lib\net40\CSIRO.Utilities.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MPI">
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\MPI.dll</HintPath>
-    </Reference>
-    <Reference Include="MPIUtils">
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.0.10\lib\net40\MPIUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+    <Reference Include="MPI, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPI.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet">
-      <HintPath>..\packages\R.NET.1.5.12\lib\net40\RDotNet.dll</HintPath>
+    <Reference Include="MPIUtils, Version=0.1.0.0, Culture=neutral, PublicKeyToken=e35b242c18c115bc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPIUtils.dll</HintPath>
     </Reference>
-    <Reference Include="RDotNet.NativeLibrary">
-      <HintPath>..\packages\R.NET.1.5.12\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="RDotNet, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RDotNet.NativeLibrary, Version=1.6.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\R.NET.Community.1.6.5\lib\net40\RDotNet.NativeLibrary.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -80,9 +91,13 @@
     <Compile Include="OptimizerHelper.cs" />
     <Compile Include="SysConfigHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\TestCases.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="app.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

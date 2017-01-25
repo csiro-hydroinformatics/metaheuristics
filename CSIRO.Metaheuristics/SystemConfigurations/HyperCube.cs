@@ -7,7 +7,7 @@ using CSIRO.Metaheuristics.Utils;
 namespace CSIRO.Metaheuristics.SystemConfigurations
 {
     [Serializable]
-    public abstract class HyperCube<T> : IHyperCube<T> where T : IComparable
+    public abstract class HyperCube<T> : IHyperCubeSetBounds<T> where T : IComparable
     {
         protected HyperCube( string[] variableNames )
         {

@@ -8,23 +8,24 @@ using System.Threading;
 using CSIRO.Metaheuristics.Objectives;
 using CSIRO.Metaheuristics.Logging;
 using CSIRO.Metaheuristics.CandidateFactories;
+using CSIRO.Metaheuristics.Utils;
 
 namespace CSIRO.Metaheuristics.Optimization
 {
-    public class UniformRandomSampling<T> : IEvolutionEngine<T> where T : IHyperCube<double>, ICloneableSystemConfiguration 
+    public class UniformRandomSampling<T> : IEvolutionEngine<T> where T : IHyperCube<double>, ICloneableSystemConfiguration
     {
-        public UniformRandomSampling( IClonableObjectiveEvaluator<T> evaluator, 
+        public UniformRandomSampling(IClonableObjectiveEvaluator<T> evaluator,
                                      IRandomNumberGeneratorFactory rng,
                                      T template,
                                      int numShuffle, IDictionary<string, string> tags = null)
         {
             this.evaluator = evaluator;
-            this.populationInitializer = new UniformRandomSamplingFactory<T> (rng, template);
+            this.populationInitializer = new UniformRandomSamplingFactory<T>(rng, template);
             this.numShuffle = numShuffle;
             this.logTags = tags;
         }
 
-        public UniformRandomSampling( IClonableObjectiveEvaluator<T> evaluator, 
+        public UniformRandomSampling(IClonableObjectiveEvaluator<T> evaluator,
                                      ICandidateFactory<T> populationInializer,
                                      int numShuffle, IDictionary<string, string> tags = null)
         {
@@ -43,9 +44,9 @@ namespace CSIRO.Metaheuristics.Optimization
         private bool isCancelled = false;
         private IDictionary<string, string> logTags;
 
-        public IOptimizationResults<T> Evolve( )
+        public IOptimizationResults<T> Evolve()
         {
-            IObjectiveScores[] scores = evaluateScores(evaluator, initialisePopulation());
+            IObjectiveScores[] scores = evaluateScores(initialisePopulation());
             var tags = LoggerMhHelper.CreateTag(LoggerMhHelper.MkTuple("Category", "URS"));
             loggerWrite(scores, tags);
             IObjectiveScores[] paretoScores = ParetoRanking<IObjectiveScores>.GetParetoFront(scores);
@@ -54,39 +55,26 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private void loggerWrite(IObjectiveScores[] scores, IDictionary<string, string> tags)
         {
-            if ( logTags != null )
+            if (logTags != null)
                 tags = LoggerMhHelper.MergeDictionaries(logTags, tags);
             LoggerMhHelper.Write(scores, tags, Logger);
         }
 
-        public string GetDescription( )
+        public string GetDescription()
         {
-            throw new NotImplementedException( );
+            throw new NotImplementedException();
         }
 
-        
-        private IObjectiveScores[] evaluateScores( IObjectiveEvaluator<T> evaluator, T[] population )
+        private IObjectiveScores[] evaluateScores(T[] population)
         {
-            IObjectiveScores[] tmp = new IObjectiveScores[population.Count()];
-            for (int i = 0; i < tmp.Length; i++)
-            {
-                if (!isCancelled)
-                {
-                    tmp[i] = evaluator.EvaluateScore(population[i]);
-                }
-                else
-                {
-                    tmp[i] = tmp[i - 1];
-                }
-            }
-            return tmp;
+            return Evaluations.EvaluateScores(evaluator, population, () => this.isCancelled);
         }
 
-        private T[] initialisePopulation( )
+        private T[] initialisePopulation()
         {
             T[] result = new T[numShuffle];
-            for( int i = 0; i < result.Length; i++ )
-                result[i] = populationInitializer.CreateRandomCandidate( );
+            for (int i = 0; i < result.Length; i++)
+                result[i] = populationInitializer.CreateRandomCandidate();
             return result;
         }
 

@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{3ED5931B-9713-4008-861C-B08555DAEDDF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>AWBM_URS</RootNamespace>
@@ -28,8 +26,50 @@
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <Optimize>true</Optimize>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="CSIRO.Modelling.Core">
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="CSIRO.Sys">
+      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -37,17 +77,20 @@
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\EnvModellingSample\EnvModellingSample.csproj">
-      <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
-      <Name>EnvModellingSample</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
-      <Project>{58313B13-A161-4B90-B94E-A66B175BAF4E}</Project>
-      <Name>CSIRO.Sys</Name>
+    <ProjectReference Include="..\..\..\R\pkgs\mh\src\EnvModellingSample\EnvModellingSample.csproj">
+      <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
+      <Name>EnvModellingSample</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\R\pkgs\mh\src\ModellingSampleAdapter\ModellingSampleAdapter.csproj">
+      <Project>{E923EE32-D781-4A68-8A2A-672EF4EDBF81}</Project>
+      <Name>ModellingSampleAdapter</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

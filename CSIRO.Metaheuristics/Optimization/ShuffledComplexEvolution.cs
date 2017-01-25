@@ -10,6 +10,7 @@ using CSIRO.Metaheuristics.CandidateFactories;
 using CSIRO.Metaheuristics.RandomNumberGenerators;
 using System.Diagnostics;
 using CSIRO.Metaheuristics.Utils;
+using CSIRO.Metaheuristics.Objectives;
 
 namespace CSIRO.Metaheuristics.Optimization
 {
@@ -92,7 +93,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
     // TODO: should there be a further type constraint such that T can only be a HyperCube? 
     // problem is that the HyperCube is generic itself, makes things complex
-    public class ShuffledComplexEvolution<T> : IEvolutionEngine<T> 
+    public class ShuffledComplexEvolution<T> : IEvolutionEngine<T>, IPopulation<double>
         where T : ICloneableSystemConfiguration
     {
         public ShuffledComplexEvolution(IClonableObjectiveEvaluator<T> evaluator,
@@ -182,7 +183,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         int pmin = 5;
         int p = 5, m = 27, q = 14, alpha = 3, beta = 27;
-        int numShuffle = 18;
+        int numShuffle = -1;
 
         int seed = 0;
         //IObjectiveEvaluator<ISystemConfiguration> evaluator;
@@ -208,6 +209,58 @@ namespace CSIRO.Metaheuristics.Optimization
             }
 
             #endregion
+        }
+
+        public class MarginalImprovementTerminationCondition : MaxWalltimeCheck, ITerminationCondition<T>
+        {
+            public MarginalImprovementTerminationCondition(double maxHours, double tolerance, int cutoffNoImprovement)
+                : base(maxHours)
+            {
+                this.tolerance = tolerance;
+                this.maxConverge = cutoffNoImprovement;
+            }
+
+            private IPopulation<double> algorithm;
+            public void SetEvolutionEngine(IEvolutionEngine<T> engine)
+            {
+                this.algorithm = (IPopulation<double>)engine;
+            }
+
+
+            double oldBest = double.NaN;
+            double tolerance = 1e-6;
+            int converge = 0;
+            int maxConverge = 10;
+            public bool IsFinished()
+            {
+                // https://jira.csiro.au/browse/WIRADA-129
+//current SWIFT SCE implementation uses this algorithm to define convergence and it normally guarantees 
+// reproducible optimum is found. It needs two parameters, Tolerance (normally of the order of 10e-6) 
+// and maxConverge (normally of the order of 10)
+
+                if (this.HasReachedMaxTime())
+                    return true;
+                FitnessAssignedScores<double>[] currentPopulation = algorithm.Population;
+                if (currentPopulation == null)
+                    return false;
+                var currentBest = currentPopulation.First().FitnessValue;
+                if (double.IsNaN(oldBest))
+                {
+                    oldBest = currentBest; 
+                    return false;
+                }
+                if (Math.Abs(currentBest - oldBest) <= Math.Abs(oldBest * tolerance))
+                {
+                    converge++;
+                }
+                else
+                {
+                    converge = 0;
+                }
+                oldBest = currentBest;
+                if (converge > maxConverge) return true;
+                return false;
+            }
         }
 
         public class CoefficientOfVariationTerminationCondition : ITerminationCondition<T>
@@ -236,7 +289,7 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 if (this.HasReachedMaxTime())
                     return true;
-                if (algorithm.CurrentShuffle >= algorithm.numShuffle)
+                if (algorithm.numShuffle >= 0 && algorithm.CurrentShuffle >= algorithm.numShuffle)
                     return true;
                 if (algorithm.PopulationAtShuffling == null)
                     return false; // start of the algorithm.
@@ -311,15 +364,31 @@ namespace CSIRO.Metaheuristics.Optimization
             }
         }
 
-        public class MaxWalltimeTerminationCondition : ITerminationCondition<T>
+        public abstract class MaxWalltimeCheck
         {
             private double maxHours;
             private Stopwatch stopWatch;
-            public MaxWalltimeTerminationCondition(double maxHours)
+
+            protected MaxWalltimeCheck(double maxHours)
             {
                 this.maxHours = maxHours;
                 this.stopWatch = new Stopwatch();
                 stopWatch.Start();
+            }
+
+            public bool HasReachedMaxTime()
+            {
+                if (this.maxHours <= 0)
+                    return false;
+                double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
+                return (this.maxHours < hoursElapsed);
+            }
+        }
+
+        public class MaxWalltimeTerminationCondition : MaxWalltimeCheck, ITerminationCondition<T>
+        {
+            public MaxWalltimeTerminationCondition(double maxHours) : base(maxHours)
+            {
             }
 
             public virtual void SetEvolutionEngine(IEvolutionEngine<T> engine)
@@ -330,18 +399,6 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 return this.HasReachedMaxTime();
             }
-
-            private bool HasReachedMaxTime()
-            {
-                double hoursElapsed = this.stopWatch.Elapsed.TotalHours;
-                if (this.maxHours <= 0)
-                    return false;
-                else if (this.maxHours < hoursElapsed)
-                    return true;
-                else
-                    return false;
-            }
-
         }
 
 
@@ -359,11 +416,19 @@ namespace CSIRO.Metaheuristics.Optimization
 
         public int CurrentShuffle { get; private set; }
 
+        public int MaxDegreeOfParallelism 
+        {
+            get { return parallelOptions.MaxDegreeOfParallelism;}
+            set { parallelOptions.MaxDegreeOfParallelism = value;}
+        }
+        private ParallelOptions parallelOptions = new ParallelOptions();
+
         private bool isCancelled = false;
         private IComplex currentComplex;
 
         private CancellationTokenSource tokenSource = new CancellationTokenSource( );
         private SceOptions options = SceOptions.None;
+        private IComplex[] complexes = null;
 
         public double ContractionRatio { get; set; }
         public double ReflectionRatio { get; set; }
@@ -381,12 +446,18 @@ namespace CSIRO.Metaheuristics.Optimization
             isCancelled = false;
             IObjectiveScores[] scores = evaluateScores( evaluator, initialisePopulation( ) );
             loggerWrite(scores, createSimpleMsg("Initial Population", "Initial Population"));
-            IComplex[] complexes = partition(scores);
+            var isFinished = terminationCondition.IsFinished();
+            if (isFinished)
+            {
+                logTerminationConditionMet();
+                return packageResults(scores);
+            }
+            this.complexes = partition(scores);
 
             //OnAdvanced( new ComplexEvolutionEvent( complexes ) );
 
             CurrentShuffle = 1;
-            var isFinished = terminationCondition.IsFinished( );
+            isFinished = terminationCondition.IsFinished( );
             if(isFinished) logTerminationConditionMet();
             while (!isFinished && !isCancelled)
             {
@@ -416,10 +487,21 @@ namespace CSIRO.Metaheuristics.Optimization
                 isFinished = terminationCondition.IsFinished();
                 if (isFinished) logTerminationConditionMet();
             }
+            return packageResults(complexes);
+        }
+
+        private static IOptimizationResults<T> packageResults(IComplex[] complexes)
+        {
             //saveLog( logPopulation, fullLogFileName );
-            IObjectiveScores[] population = aggregate( complexes );
+            IObjectiveScores[] population = aggregate(complexes);
             //saveLogParetoFront( population );
-            return new BasicOptimizationResults<T>( population );
+            return packageResults(population);
+        }
+
+        private static IOptimizationResults<T> packageResults(IObjectiveScores[] population)
+        {
+            // cater for cases where we have null references (e.g. if the termination condition was in the middle of the population creation)
+            return new BasicOptimizationResults<T>(population.Where(p => (p != null)).ToArray());
         }
 
         private void logTerminationConditionMet()
@@ -453,30 +535,9 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private void execParallel( IComplex[] complexes )
         {
-            List<Task> tasks = new List<Task>( );
-            //tokenSource = new CancellationTokenSource( ); //commented by Bill Wang on 24/02/2011
-
-            for( int i = 0; i < complexes.Count( ); i++ )
-            {
-                int j = i;
-                IComplex complex = complexes[i];
-                complex.ComplexId = i.ToString( );
-                var task = Task.Factory.StartNew( complex.Evolve, tokenSource.Token );
-                tasks.Add( task );
-                var displaySuccess = task.ContinueWith( successTask => Console.WriteLine( "task " + j + " success" ), TaskContinuationOptions.OnlyOnRanToCompletion );
-                var displayCancel = task.ContinueWith( cancelTask => Console.WriteLine( "task " + j + " canceled" ), TaskContinuationOptions.OnlyOnCanceled );
-            }
-            Thread.Sleep( 10 );
-            //tokenSource.Cancel( ); //commented by Bill Wang on 24/02/2011
-            var last = Task.Factory.ContinueWhenAll( tasks.ToArray( ),
-                        result =>
-                        {
-                            Thread.Sleep( 100 );
-                            //Console.WriteLine( "All Task Somehow Finished." );
-                        } );
-            
-            last.Wait( );
-
+			for (int i = 0; i < complexes.Length; i++)
+				complexes[i].ComplexId = i.ToString();
+            Parallel.ForEach(complexes, parallelOptions, c => c.Evolve());
         }
 
         public string GetDescription( )
@@ -510,36 +571,7 @@ namespace CSIRO.Metaheuristics.Optimization
 
         private IObjectiveScores[] evaluateScores( IClonableObjectiveEvaluator<T> evaluator, T[] population )
         {
-
-            var procCount = System.Environment.ProcessorCount;
-            if (!evaluator.SupportsThreadSafeCloning)
-                procCount = 1;
-            T[][] subPop = MetaheuristicsHelper.MakeBins(population, procCount);
-            var offsets = new int[subPop.Length];
-            IClonableObjectiveEvaluator<T>[] cloneEval = new IClonableObjectiveEvaluator<T>[subPop.Length];
-            offsets[0] = 0;
-            cloneEval[0] = evaluator;
-            for (int i = 1; i < offsets.Length; i++)
-            {
-                offsets[i] = offsets[i - 1] + subPop[i - 1].Length;
-                cloneEval[i] = evaluator.Clone();
-			}
-
-            IObjectiveScores[] result = new IObjectiveScores[population.Length];
-            Parallel.For(0, subPop.Length, i =>
-            {
-                var offset = offsets[i];
-                for (int j = 0; j < subPop[i].Length; j++)
-                {
-                    if (!isCancelled)
-                        result[offset + j] = cloneEval[i].EvaluateScore(population[offset + j]);
-                    else
-                        result[offset + j] = null;
-                }
-            }
-
-            );
-            return result;
+            return Evaluations.EvaluateScores(evaluator, population, () => (this.isCancelled || terminationCondition.IsFinished()), parallelOptions);
         }
 
         private T[] initialisePopulation( )
@@ -1212,5 +1244,15 @@ namespace CSIRO.Metaheuristics.Optimization
         */
 
         public FitnessAssignedScores<double>[] PopulationAtShuffling { get; set; }
+
+        public FitnessAssignedScores<double>[] Population 
+        { 
+            get 
+            {
+                if (complexes == null) return null;
+                return sortByFitness(aggregate(complexes));
+            }
+        }
+
     }
 }

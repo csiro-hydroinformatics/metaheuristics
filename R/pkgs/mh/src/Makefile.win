@@ -8,9 +8,10 @@ endif
 
 SLN:= mh.sln
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
+SAMPLEBINDIR:=./ModellingSampleAdapter/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
-RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb
+RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb $(SAMPLEBINDIR)/*.dll $(SAMPLEBINDIR)/*.pdb 
 MSB := C:/WINDOWS/Microsoft.NET/Framework/v4.0.30319/MSBuild.exe
 MODE:=Build
 SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
@@ -18,6 +19,7 @@ SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
 all: instdir Mh2RLib 
 
 Mh2RLibComp:
+	nuget restore $(SLN)
 	$(MSB) $(SLN) /t:$(MODE) $(SLNPROPERTIES)
 
 Mh2RLib: Mh2RLibComp
@@ -25,10 +27,10 @@ Mh2RLib: Mh2RLibComp
 
 instdir:
 	-@rm -rf $(INSTDIR)/libs
-	# the following two lines are required, even if empty folder, otherwise R complains at package load time.
-	-@mkdir -p $(INSTDIR)/libs/i386
-	-@mkdir -p $(INSTDIR)/libs/x64
 	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
+	# the following two lines are required on Windows, even if empty folder, otherwise R complains at package load time.
+	-@mkdir -p $(INSTDIR)/libs/i386 2>/dev/null
+	-@mkdir -p $(INSTDIR)/libs/x64 2>/dev/null
 
 .PHONY: all
 

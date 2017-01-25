@@ -7,28 +7,40 @@ BuildConfiguration:=Debug
 endif
 
 SLN:= mh.sln
+
+# Maybe ifeq "$(R_OSTYPE)" "windows"
+NUGET:=nuget
+# ifneq "$(NUGET)" ""
+NUGET_RESTORE:=$(NUGET) restore $(SLN)
+# else
+# NUGET_RESTORE:=
+# endif
+
 RMHBINDIR:=./CSIRO.Metaheuristics.R.pkg/bin/$(BuildConfiguration)
+SAMPLEBINDIR:=./ModellingSampleAdapter/bin/$(BuildConfiguration)
 
 INSTDIR:= ../inst
-RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb
+RMHBINs:= $(RMHBINDIR)/*.dll $(RMHBINDIR)/*.pdb $(SAMPLEBINDIR)/*.dll $(SAMPLEBINDIR)/*.pdb 
 MSB:=xbuild
 MODE:=Build
-SLNPROPERTIES:=/p:Configuration=$(BuildConfiguration)
+# Note: consoleloggerparameters:ErrorsOnly works with msbuild.exe, but xbuild does not support it
+SLNPROPERTIES=/p:Configuration=$(BuildConfiguration) /nologo /consoleloggerparameters:ErrorsOnly /verbosity:minimal
 
 all: instdir Mh2RLib 
 
 Mh2RLibComp:
+	# -@if [ "$(NUGET_RESTORE)" == "" ]; then echo "command nuget not found - required";  exit 1; fi
+	# Let's just require nuget to be present, and fail the build.
+	$(NUGET_RESTORE)
 	$(MSB) $(SLN) /t:$(MODE) $(SLNPROPERTIES)
 
 Mh2RLib: Mh2RLibComp
 	-cp -u -p $(RMHBINs) $(INSTDIR)/libs
 
 instdir:
-	-@rm -rf $(INSTDIR)/libs
-	# the following two lines are required, even if empty folder, otherwise R complains at package load time.
-	-@mkdir -p $(INSTDIR)/libs/i386
-	-@mkdir -p $(INSTDIR)/libs/x64
-	-@mkdir -p $(INSTDIR)/libs 2>/dev/null
+	-@rm -rf $(INSTDIR)/libs$(R_ARCH)
+	-@mkdir -p $(INSTDIR) 2>/dev/null
+	-@mkdir -p $(INSTDIR)/libs$(R_ARCH) 2>/dev/null
 
 .PHONY: all
 

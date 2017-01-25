@@ -1,17 +1,23 @@
 Package: mh
 Type: Package
 Title: Access to the CSIRO.Metaheuristics framework from R
-Version: 0.2-1
-Date: 2013-12-15
+Version: 0.4-9
+Date: 2015-08-11
 Authors@R: c( person("Jean-Michel", "Perraud", email =
     "jean-michel.perraud@csiro.au", role = c("aut", "cre")))
 Author: Jean-Michel Perraud [aut, cre]
 Maintainer: J-M <jean-michel.perraud@csiro.au>
 Description: Access to the CSIRO.Metaheuristics framework from R
-License: LGPL-2.1
+License: LGPL-3
 LazyLoad: yes
 URL: https://github.com/jmp75/metaheuristics/R/packages/mh
+VignetteBuilder: knitr
+Suggests:
+    testthat,
+    knitr
 Depends:
     R (>= 3.0.0),
-    rClr,
+    rClr (>= 0.7.4),
+    stringr,
     ggplot2
+

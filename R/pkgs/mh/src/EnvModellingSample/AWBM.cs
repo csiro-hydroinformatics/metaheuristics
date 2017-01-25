@@ -109,5 +109,24 @@ namespace EnvModellingSample
                 PartialExcess[i] = 0;
             }
         }
+
+
+        public ITimeStepModel Clone()
+        {
+            lock (this)
+            {
+                var res = (AWBM)this.MemberwiseClone();
+                res.Store = (double[])this.Store.Clone();
+                res.PartialExcess = (double[])this.PartialExcess.Clone();
+                res.partialAreas = (double[])this.partialAreas.Clone();
+                res.capacities = (double[])this.capacities.Clone();
+                return res;
+            }
+        }
+
+        public bool IsClonable
+        {
+            get { return true; }
+        }
     }
 }

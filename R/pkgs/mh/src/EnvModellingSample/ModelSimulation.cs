@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using CSIRO.Modelling.Core;
 
 namespace EnvModellingSample
 {
-    public class ModelSimulation : IModelSimulation
+    public class ModelSimulation : IModelSimulation<double[], double, int>
     {
         public ModelSimulation(ITimeStepModel model)
         {
@@ -37,7 +38,7 @@ namespace EnvModellingSample
             foreach (var item in this.outputs)
             {
                 FieldInfo fi = getFi(item.Key);
-                item.Value[i] = (double) fi.GetValue(TsModel);
+                item.Value[i] = (double)fi.GetValue(TsModel);
             }
         }
 
@@ -55,14 +56,14 @@ namespace EnvModellingSample
             }
         }
 
-        public void SetTimeSpan(int startIndex, int endIndex)
+        public void SetSpan(int startIndex, int endIndex)
         {
             this.startIndex = startIndex;
             this.endIndex = endIndex;
         }
 
-        private Dictionary<string, double[]> inputs = new Dictionary<string,double[]>();
-        private Dictionary<string, double[]> outputs = new Dictionary<string,double[]>();
+        private Dictionary<string, double[]> inputs = new Dictionary<string, double[]>();
+        private Dictionary<string, double[]> outputs = new Dictionary<string, double[]>();
 
         public void Play(string inputIdentifier, double[] values)
         {
@@ -84,10 +85,59 @@ namespace EnvModellingSample
             return endIndex - startIndex + 1;
         }
 
-        public void SetValue(string modelPropertyId, double value)
+        public void SetVariable(string modelPropertyId, double value)
         {
-            var pInfo = TsModel.GetType().GetProperty(modelPropertyId);
+            var pInfo = GetPropertyInfo(modelPropertyId);
             pInfo.SetValue(TsModel, value, null);
+        }
+
+        public double GetVariable(string modelPropertyId)
+        {
+            var pInfo = GetPropertyInfo(modelPropertyId);
+            return (double)pInfo.GetValue(TsModel, null);
+        }
+
+        private PropertyInfo GetPropertyInfo(string modelPropertyId)
+        {
+            return TsModel.GetType().GetProperty(modelPropertyId);
+        }
+
+        public int GetStart()
+        {
+            return startIndex;
+        }
+
+        public int GetEnd()
+        {
+            return endIndex;
+        }
+
+        public IModelSimulation<double[], double, int> Clone()
+        {
+            if (!SupportsThreadSafeCloning)
+                throw new NotSupportedException();
+            var res = new ModelSimulation(TsModel.Clone());
+            res.startIndex = startIndex;
+            res.endIndex = endIndex;
+            foreach (var input in this.inputs)
+            {
+                res.inputs[input.Key] = inputs[input.Key];
+            }
+            foreach (var output in outputs)
+            {
+                res.outputs[output.Key] = (double[])outputs[output.Key].Clone();
+            }
+            return res;
+        }
+
+        public bool SupportsDeepCloning
+        {
+            get { return TsModel.IsClonable; }
+        }
+
+        public bool SupportsThreadSafeCloning
+        {
+            get { return TsModel.IsClonable; }
         }
     }
 }

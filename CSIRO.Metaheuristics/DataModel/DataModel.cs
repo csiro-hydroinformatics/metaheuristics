@@ -64,8 +64,8 @@ namespace CSIRO.Metaheuristics.DataModel
     {
         public int VariableSpecificationId { get; set; }
         public string Name { get; set; }
-        public float Minimum { get; set; }
-        public float Maximum { get; set; }
-        public float Value { get; set; }
+        public double Minimum { get; set; }
+        public double Maximum { get; set; }
+        public double Value { get; set; }
     }
 }
