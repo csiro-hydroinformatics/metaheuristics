@@ -5,7 +5,6 @@ echo Copying NuGet package spec from CSIRO.Metaheuristics to other assemblies.
 echo.
 
 set THIS_DIR=%~d0%~p0
-REM set THIS_DIR=F:\src\github_jm\metaheuristics\build\
 set src_nuspec=%THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.nuspec
 if not exist "%src_nuspec%" goto noSrcNuspec
 if not defined BuildConfiguration set BuildConfiguration=Debug
@@ -17,6 +16,7 @@ xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.DataModel\CSIRO.Metaheurist
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Logging\CSIRO.Metaheuristics.Logging.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Parallel\CSIRO.Metaheuristics.Parallel.nuspec %COPYOPTIONS%
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.R\CSIRO.Metaheuristics.R.nuspec %COPYOPTIONS%
+xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Tests\CSIRO.Metaheuristics.Tests.nuspec %COPYOPTIONS%
 
 set pkg_dir=%THIS_DIR%packages
 if not exist "%pkg_dir%" mkdir %pkg_dir%
