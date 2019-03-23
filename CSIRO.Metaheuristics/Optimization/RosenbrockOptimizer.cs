@@ -60,13 +60,16 @@ namespace CSIRO.Metaheuristics.Optimization
             {
                 stepsLength[i] = initialStep;
             }
+            List<IObjectiveScores<T>> scores = new List<IObjectiveScores<T>>();
             while (!terminationCondition.IsFinished() && !isCancelled)
             {
                 var endOfStage = performStage( b, currentPoint, stepsLength );
                 b = endOfStage.Item1;
                 currentPoint = endOfStage.Item2;
+                scores.AddRange(endOfStage.Item3);
             }
-            return new BasicOptimizationResults<T>( new IObjectiveScores<T>[] { currentPoint } );
+            //return new BasicOptimizationResults<T>( new IObjectiveScores<T>[] { currentPoint } );
+            return new BasicOptimizationResults<T>(scores.ToArray());
         }
 
         public string GetDescription( )
@@ -153,20 +156,27 @@ namespace CSIRO.Metaheuristics.Optimization
 
             public ILoggerMh Logger { get; set; }
 
-            public Tuple<IBase, IObjectiveScores<T>> Evolve()
+            public Tuple<IBase, IObjectiveScores<T>, IObjectiveScores<T>[]> Evolve()
             {
                 moveFailedOnce = createNegBoolArray( b.NumDimensions );
                 moveSuccededOnce = createNegBoolArray( b.NumDimensions );
-                while( stageIsComplete( ) == false )
+                List<IObjectiveScores<T>> scores = new List<IObjectiveScores<T>>();
+                while ( stageIsComplete( ) == false )
                 {
-                    currentPoint = makeAMove( b, currentPoint );
+                    var triedPoints = makeAMove( b, currentPoint );
+                    currentPoint = triedPoints.Last();
+                    scores.AddRange(triedPoints);
                     LoggerMhHelper.Write(new IObjectiveScores[]{ currentPoint },
                         createTag(), 
                         Logger);
                 }
                 endPoint = currentPoint;
                 b = createNewBase( b, startingPoint, endPoint );
-                return Tuple.Create( b, currentPoint );
+
+                var paretoRanking = new ParetoRanking<IObjectiveScores<T>>(scores, new ParetoComparer<IObjectiveScores<T>>());
+                IObjectiveScores<T>[] paretoScores = paretoRanking.GetDominatedByParetoRank(0);
+ 
+                return Tuple.Create( b, currentPoint, paretoScores);
             }
 
             private IDictionary<string, string> createTag()
@@ -239,15 +249,17 @@ namespace CSIRO.Metaheuristics.Optimization
                 return result;
             }
 
-            private IObjectiveScores<T> makeAMove( IBase b, IObjectiveScores<T> startPoint )
+            private IObjectiveScores<T>[] makeAMove( IBase b, IObjectiveScores<T> startPoint )
             {
                 IObjectiveScores<T> newPoint = startPoint;
                 int d = b.NumDimensions;
-                for( int i = 0; i < d; i++ )
+                IObjectiveScores<T>[] points = new IObjectiveScores<T>[d];
+                for ( int i = 0; i < d; i++ )
                 {
                     newPoint = makeAMove( i, b, newPoint );
+                    points[i] = newPoint;
                 }
-                return newPoint;
+                return points;
             }
 
             private IObjectiveScores<T> makeAMove( int baseVectorIndex, IBase b, IObjectiveScores<T> startingPoint )
@@ -352,11 +364,11 @@ namespace CSIRO.Metaheuristics.Optimization
             }
         }
 
-        private Tuple<IBase, IObjectiveScores<T>> performStage( IBase b, IObjectiveScores<T> currentPoint, IVector stepsLength )
+        private Tuple<IBase, IObjectiveScores<T>, IObjectiveScores<T>[]> performStage( IBase b, IObjectiveScores<T> currentPoint, IVector stepsLength)
         {
             stage = new Stage( b, currentPoint, stepsLength, alpha, beta, this.countingEvaluator, this.AlgebraProvider, this.terminationCondition, this.logTags);
             stage.Logger = Logger;
-            return stage.Evolve( );
+            return stage.Evolve();
         }
 
         private IBase createNewBase( IObjectiveScores<T> currentPoint )
