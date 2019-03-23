@@ -35,10 +35,12 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="MPI">
+    <Reference Include="MPI, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPI.dll</HintPath>
     </Reference>
-    <Reference Include="MPIUtils">
+    <Reference Include="MPIUtils, Version=0.1.0.0, Culture=neutral, PublicKeyToken=e35b242c18c115bc, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\MPI.NET.1.2.0.0\lib\net40\MPIUtils.dll</HintPath>
     </Reference>
     <Reference Include="System" />

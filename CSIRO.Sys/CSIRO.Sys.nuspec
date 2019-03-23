@@ -8,7 +8,6 @@
     <owners>CSIRO</owners>
     <licenseUrl>https://github.com/jmp75/metaheuristics/blob/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/jmp75/metaheuristics</projectUrl>
-    <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A metaheuristics software framework for .NET</description>
     <releaseNotes>Update dependency on R.NET 1.6.5</releaseNotes>
