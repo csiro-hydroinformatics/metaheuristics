@@ -24,6 +24,8 @@ build_script:
 
     msbuild Metaheuristics.sln /p:Platform="Any CPU" /p:Configuration=Debug
 
+    msbuild Documentation\Tutorials\Tutorials.sln /p:Platform="Any CPU" /p:Configuration=Debug
+
 # Could not use dotnet build on appveyor: native test lib compilation leads to error MSB4019: The imported project "C:\Microsoft.Cpp.Default.props" was not found 
 #    dotnet build --configuration Debug --no-restore
 
