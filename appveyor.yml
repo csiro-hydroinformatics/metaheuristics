@@ -30,7 +30,5 @@ build_script:
 test_script:
 - cmd: >-
     nunit3-console CSIRO.Metaheuristics.Tests/bin/Debug/CSIRO.Metaheuristics.Tests.dll --result=mh_testresults.xml;format=AppVeyor
-
-    #dotnet test CSIRO.Metaheuristics.Tests/CSIRO.Metaheuristics.Tests.csproj
-
-    # nunit3-console CSIRO.Metaheuristics.R/bin/Debug/CSIRO.Metaheuristics.R.dll --result=mh_testresults_r.xml;format=AppVeyor
+  
+# nunit3-console CSIRO.Metaheuristics.R/bin/Debug/CSIRO.Metaheuristics.R.dll --result=mh_testresults_r.xml;format=AppVeyor
