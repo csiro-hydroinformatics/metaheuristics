@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using CSIRO.Metaheuristics;
-using CSIRO.Metaheuristics.SystemConfigurations;
 using CSIRO.Metaheuristics.Optimization;
 using CSIRO.Metaheuristics.RandomNumberGenerators;
 using CSIRO.Metaheuristics.Utils;
-using CSIRO.Modelling.Core;
 using EnvModellingSample;
 using NativeModelWrapper;
 

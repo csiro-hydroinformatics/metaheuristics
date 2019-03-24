@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -7,6 +7,8 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>AWBM_URS</RootNamespace>
     <AssemblyName>AWBM_URS</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -17,6 +19,7 @@
     <WarningLevel>4</WarningLevel>
     <PlatformTarget>x86</PlatformTarget>
     <ConsolePause>false</ConsolePause>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
@@ -25,6 +28,7 @@
     <WarningLevel>4</WarningLevel>
     <Externalconsole>true</Externalconsole>
     <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -35,6 +39,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
@@ -43,6 +48,7 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -53,6 +59,7 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -61,15 +68,10 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="CSIRO.Modelling.Core">
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys">
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -81,16 +83,25 @@
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj">
+      <Project>{db39806a-caff-4c09-8bbd-8f467f9f9e89}</Project>
+      <Name>CSIRO.Modelling.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
+      <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
+      <Name>CSIRO.Sys</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\R\pkgs\mh\src\EnvModellingSample\EnvModellingSample.csproj">
-      <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>
+      <Project>{653139cf-8aa9-42df-b262-f022bc1c9174}</Project>
       <Name>EnvModellingSample</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\R\pkgs\mh\src\ModellingSampleAdapter\ModellingSampleAdapter.csproj">
-      <Project>{E923EE32-D781-4A68-8A2A-672EF4EDBF81}</Project>
+      <Project>{e923ee32-d781-4a68-8a2a-672ef4edbf81}</Project>
       <Name>ModellingSampleAdapter</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
 </Project>

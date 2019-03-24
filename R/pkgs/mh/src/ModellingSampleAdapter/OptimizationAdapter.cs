@@ -3,9 +3,6 @@ using CSIRO.Metaheuristics.SystemConfigurations;
 using CSIRO.Metaheuristics.Utils;
 using CSIRO.Modelling.Core;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace ModellingSampleAdapter
 {

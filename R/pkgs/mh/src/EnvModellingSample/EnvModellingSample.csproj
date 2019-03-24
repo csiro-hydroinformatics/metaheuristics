@@ -51,14 +51,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Modelling.Core, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.9.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.9.0\lib\net40\CSIRO.Sys.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -98,5 +90,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SampleCatchmentData.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj">
+      <Project>{db39806a-caff-4c09-8bbd-8f467f9f9e89}</Project>
+      <Name>CSIRO.Modelling.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
+      <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
+      <Name>CSIRO.Sys</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

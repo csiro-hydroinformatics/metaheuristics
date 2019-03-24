@@ -60,12 +60,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="CSIRO.Modelling.Core">
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Modelling.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="CSIRO.Sys">
-      <HintPath>..\packages\CSIRO.Modelling.Core.0.7.8.0\lib\net40\CSIRO.Sys.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -75,6 +69,14 @@
     <ProjectReference Include="..\..\..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.csproj">
       <Project>{3DB7010E-E47D-45C5-B03E-30F5F1F9C16E}</Project>
       <Name>CSIRO.Metaheuristics</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\CSIRO.Modelling.Core\CSIRO.Modelling.Core.csproj">
+      <Project>{db39806a-caff-4c09-8bbd-8f467f9f9e89}</Project>
+      <Name>CSIRO.Modelling.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\CSIRO.Sys\CSIRO.Sys.csproj">
+      <Project>{58313b13-a161-4b90-b94e-a66b175baf4e}</Project>
+      <Name>CSIRO.Sys</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\..\R\pkgs\mh\src\EnvModellingSample\EnvModellingSample.csproj">
       <Project>{653139CF-8AA9-42DF-B262-F022BC1C9174}</Project>

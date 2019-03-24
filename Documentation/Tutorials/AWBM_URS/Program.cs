@@ -1,12 +1,9 @@
 using System;
 using EnvModellingSample;
 using CSIRO.Metaheuristics;
-using CSIRO.Metaheuristics.SystemConfigurations;
 using CSIRO.Metaheuristics.Optimization;
 using CSIRO.Metaheuristics.RandomNumberGenerators;
 using CSIRO.Metaheuristics.Utils;
-using System.IO;
-using System.Collections.Generic;
 using CSIRO.Modelling.Core;
 
 namespace AWBM_URS

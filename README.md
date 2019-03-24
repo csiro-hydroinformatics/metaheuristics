@@ -1,5 +1,8 @@
 # A simplified metaheuristics framework for .NET
 
+master: [![Build status](https://ci.appveyor.com/api/projects/status/g03tt0taej6s4i35/branch/master?svg=true)](https://ci.appveyor.com/project/jmp75/metaheuristics/branch/master)
+testing: [![Build status](https://ci.appveyor.com/api/projects/status/g03tt0taej6s4i35/branch/testing?svg=true)](https://ci.appveyor.com/project/jmp75/metaheuristics/branch/testing)
+
 ## Purpose
 
 This framework is designed to incorporate the state of the art in metaheuristics software frameworks, yet limiting the software complexity to users who are interested in applying it without advanced knowledge of software or optimisation research. It has been used mainly to calibrate environmental models, mostly hydrology models.
@@ -28,6 +31,8 @@ You will find a series of tutorials under the Documentation folder.
 
 ## Related work
 
+[A C++ metaheuristics framework](https://github.com/jmp75/wila)
+
 ## Building
 
 ```bat
@@ -36,4 +41,11 @@ cd C:\path\to\Metaheuristics.NET
 :: dotnet restore Metaheuristics.sln
 :: assuming msbuild is in your PATH
 msbuild Metaheuristics.sln /p:Platform="Any CPU" /p:Configuration=Release /consoleloggerparameters:ErrorsOnly
+```
+
+Nuget packages:
+
+```bat
+cd C:\path\to\metaheuristics\build\
+.\build_mh_nuget.cmd
 ```

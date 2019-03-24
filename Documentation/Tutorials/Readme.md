@@ -1,11 +1,15 @@
-Tutorials
-==============================================
+# Tutorials
 
 This folder gathers code samples illustrating how to use optimisation tools in this framework.
 
 You can use Visual Studio (Express for Windows, or Professional or above) to open the solution file Tutorials.sln
 
-# Hello World
+## Hello World
+
+```bat
+cd C:\src\blah\metaheuristics\Documentation\Tutorials\HelloWorld\bin\Debug
+HelloWorld.exe
+```
 
 While the traditional Hello World sample is contrived for this toolset, it can still be formulated as a problem that illustrates the fundamental concepts in this framework.
 
@@ -31,11 +35,16 @@ var result = finder.Evolve();
 Console.WriteLine(MetaheuristicsHelper.GetHumanReadable(result));
 ```
 
-# Point time series model
+## Point time series model
+
+```bat
+cd C:\src\github_jm\metaheuristics\Documentation\Tutorials\AWBM_URS\bin\Debug
+AWBM_URS.exe
+```
 
 Placeholder section - demonstrates a crude but structurally meaningful calibration of a point time series model.
 
-# Calibrating a model written in a native language
+## Calibrating a model written in a native language
 
 There are many cases where simulation models are written in a native. From the point of view of the calibration, 
 there is almost no difference with the previous tutorial; indeed this is a deliberate aim of the approach proposed.
