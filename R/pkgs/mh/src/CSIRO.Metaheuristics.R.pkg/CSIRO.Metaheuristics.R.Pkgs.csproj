@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CSIRO.Metaheuristics.R.Pkgs</RootNamespace>
     <AssemblyName>CSIRO.Metaheuristics.R.Pkgs</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -30,20 +30,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="CSIRO.Metaheuristics, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.11.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
+    <Reference Include="CSIRO.Metaheuristics, Version=0.7.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.0.7.12.0\lib\net40\CSIRO.Metaheuristics.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.11.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
+    <Reference Include="CSIRO.Metaheuristics.Parallel, Version=0.7.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.Parallel.0.7.12.0\lib\net40\CSIRO.Metaheuristics.Parallel.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.11.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.11.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
+    <Reference Include="CSIRO.Metaheuristics.R, Version=0.7.12.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.12.0\lib\net40\CSIRO.Metaheuristics.R.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CSIRO.Sys, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.11.0\lib\net40\CSIRO.Sys.dll</HintPath>
+      <HintPath>..\packages\CSIRO.Metaheuristics.R.0.7.12.0\lib\net40\CSIRO.Sys.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CSIRO.Utilities, Version=0.7.9.0, Culture=neutral, processorArchitecture=MSIL">

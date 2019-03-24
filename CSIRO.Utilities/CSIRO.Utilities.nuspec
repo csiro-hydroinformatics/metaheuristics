@@ -11,8 +11,8 @@
     <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A metaheuristics software framework for .NET</description>
-    <releaseNotes>Update dependency on R.NET 1.6.5</releaseNotes>
-    <copyright>Copyright 2015 CSIRO</copyright>
+    <releaseNotes>Update to newer nuget dependencies (MPI, R.NET). Includes changes from pull requests.</releaseNotes>
+    <copyright>Copyright 2010-2019 CSIRO</copyright>
     <tags>Metaheuristics Optimisation Optimization Calibration</tags>
   </metadata>
 </package>

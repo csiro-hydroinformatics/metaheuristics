@@ -1,11 +1,13 @@
-f:
+set MSB=MSBuild.exe
+REM set MSB=%windir%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
 
-set MSB=%windir%\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe
-if not exist %MSB% goto MSBuild_not_found
+where %MSB%
+set where_MSB=%errorlevel%
+if not %where_MSB%==0  goto MSBuild_not_found
 
 :: ======= NuGet settings
 :: Get the nuget tools from nuget.org. There is also one coming with the NuGet plug-on from Visual Studio.
-set nuget_exe=f:\bin\NuGet.exe
+:: set nuget_exe=f:\bin\NuGet.exe
 set nuget_exe=nuget
 
 where %nuget_exe%
@@ -33,12 +35,14 @@ set nuget_conf_file=%AppData%\NuGet\NuGet.config
 :: toolchain, used to build R and R packages on Windows. Any MinGW setup should to.
 set rm_cmd=rm -rf
 
+set containing_dir=%~d0%~p0
+
 :: The target where we will put the resulting nuget packages.
-set repo_dir=%~d0%~p0.\output\
+set repo_dir=%containing_dir%.\output\
 if not exist %repo_dir% mkdir %repo_dir%
 
 :: ================== Location of the source code ========================
-set mh_dir=%~d0%~p0..\
+set mh_dir=%containing_dir%..\
 :: The xcopy options for the nuget packages (and some other build outputs)
 set COPYOPTIONS=/Y /R /D
 
@@ -71,7 +75,7 @@ if exist %mh_dir%build\packages\*.nupkg del %mh_dir%build\packages\*.nupkg
 call %mh_dir%build\cpnuspec.cmd
 xcopy %mh_dir%build\packages\*.nupkg %repo_dir% %COPYOPTIONS%
 
-cd %~d0%~p0
+cd %containing_dir%
 
 set exit_code=0
 

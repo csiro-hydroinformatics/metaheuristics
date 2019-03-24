@@ -1,18 +1,18 @@
-A simplified metaheuristics framework for .NET
-==============================================
+# A simplified metaheuristics framework for .NET
 
-# Purpose
+## Purpose
 
 This framework is designed to incorporate the state of the art in metaheuristics software frameworks, yet limiting the software complexity to users who are interested in applying it without advanced knowledge of software or optimisation research. It has been used mainly to calibrate environmental models, mostly hydrology models.
 
-The purpose of this framework is to define a set of programming interface, rather than replicate optimisation algorithms found in other optimisation frameworks.
+The purpose of this framework is to define a set of programming interfaces, rather than replicate optimisation algorithms found in other optimisation frameworks.
 
-# License
+## License
 
 This software is released under the LGPL v2.1. See LICENSE.txt.
+
 This code depends on third party libraries which may have a different license.
 
-# Requirements
+## Requirements
 
 This framework is written in C#, and designed to compile to target .NET v4.0. Some projects depend on NUnit and Entity Framework, using NuGet packages.
 
@@ -22,10 +22,18 @@ Most projects in the solution use "nuget" packages to handle dependencies on thi
 
 The project CSIRO.Metaheuristics.Parallel uses a modified version the library MPI.NET, currently hosted at https://github.com/jmp75/MPI.NET. Due to platform and version specific aspects of the native MPI libraries, a successful compilation is not trivial. Introductory documentation will not depend on this feature until a build process is documented, so you can ignore CSIRO.Metaheuristics.Parallel for the time being. 
 
-# Getting started
+## Getting started
 
 You will find a series of tutorials under the Documentation folder. 
 
-# Related work
+## Related work
 
+## Building
 
+```bat
+cd C:\path\to\Metaheuristics.NET
+:: Once migrated to .net standard
+:: dotnet restore Metaheuristics.sln
+:: assuming msbuild is in your PATH
+msbuild Metaheuristics.sln /p:Platform="Any CPU" /p:Configuration=Release /consoleloggerparameters:ErrorsOnly
+```
