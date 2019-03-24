@@ -1,0 +1,32 @@
+version: 1.0.{build}
+
+image:
+- Visual Studio 2017
+# - Visual Studio 2015
+
+platform: x64
+
+environment:
+  matrix:
+  # otherwise dotnet restore may fail, when we move to .net standardd 2.0
+  - PLATFORM: Any CPU
+
+branches:
+  only:
+  - testing
+  - master
+
+build_script:
+- cmd: >-
+    msbuild Metaheuristics.sln /p:Platform="Any CPU" /p:Configuration=Debug /consoleloggerparameters:ErrorsOnly
+
+# Could not use dotnet build on appveyor: native test lib compilation leads to error MSB4019: The imported project "C:\Microsoft.Cpp.Default.props" was not found 
+#    dotnet build --configuration Debug --no-restore
+
+test_script:
+- cmd: >-
+    nunit3-console CSIRO.Metaheuristics.Tests/bin/Debug/CSIRO.Metaheuristics.Tests.dll --result=mh_testresults.xml;format=AppVeyor
+
+    #dotnet test CSIRO.Metaheuristics.Tests/CSIRO.Metaheuristics.Tests.csproj
+
+    # nunit3-console CSIRO.Metaheuristics.R/bin/Debug/CSIRO.Metaheuristics.R.dll --result=mh_testresults_r.xml;format=AppVeyor
