@@ -23,7 +23,7 @@ It is developed and tested on Microsoft .NET 4.0 for Windows and for Linux on us
 
 Most projects in the solution use "nuget" packages to handle dependencies on third party libraries (e.g. Entity Framework, NUnit, log4net). See http://docs.nuget.org for further documentation.
 
-The project CSIRO.Metaheuristics.Parallel uses a modified version the library MPI.NET, currently hosted at https://github.com/jmp75/MPI.NET. Due to platform and version specific aspects of the native MPI libraries, a successful compilation is not trivial. Introductory documentation will not depend on this feature until a build process is documented, so you can ignore CSIRO.Metaheuristics.Parallel for the time being. 
+The project CSIRO.Metaheuristics.Parallel uses a modified version the library MPI.NET, currently hosted at [MPI.NET on github](https://github.com/mpidotnet/MPI.NET). Due to platform and version specific aspects of the native MPI libraries, a successful compilation is not trivial. Introductory documentation will not depend on this feature until a build process is documented, so you can ignore CSIRO.Metaheuristics.Parallel for the time being. 
 
 ## Getting started
 
@@ -31,7 +31,7 @@ You will find a series of tutorials under the Documentation folder.
 
 ## Related work
 
-[A C++ metaheuristics framework](https://github.com/jmp75/wila)
+[A C++ metaheuristics framework](https://github.com/csiro-hydroinformatics/wila)
 
 ## Building
 
