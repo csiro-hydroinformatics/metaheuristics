@@ -8,6 +8,11 @@ set THIS_DIR=%~d0%~p0
 set src_nuspec=%THIS_DIR%..\CSIRO.Metaheuristics\CSIRO.Metaheuristics.nuspec
 if not exist "%src_nuspec%" goto noSrcNuspec
 if not defined BuildConfiguration set BuildConfiguration=Debug
+
+@REM BuildPlatform may be "Any CPU" from prior compilations, but this messes up, of course, the pack options. 
+@REM Just use the damn string without this bothersome space. As of Jan 2021 we now do need to specify platforms
+@REM to nuget pack (was not an issue a couple years ago)
+if not defined BuildPlatformNupkg set BuildPlatformNupkg=AnyCPU
 set COPYOPTIONS=/Y /R /D
 
 xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.nuspec %COPYOPTIONS%
@@ -21,7 +26,7 @@ xcopy %src_nuspec% %THIS_DIR%..\CSIRO.Metaheuristics.Tests\CSIRO.Metaheuristics.
 
 set pkg_dir=%THIS_DIR%packages
 if not exist "%pkg_dir%" mkdir %pkg_dir%
-set pack_options=-IncludeReferencedProjects -Verbosity normal -Properties Configuration=%BuildConfiguration% -OutputDirectory %pkg_dir%
+set pack_options=-IncludeReferencedProjects -Verbosity normal -Properties "Configuration=%BuildConfiguration%;Platform=%BuildPlatformNupkg%" -OutputDirectory %pkg_dir%
 
 nuget pack %THIS_DIR%..\CSIRO.Utilities\CSIRO.Utilities.csproj %pack_options%
 nuget pack %THIS_DIR%..\CSIRO.Sys\CSIRO.Sys.csproj %pack_options%

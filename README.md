@@ -35,6 +35,14 @@ You will find a series of tutorials under the Documentation folder.
 
 ## Building
 
+### Windows, visual studio:
+
+In a VS dev prompt for instance: 
+
+```bat
+%comspec% /k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\VC\Auxiliary\Build\vcvars64.bat"
+```
+
 ```bat
 cd C:\path\to\Metaheuristics.NET
 :: Once migrated to .net standard
@@ -48,4 +56,26 @@ Nuget packages:
 ```bat
 cd C:\path\to\metaheuristics\build\
 .\build_mh_nuget.cmd
+```
+
+```bat
+cd C:\src\github_jm\metaheuristics\build
+cd output
+
+:: csiro. *packages
+set api_key=blahblahblahblahblahblahblahblahblahblahblahblah
+
+:: Jan 2021 trying dotnet since nuget.exe does not work????
+set pkg_ver=0.7.13
+set push_opt= --api-key %api_key% --source https://api.nuget.org/v3/index.json
+
+dotnet nuget push CSIRO.Utilities.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Sys.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Modelling.Core.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.DataModel.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.Logging.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.Parallel.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.R.%pkg_ver%.nupkg %push_opt%
+dotnet nuget push CSIRO.Metaheuristics.Tests.%pkg_ver%.nupkg %push_opt%
 ```

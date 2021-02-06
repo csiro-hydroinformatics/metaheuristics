@@ -4,15 +4,15 @@
     <id>$id$</id>
     <version>$version$</version>
     <title>$title$</title>
-    <authors>Jean-Michel Perraud</authors>
+    <authors>Jean-Michel Perraud, Daniel Collins</authors>
     <owners>CSIRO</owners>
-    <licenseUrl>https://github.com/jmp75/metaheuristics/blob/master/LICENSE.txt</licenseUrl>
-    <projectUrl>https://github.com/jmp75/metaheuristics</projectUrl>
+    <licenseUrl>https://github.com/csiro-hydroinformatics/metaheuristics/blob/master/LICENSE.txt</licenseUrl>
+    <projectUrl>https://github.com/csiro-hydroinformatics/metaheuristics</projectUrl>
     <!--iconUrl>http://ICON_URL_HERE_OR_DELETE_THIS_LINE</iconUrl-->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A metaheuristics software framework for .NET</description>
-    <releaseNotes>Update to newer nuget dependencies (MPI, R.NET). Includes changes from pull requests.</releaseNotes>
-    <copyright>Copyright 2010-2019 CSIRO</copyright>
+    <releaseNotes>Update to latest nuget dependencies (MPI, R.NET)</releaseNotes>
+    <copyright>Copyright 2010-2021 CSIRO</copyright>
     <tags>Metaheuristics Optimisation Optimization Calibration</tags>
   </metadata>
 </package>
